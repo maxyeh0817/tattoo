@@ -223,7 +223,16 @@ class _CourseTableTabPlaceholder extends StatelessWidget {
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.all(16),
-      child: Text('Course table placeholder: $semester'),
+      child: Center(
+        child: SizedBox(
+          width: 70,
+          height: 60,
+          child: CourseTableBlock(
+            courseBlock: mockCourseTableBlock,
+            blockColor: Colors.orange,
+          ),
+        ),
+      ),
     );
   }
 }
