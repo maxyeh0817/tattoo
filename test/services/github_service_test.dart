@@ -1,6 +1,25 @@
+import 'dart:typed_data';
+
 import 'package:flutter_test/flutter_test.dart';
 import 'package:tattoo/models/contributor.dart';
 import 'package:tattoo/services/github_service.dart';
+import 'package:tattoo/utils/http.dart';
+
+class MockAdapter implements HttpClientAdapter {
+  final Future<ResponseBody> Function(RequestOptions) onFetch;
+  MockAdapter(this.onFetch);
+
+  @override
+  Future<ResponseBody> fetch(
+    RequestOptions options,
+    Stream<Uint8List>? requestStream,
+    Future<void>? cancelFuture,
+  ) =>
+      onFetch(options);
+
+  @override
+  void close({bool force = false}) {}
+}
 
 void main() {
   group('Contributor Model', () {
@@ -23,27 +42,50 @@ void main() {
     });
   });
 
-  group('GithubService Integration Tests', () {
+  group('GithubService', () {
     late GithubService githubService;
 
     setUp(() {
       githubService = GithubService();
     });
 
-    test(
-      'should fetch contributors from NTUT-NPC/tattoo and exclude bots',
-      () async {
+    group('getContributors', () {
+      test('fetches and filters contributors excluding bots', () async {
         final contributors = await githubService.getContributors();
 
         expect(contributors, isNotEmpty);
         expect(contributors.every((c) => !c.isBot), isTrue);
-        expect(contributors.any((c) => c.login.isNotEmpty), true);
-      },
-    );
+        expect(contributors.every((c) => c.login.isNotEmpty), isTrue);
+      });
 
-    test('should handle API errors gracefully', () async {
-      final contributors = await githubService.getContributors();
-      expect(contributors, isList);
+      test('returns empty list if response data is not a list', () async {
+        githubService.dio.httpClientAdapter = MockAdapter((options) async {
+          return ResponseBody.fromBytes(
+            Uint8List.fromList('{"message": "Success"}'.codeUnits),
+            200,
+            headers: {
+              Headers.contentTypeHeader: [Headers.jsonContentType],
+            },
+          );
+        });
+
+        final contributors = await githubService.getContributors();
+        expect(contributors, isEmpty);
+      });
+
+      test('propagates DioException on connection error', () async {
+        githubService.dio.httpClientAdapter = MockAdapter((options) async {
+          throw DioException(
+            requestOptions: options,
+            type: DioExceptionType.connectionError,
+          );
+        });
+
+        expect(
+          () => githubService.getContributors(),
+          throwsA(isA<DioException>()),
+        );
+      });
     });
   });
 }
