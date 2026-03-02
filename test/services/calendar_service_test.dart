@@ -20,6 +20,7 @@ void main() {
         TestCredentials.username,
         TestCredentials.password,
       );
+      await respectfulDelay();
     });
 
     test('should return calendar events for a semester date range', () async {
