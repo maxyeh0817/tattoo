@@ -17,6 +17,7 @@ class AboutScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final contributorsAsync = ref.watch(contributorsProvider);
+    final theme = Theme.of(context);
 
     return Scaffold(
       appBar: AppBar(
@@ -42,10 +43,9 @@ class AboutScreen extends ConsumerWidget {
                         ),
                         Text(
                           t.general.appTitle,
-                          style: Theme.of(context).textTheme.headlineSmall
-                              ?.copyWith(
-                                fontWeight: FontWeight.bold,
-                              ),
+                          style: theme.textTheme.headlineSmall?.copyWith(
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
                         FutureBuilder<PackageInfo>(
                           future: PackageInfo.fromPlatform(),
@@ -55,10 +55,9 @@ class AboutScreen extends ConsumerWidget {
                                 snapshot.data?.buildNumber ?? '...';
                             return Text(
                               '$version ($buildNumber)',
-                              style: Theme.of(context).textTheme.bodyMedium
-                                  ?.copyWith(
-                                    color: Theme.of(context).hintColor,
-                                  ),
+                              style: theme.textTheme.bodyMedium?.copyWith(
+                                color: theme.hintColor,
+                              ),
                             );
                           },
                         ),
