@@ -78,10 +78,10 @@ class CalendarService {
     );
 
     final List<dynamic> events = jsonDecode(response.data);
-    return events.map<CalendarEventDto>((e) {
-      String? normalizeEmpty(String? value) =>
-          value?.isNotEmpty == true ? value : null;
+    String? normalizeEmpty(String? value) =>
+        value?.isNotEmpty == true ? value : null;
 
+    return events.map<CalendarEventDto>((e) {
       return (
         id: e['id'] as int?,
         calStart: e['calStart'] as int?,
