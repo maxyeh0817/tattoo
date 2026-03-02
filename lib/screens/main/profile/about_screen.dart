@@ -11,12 +11,17 @@ import 'package:tattoo/models/contributor.dart';
 import 'package:tattoo/services/github_service.dart';
 import 'package:url_launcher/url_launcher.dart';
 
+final packageInfoProvider = FutureProvider.autoDispose<PackageInfo>((ref) {
+  return PackageInfo.fromPlatform();
+});
+
 class AboutScreen extends ConsumerWidget {
   const AboutScreen({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final contributorsAsync = ref.watch(contributorsProvider);
+    final packageInfoAsync = ref.watch(packageInfoProvider);
     final theme = Theme.of(context);
 
     return Scaffold(
@@ -47,19 +52,25 @@ class AboutScreen extends ConsumerWidget {
                             fontWeight: FontWeight.bold,
                           ),
                         ),
-                        FutureBuilder<PackageInfo>(
-                          future: PackageInfo.fromPlatform(),
-                          builder: (context, snapshot) {
-                            final version = snapshot.data?.version ?? '...';
-                            final buildNumber =
-                                snapshot.data?.buildNumber ?? '...';
-                            return Text(
-                              '$version ($buildNumber)',
-                              style: theme.textTheme.bodyMedium?.copyWith(
-                                color: theme.hintColor,
-                              ),
-                            );
-                          },
+                        packageInfoAsync.when(
+                          data: (packageInfo) => Text(
+                            '${packageInfo.version} (${packageInfo.buildNumber})',
+                            style: theme.textTheme.bodyMedium?.copyWith(
+                              color: theme.hintColor,
+                            ),
+                          ),
+                          loading: () => Text(
+                            '... (...)',
+                            style: theme.textTheme.bodyMedium?.copyWith(
+                              color: theme.hintColor,
+                            ),
+                          ),
+                          error: (error, stackTrace) => Text(
+                            '... (...)',
+                            style: theme.textTheme.bodyMedium?.copyWith(
+                              color: theme.hintColor,
+                            ),
+                          ),
                         ),
                       ],
                     ),
@@ -77,7 +88,7 @@ class AboutScreen extends ConsumerWidget {
                       spacing: 8,
                       children: [
                         SectionHeader(title: t.about.relatedLinks),
-                        OptionEntryTile(
+                        OptionEntryTile.icon(
                           icon: Icons.code,
                           title: 'GitHub',
                           description: t.about.viewSource,
@@ -85,7 +96,7 @@ class AboutScreen extends ConsumerWidget {
                             Uri.parse('https://github.com/NTUT-NPC/tattoo'),
                           ),
                         ),
-                        OptionEntryTile(
+                        OptionEntryTile.icon(
                           icon: Icons.translate,
                           title: 'Crowdin',
                           description: t.about.helpTranslate,
@@ -107,7 +118,7 @@ class AboutScreen extends ConsumerWidget {
                             children: [
                               ...contributors.map(
                                 (Contributor contributor) => OptionEntryTile(
-                                  customLeading: ClipRRect(
+                                  leading: ClipRRect(
                                     borderRadius: BorderRadius.circular(12),
                                     child: Image.network(
                                       contributor.avatarUrl,
@@ -132,7 +143,7 @@ class AboutScreen extends ConsumerWidget {
                                       launchUrl(Uri.parse(contributor.htmlUrl)),
                                 ),
                               ),
-                              OptionEntryTile(
+                              OptionEntryTile.svg(
                                 svgIconAsset: 'assets/npc_logo.svg',
                                 title: t.profile.options.npcClub,
                                 actionIcon: OptionEntryTileActionIcon.exitToApp,
@@ -146,14 +157,14 @@ class AboutScreen extends ConsumerWidget {
                               spacing: 8,
                               children: List.generate(
                                 3,
-                                (index) => const OptionEntryTile(
+                                (index) => const OptionEntryTile.icon(
                                   icon: Icons.person,
                                   title: 'Contributor Name',
                                 ),
                               ),
                             ),
                           ),
-                          error: (err, stack) => OptionEntryTile(
+                          error: (err, stack) => OptionEntryTile.svg(
                             svgIconAsset: 'assets/npc_logo.svg',
                             title: t.profile.options.npcClub,
                             onTap: () =>

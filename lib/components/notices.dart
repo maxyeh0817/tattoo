@@ -73,7 +73,7 @@ class ClearNotice extends StatelessWidget {
 /// ```dart
 /// Column(
 ///   children: const [
-///     OptionEntryTile(
+///     OptionEntryTile.icon(
 ///       icon: Icons.info_outline,
 ///       title: 'About',
 ///     ),

@@ -13,7 +13,7 @@ enum OptionEntryTileActionIcon {
 /// A reusable, tappable option row used in settings/profile style lists.
 ///
 /// The tile renders:
-/// 1. A leading icon ([icon], [svgIconAsset], or [customLeading])
+/// 1. A leading widget
 /// 2. A title ([title]) and optional description ([description])
 /// 3. A trailing action icon, chosen from [actionIcon] or overridden by
 ///    [customActionIcon]
@@ -22,55 +22,73 @@ enum OptionEntryTileActionIcon {
 ///
 /// Example:
 /// ```dart
-/// OptionEntryTile(
+/// OptionEntryTile.icon(
 ///   icon: Icons.person_outline_rounded,
 ///   title: 'Profile',
 ///   description: 'View and edit your profile',
 ///   onTap: () => context.push('/profile'),
 /// );
 ///
-/// OptionEntryTile(
+/// OptionEntryTile.svg(
 ///   svgIconAsset: 'assets/settings.svg',
 ///   title: 'Settings',
 ///   onTap: openSettings,
 /// );
 ///
 /// OptionEntryTile(
-///   customLeading: CircleAvatar(child: Text('A')),
+///   leading: CircleAvatar(child: Text('A')),
 ///   title: 'Account',
 ///   onTap: openAccount,
 /// );
 /// ```
 class OptionEntryTile extends StatelessWidget {
-  /// Creates an [OptionEntryTile].
+  /// Creates an [OptionEntryTile] with a custom leading widget.
   const OptionEntryTile({
     super.key,
-    this.icon = Icons.adjust_outlined,
-    this.svgIconAsset,
-    this.customLeading,
+    required Widget leading,
     required this.title,
     this.description,
     this.onTap,
     this.actionIcon = OptionEntryTileActionIcon.navigateNext,
     this.customActionIcon,
-  }) : assert(
-         icon != null || svgIconAsset != null || customLeading != null,
-         'Either icon, svgIconAsset, or customLeading must be provided.',
-       );
+  }) : _leading = leading,
+       _icon = null,
+       _svgIconAsset = null;
 
-  /// Leading icon shown at the start of the row.
-  ///
-  /// Defaults to [Icons.adjust_outlined] when not provided.
-  final IconData? icon;
+  /// Creates an [OptionEntryTile] with a built-in [Icon] as the leading widget.
+  const OptionEntryTile.icon({
+    super.key,
+    required IconData icon,
+    required this.title,
+    this.description,
+    this.onTap,
+    this.actionIcon = OptionEntryTileActionIcon.navigateNext,
+    this.customActionIcon,
+  }) : _leading = null,
+       _icon = icon,
+       _svgIconAsset = null;
 
-  /// Leading SVG icon asset path shown at the start of the row.
-  ///
-  /// When multiple leading options are provided, priority is:
-  /// [customLeading] > [svgIconAsset] > [icon].
-  final String? svgIconAsset;
+  /// Creates an [OptionEntryTile] with an SVG asset as the leading widget.
+  const OptionEntryTile.svg({
+    super.key,
+    required String svgIconAsset,
+    required this.title,
+    this.description,
+    this.onTap,
+    this.actionIcon = OptionEntryTileActionIcon.navigateNext,
+    this.customActionIcon,
+  }) : _leading = null,
+       _icon = null,
+       _svgIconAsset = svgIconAsset;
 
   /// Custom leading widget shown at the start of the row.
-  final Widget? customLeading;
+  final Widget? _leading;
+
+  /// Leading icon shown at the start of the row.
+  final IconData? _icon;
+
+  /// Leading SVG icon asset path shown at the start of the row.
+  final String? _svgIconAsset;
 
   /// Primary label shown in a prominent text style.
   final String title;
@@ -114,22 +132,7 @@ class OptionEntryTile extends StatelessWidget {
               spacing: 12,
               children: [
                 Center(
-                  child:
-                      customLeading ??
-                      (svgIconAsset != null
-                          ? SizedBox.square(
-                              dimension: 24,
-                              child: SvgPicture.asset(
-                                svgIconAsset!,
-                                fit: BoxFit.contain,
-                                alignment: Alignment.center,
-                                colorFilter: ColorFilter.mode(
-                                  colorScheme.primary,
-                                  BlendMode.srcIn,
-                                ),
-                              ),
-                            )
-                          : Icon(icon, color: colorScheme.primary)),
+                  child: _buildLeading(colorScheme),
                 ),
 
                 Expanded(
@@ -167,5 +170,23 @@ class OptionEntryTile extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  Widget _buildLeading(ColorScheme colorScheme) {
+    if (_leading != null) return _leading!;
+
+    if (_svgIconAsset != null) {
+      return SizedBox.square(
+        dimension: 24,
+        child: SvgPicture.asset(
+          _svgIconAsset!,
+          fit: BoxFit.contain,
+          alignment: Alignment.center,
+          colorFilter: ColorFilter.mode(colorScheme.primary, BlendMode.srcIn),
+        ),
+      );
+    }
+
+    return Icon(_icon, color: colorScheme.primary);
   }
 }
