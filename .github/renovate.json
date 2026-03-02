@@ -11,12 +11,12 @@
   },
   "packageRules": [
     {
-      "matchPackageNames": [
-        "dart",
-        "dev.flutter.flutter-plugin-loader",
-        "java",
-        "ruby"
-      ],
+      "matchPackageNames": ["dart", "dev.flutter.flutter-plugin-loader"],
+      "enabled": false
+    },
+    {
+      "matchManagers": ["mise"],
+      "matchPackageNames": ["java", "ruby"],
       "enabled": false
     },
     {
