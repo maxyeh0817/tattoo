@@ -31,8 +31,14 @@ void main() {
 
       expect(events, isNotEmpty, reason: 'Semester should have events');
 
-      // Verify structure of first event (skip holidays with empty titles)
-      final event = events.firstWhere((e) => e.calTitle != null);
+      // Verify structure of first non-holiday event (skip holidays with empty titles)
+      final namedEvents = events.where((e) => e.calTitle != null).toList();
+      expect(
+        namedEvents,
+        isNotEmpty,
+        reason: 'Semester should have at least one event with a non-null title',
+      );
+      final event = namedEvents.first;
       expect(event.calTitle, isNotNull, reason: 'Event should have a title');
       expect(
         event.calStart,
