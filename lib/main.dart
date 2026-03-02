@@ -35,18 +35,11 @@ Future<void> main() async {
   void showErrorDialog(Object error, {ErrorType type = ErrorType.unknown}) {
     final context = rootNavigatorKey.currentContext;
     if (context == null) return;
-    String errorTitle = t.errors.occurred;
-    // get i18n string for error type, default to "An error occurred" if type is empty or not found
-    switch (type) {
-      case ErrorType.flutter:
-        errorTitle = t.errors.flutterError;
-        break;
-      case ErrorType.async:
-        errorTitle = t.errors.asyncError;
-        break;
-      case ErrorType.unknown:
-        errorTitle = t.errors.occurred;
-    }
+    final errorTitle = switch (type) {
+      ErrorType.flutter => t.errors.flutterError,
+      ErrorType.async => t.errors.asyncError,
+      ErrorType.unknown => t.errors.occurred,
+    };
 
     showDialog(
       context: context,
