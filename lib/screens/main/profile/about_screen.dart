@@ -113,6 +113,18 @@ class AboutScreen extends ConsumerWidget {
                                       contributor.avatarUrl,
                                       width: 24,
                                       height: 24,
+                                      errorBuilder:
+                                          (context, error, stackTrace) =>
+                                              Container(
+                                                width: 24,
+                                                height: 24,
+                                                color: theme.dividerColor,
+                                                child: const Icon(
+                                                  Icons.person,
+                                                  size: 16,
+                                                  color: Colors.white,
+                                                ),
+                                              ),
                                     ),
                                   ),
                                   title: contributor.login,
