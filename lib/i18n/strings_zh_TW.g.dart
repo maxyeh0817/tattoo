@@ -402,8 +402,8 @@ class TranslationsAboutEasterZhTw {
 	/// zh-TW: '已經吃飽了'
 	String get full => '已經吃飽了';
 
-	/// zh-TW: '去酒吧{action}'
-	String get goBar => '去酒吧{action}';
+	/// zh-TW: '去酒吧${action}'
+	String goBar({required Object action}) => '去酒吧${action}';
 
 	List<String> get actions => [
 		'點 0 杯啤酒',
@@ -538,7 +538,7 @@ extension on Translations {
 			'about.easter.barClosed' => '酒吧今天打烊了，改天再來探索吧！',
 			'about.easter.barKicked' => '你被店員勸退，還是早點回家休息吧～',
 			'about.easter.full' => '已經吃飽了',
-			'about.easter.goBar' => '去酒吧{action}',
+			'about.easter.goBar' => ({required Object action}) => '去酒吧${action}',
 			'about.easter.actions.0' => '點 0 杯啤酒',
 			'about.easter.actions.1' => '點 999999999 杯啤酒',
 			'about.easter.actions.2' => '點 1 支蜥蜴',

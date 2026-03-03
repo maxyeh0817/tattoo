@@ -273,7 +273,7 @@ class _TranslationsAboutEasterEn extends TranslationsAboutEasterZhTw {
 	@override String get barClosed => 'The bar is closed today, come back another time to explore!';
 	@override String get barKicked => 'You were kicked out by the staff, you should go home and rest early~';
 	@override String get full => 'Already full';
-	@override String get goBar => 'Go to the bar {action}';
+	@override String goBar({required Object action}) => 'Go to the bar ${action}';
 	@override List<String> get actions => [
 		'order 0 beers',
 		'order 999999999 beers',
@@ -395,7 +395,7 @@ extension on TranslationsEn {
 			'about.easter.barClosed' => 'The bar is closed today, come back another time to explore!',
 			'about.easter.barKicked' => 'You were kicked out by the staff, you should go home and rest early~',
 			'about.easter.full' => 'Already full',
-			'about.easter.goBar' => 'Go to the bar {action}',
+			'about.easter.goBar' => ({required Object action}) => 'Go to the bar ${action}',
 			'about.easter.actions.0' => 'order 0 beers',
 			'about.easter.actions.1' => 'order 999999999 beers',
 			'about.easter.actions.2' => 'order 1 lizard',

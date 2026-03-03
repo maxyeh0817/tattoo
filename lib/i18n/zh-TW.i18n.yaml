@@ -86,7 +86,7 @@ about:
     barClosed: "酒吧今天打烊了，改天再來探索吧！"
     barKicked: "你被店員勸退，還是早點回家休息吧～"
     full: "已經吃飽了"
-    goBar: "去酒吧{action}"
+    goBar: "去酒吧${action}"
     actions:
       - 點 0 杯啤酒
       - 點 999999999 杯啤酒
