@@ -87,29 +87,30 @@ runs:
         restore-keys: |
           ${{ runner.os }}-pods-
 
-    - name: Check Podfile.lock drift
-      id: podfile-lock
+    - name: Check iOS config drift
+      id: ios-drift
       if: ${{ inputs.platform == 'ios' }}
       shell: bash
       run: |
         flutter build ios --config-only --no-pub --no-codesign
 
-        if git diff --quiet ios/Podfile.lock; then
+        if git diff --quiet ios/; then
           echo "changed=false" >> $GITHUB_OUTPUT
         else
+          git diff --text ios/ > ios-drift.patch
           echo "changed=true" >> $GITHUB_OUTPUT
         fi
 
-    - name: Upload corrected Podfile.lock
-      if: ${{ inputs.platform == 'ios' && steps.podfile-lock.outputs.changed == 'true' }}
+    - name: Upload iOS drift patch
+      if: ${{ inputs.platform == 'ios' && steps.ios-drift.outputs.changed == 'true' }}
       uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v7.0.0
       with:
         archive: false
-        path: ios/Podfile.lock
+        path: ios-drift.patch
 
-    - name: Fail on Podfile.lock drift
-      if: ${{ inputs.platform == 'ios' && steps.podfile-lock.outputs.changed == 'true' }}
+    - name: Fail on iOS config drift
+      if: ${{ inputs.platform == 'ios' && steps.ios-drift.outputs.changed == 'true' }}
       shell: bash
       run: |
-        echo "::error::ios/Podfile.lock is out of date. Download the artifact and apply it."
+        echo "::error::ios/ has uncommitted changes after flutter build ios --config-only. Download the patch artifact and apply it with: git apply ios-drift.patch"
         exit 1
