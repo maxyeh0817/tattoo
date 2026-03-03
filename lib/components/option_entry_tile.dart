@@ -47,7 +47,7 @@ class OptionEntryTile extends StatelessWidget {
   /// Creates an [OptionEntryTile] with a custom leading widget.
   const OptionEntryTile({
     super.key,
-    required Widget leading,
+    Widget leading = const Icon(Icons.adjust_outlined),
     required this.title,
     this.description,
     this.onTap,
@@ -214,7 +214,7 @@ void optionEntryTilePreviewOnTap() {}
 @Preview(
   name: 'OptionEntryTile - Profile Options Block',
   group: 'OptionEntryTile',
-  size: Size(420, 360),
+  size: Size(420, 600),
 )
 Widget optionEntryTileProfileOptionsPreview() {
   return _optionEntryTilePreviewFrame(
@@ -224,17 +224,17 @@ Widget optionEntryTileProfileOptionsPreview() {
         spacing: 8,
         mainAxisSize: MainAxisSize.min,
         children: [
-          OptionEntryTile(
+          OptionEntryTile.icon(
             icon: Icons.image,
             title: t.profile.options.changeAvatar,
             onTap: optionEntryTilePreviewOnTap,
           ),
-          OptionEntryTile(
+          OptionEntryTile.icon(
             icon: Icons.logout,
             title: t.profile.options.logout,
             onTap: optionEntryTilePreviewOnTap,
           ),
-          OptionEntryTile(
+          OptionEntryTile.svg(
             svgIconAsset: 'assets/npc_logo.svg',
             title: t.profile.options.npcClub,
             actionIcon: OptionEntryTileActionIcon.exitToApp,
@@ -243,6 +243,15 @@ Widget optionEntryTileProfileOptionsPreview() {
           OptionEntryTile(
             title: t.general.unknown,
             description: "這是一個帶描述的範例元件，採用預設 Icon。",
+            onTap: optionEntryTilePreviewOnTap,
+          ),
+          OptionEntryTile(
+            title: t.general.unknown,
+            description: "Custom Leading Widget.",
+            leading: const CircleAvatar(
+              radius: 12,
+              backgroundColor: Colors.blue,
+            ),
             onTap: optionEntryTilePreviewOnTap,
           ),
         ],
