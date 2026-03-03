@@ -46,6 +46,7 @@ class TranslationsEn extends Translations with BaseTranslations<AppLocale, Trans
 	@override late final _TranslationsNavEn nav = _TranslationsNavEn._(_root);
 	@override late final _TranslationsProfileEn profile = _TranslationsProfileEn._(_root);
 	@override late final _TranslationsEnrollmentStatusEn enrollmentStatus = _TranslationsEnrollmentStatusEn._(_root);
+	@override late final _TranslationsAboutEn about = _TranslationsAboutEn._(_root);
 }
 
 // Path: general
@@ -152,6 +153,21 @@ class _TranslationsEnrollmentStatusEn extends TranslationsEnrollmentStatusZhTw {
 	@override String get learning => 'Enrolled';
 	@override String get leaveOfAbsence => 'Leave of Absence';
 	@override String get droppedOut => 'Withdrawn';
+}
+
+// Path: about
+class _TranslationsAboutEn extends TranslationsAboutZhTw {
+	_TranslationsAboutEn._(TranslationsEn root) : this._root = root, super.internal(root);
+
+	final TranslationsEn _root; // ignore: unused_field
+
+	// Translations
+	@override String get description => 'Project Tattoo (TAT) is an unofficial campus life assistant for National Taipei University of Technology (NTUT). Our goal is to provide a better student experience through a modern and user-friendly interface.';
+	@override String get developers => 'Developers';
+	@override String get helpTranslate => 'Help us translate TAT!';
+	@override String get viewSource => 'View source code and contributions';
+	@override String get relatedLinks => 'Related Links';
+	@override String get copyright => '© 2025 NTUT Programming Club\nLicensed under the GNU GPL v3.0';
 }
 
 // Path: intro.features
@@ -329,6 +345,12 @@ extension on TranslationsEn {
 			'enrollmentStatus.learning' => 'Enrolled',
 			'enrollmentStatus.leaveOfAbsence' => 'Leave of Absence',
 			'enrollmentStatus.droppedOut' => 'Withdrawn',
+			'about.description' => 'Project Tattoo (TAT) is an unofficial campus life assistant for National Taipei University of Technology (NTUT). Our goal is to provide a better student experience through a modern and user-friendly interface.',
+			'about.developers' => 'Developers',
+			'about.helpTranslate' => 'Help us translate TAT!',
+			'about.viewSource' => 'View source code and contributions',
+			'about.relatedLinks' => 'Related Links',
+			'about.copyright' => '© 2025 NTUT Programming Club\nLicensed under the GNU GPL v3.0',
 			_ => null,
 		};
 	}
