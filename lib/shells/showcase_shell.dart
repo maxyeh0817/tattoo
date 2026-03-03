@@ -1,20 +1,20 @@
 import 'package:flutter/material.dart';
 
-class ScrollableShowcaseTemplate extends StatelessWidget {
-  const ScrollableShowcaseTemplate({
+class ShowcaseShell extends StatelessWidget {
+  const ShowcaseShell({
     super.key,
     required this.icon,
     required this.title,
     this.subtitle,
-    required this.content,
-    required this.bottom,
+    required this.body,
+    required this.footer,
   });
 
   final Widget icon;
   final String title;
   final String? subtitle;
-  final Widget content;
-  final Widget bottom;
+  final Widget body;
+  final Widget footer;
 
   @override
   Widget build(BuildContext context) {
@@ -68,12 +68,12 @@ class ScrollableShowcaseTemplate extends StatelessWidget {
                   Spacer(flex: 1),
 
                   // Features list
-                  content,
+                  body,
 
                   Spacer(flex: 2),
 
                   // Logo and disclaimer
-                  bottom,
+                  footer,
                 ],
               ),
             ),

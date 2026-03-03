@@ -4,7 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:tattoo/components/notices.dart';
 import 'package:tattoo/i18n/strings.g.dart';
 import 'package:tattoo/router/app_router.dart';
-import 'package:tattoo/templates/scrollable_showcase_template.dart';
+import 'package:tattoo/shells/showcase_shell.dart';
 
 class IntroScreen extends StatefulWidget {
   const IntroScreen({super.key});
@@ -28,7 +28,7 @@ class _IntroScreenState extends State<IntroScreen>
       height: verticalPadding,
     );
 
-    final content = Column(
+    final body = Column(
       spacing: 8,
       children: [
         _FeatureCard(
@@ -49,7 +49,7 @@ class _IntroScreenState extends State<IntroScreen>
       ],
     );
 
-    final bottom = ClearNoticeVertical(
+    final footer = ClearNoticeVertical(
       icon: SvgPicture.asset(
         'assets/npc_horizontal.svg',
         height: 24,
@@ -65,11 +65,11 @@ class _IntroScreenState extends State<IntroScreen>
       body: SafeArea(
         child: Stack(
           children: [
-            ScrollableShowcaseTemplate(
+            ShowcaseShell(
               icon: icon,
               title: title,
-              content: content,
-              bottom: bottom,
+              body: body,
+              footer: footer,
             ),
 
             // Bottom button with gradient fade
