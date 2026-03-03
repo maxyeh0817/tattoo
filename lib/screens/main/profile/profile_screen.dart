@@ -125,19 +125,19 @@ class ProfileScreen extends ConsumerWidget {
     // settings options for the profile tab
     final options = [
       SectionHeader(title: t.profile.sections.accountSettings),
-      OptionEntryTile(
+      OptionEntryTile.icon(
         icon: Icons.password,
         title: t.profile.options.changePassword,
         onTap: () => _showDemoTap(context),
       ),
-      OptionEntryTile(
+      OptionEntryTile.icon(
         icon: Icons.image,
         title: t.profile.options.changeAvatar,
         onTap: () => _changeAvatar(context, ref),
       ),
 
       SectionHeader(title: t.$wip('資訊系統')),
-      OptionEntryTile(
+      OptionEntryTile.icon(
         icon: Icons.open_in_browser,
         title: t.$wip('學生查詢專區'),
         onTap: () =>
@@ -146,12 +146,12 @@ class ProfileScreen extends ConsumerWidget {
 
       SectionHeader(title: 'TAT'),
       // TODO: remove before release
-      OptionEntryTile(
+      OptionEntryTile.icon(
         icon: Icons.rice_bowl_outlined,
         title: '點一碗炒飯',
         onTap: () => throw Exception('炒飯'),
       ),
-      OptionEntryTile(
+      OptionEntryTile.icon(
         icon: Icons.bug_report_outlined,
         title: '非 Flutter 框架崩潰',
         onTap: () async {
@@ -161,52 +161,32 @@ class ProfileScreen extends ConsumerWidget {
           });
         },
       ),
-      OptionEntryTile(
+      OptionEntryTile.icon(
         icon: Icons.favorite_border_outlined,
         title: t.profile.options.supportUs,
         onTap: () => _showDemoTap(context),
       ),
-      OptionEntryTile(
+      OptionEntryTile.icon(
         icon: Icons.info_outline,
         title: t.profile.options.about,
-        onTap: () => _showDemoTap(context),
+        onTap: () => context.push(AppRoutes.about),
       ),
-      OptionEntryTile(
+      OptionEntryTile.svg(
         svgIconAsset: "assets/npc_logo.svg",
         title: t.profile.options.npcClub,
-        onTap: () => _showDemoTap(context),
+        onTap: () => launchUrl(Uri.parse('https://ntut.club')),
       ),
 
       SectionHeader(title: t.profile.sections.appSettings),
-      OptionEntryTile(
+      OptionEntryTile.icon(
         icon: Icons.settings_outlined,
         title: t.profile.options.preferences,
         onTap: () => _showDemoTap(context),
       ),
-      OptionEntryTile(
+      OptionEntryTile.icon(
         icon: Icons.logout,
         title: t.profile.options.logout,
         onTap: () => _logout(context, ref),
-      ),
-    ];
-
-    final notices = [
-      // TODO: make notices dynamic and animated.
-      SectionHeader(title: t.profile.sections.notices),
-
-      BackgroundNotice(
-        text: t.profile.notices.betaTesting,
-        noticeType: NoticeType.info,
-      ),
-
-      BackgroundNotice(
-        text: t.profile.notices.passwordExpiring,
-        noticeType: NoticeType.warning,
-      ),
-
-      BackgroundNotice(
-        text: t.profile.notices.connectionError,
-        noticeType: NoticeType.error,
       ),
     ];
 
@@ -226,11 +206,6 @@ class ProfileScreen extends ConsumerWidget {
 
                       ClearNotice(
                         text: t.profile.dataDisclaimer,
-                      ),
-
-                      Column(
-                        spacing: 8,
-                        children: notices,
                       ),
 
                       Column(

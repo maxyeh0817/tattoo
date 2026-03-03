@@ -5,10 +5,11 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:tattoo/firebase_options.dart';
 import 'package:tattoo/i18n/strings.g.dart';
+import 'package:tattoo/repositories/auth_repository.dart';
 import 'package:tattoo/router/app_router.dart';
-import 'package:go_router/go_router.dart';
 import 'package:tattoo/services/firebase_service.dart';
 
 enum ErrorType {
@@ -34,11 +35,6 @@ Future<void> main() async {
   final firebase = container.read(firebaseServiceProvider);
 
   firebase.log('App starting...');
-
-  // build GoRouter using the same FirebaseService instance so that the
-  // analytics observer is managed by Riverpod instead of creating a
-  // throwaway service in `app_router.dart`.
-  final router = createAppRouter(firebase);
 
   void showErrorDialog(Object error, {ErrorType type = ErrorType.unknown}) {
     final context = rootNavigatorKey.currentContext;
@@ -84,18 +80,27 @@ Future<void> main() async {
 
   await LocaleSettings.useDeviceLocale();
 
+  final authRepository = container.read(authRepositoryProvider);
+  final user = await authRepository.getUser();
+  final initialLocation = user != null ? AppRoutes.home : AppRoutes.intro;
+  final router = createAppRouter(firebase, initialLocation: initialLocation);
+
   runApp(
     UncontrolledProviderScope(
       container: container,
-      child: TranslationProvider(child: MyApp(router: router)),
+      child: TranslationProvider(
+        child: MyApp(router: router),
+      ),
     ),
   );
 }
 
 class MyApp extends StatelessWidget {
+  const MyApp({super.key, required this.router});
+
   final GoRouter router;
 
-  const MyApp({super.key, required this.router});
+  static const themeColor = Color(0xFF4B709B);
 
   @override
   Widget build(BuildContext context) {
@@ -105,7 +110,7 @@ class MyApp extends StatelessWidget {
       supportedLocales: AppLocaleUtils.supportedLocales,
       localizationsDelegates: GlobalMaterialLocalizations.delegates,
       theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
+        colorScheme: ColorScheme.fromSeed(seedColor: themeColor),
       ),
       routerConfig: router,
     );
