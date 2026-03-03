@@ -52,17 +52,16 @@ class ProfileDangerZone extends ConsumerWidget {
         ),
         OptionEntryTile.icon(
           icon: Icons.bug_report_outlined,
-          title: '非 Flutter 框架崩潰',
+          title: t.profile.dangerZone.nonFlutterCrash,
           color: dangerColor,
           borderColor: dangerColor,
           onTap: () {
             Future.delayed(Duration.zero, () {
-              throw Exception('非框架崩潰');
+              throw Exception(t.profile.dangerZone.nonFlutterCrashException);
             });
           },
         ),
       ],
     );
-
   }
 }

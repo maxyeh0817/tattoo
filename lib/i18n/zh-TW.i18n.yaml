@@ -48,6 +48,9 @@ profile:
     appSettings: 應用程式設定
     notices: 訊息範例
     dangerZone: 危險區域
+  dangerZone:
+    nonFlutterCrash: 非 Flutter 框架崩潰
+    nonFlutterCrashException: 模擬非同步錯誤
   options:
     changePassword: 更改密碼
     changeAvatar: 更改個人圖片

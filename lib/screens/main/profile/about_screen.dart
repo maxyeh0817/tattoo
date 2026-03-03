@@ -27,8 +27,6 @@ class _AboutScreenState extends ConsumerState<AboutScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final testerAction = ref.watch(testerActionProvider);
-
     final contributorsAsync = ref.watch(contributorsProvider);
     final packageInfoAsync = ref.watch(packageInfoProvider);
     final theme = Theme.of(context);

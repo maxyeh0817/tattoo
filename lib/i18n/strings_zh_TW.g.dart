@@ -188,6 +188,7 @@ class TranslationsProfileZhTw {
 
 	// Translations
 	late final TranslationsProfileSectionsZhTw sections = TranslationsProfileSectionsZhTw.internal(_root);
+	late final TranslationsProfileDangerZoneZhTw dangerZone = TranslationsProfileDangerZoneZhTw.internal(_root);
 	late final TranslationsProfileOptionsZhTw options = TranslationsProfileOptionsZhTw.internal(_root);
 	late final TranslationsProfileNoticesZhTw notices = TranslationsProfileNoticesZhTw.internal(_root);
 	late final TranslationsProfileAvatarZhTw avatar = TranslationsProfileAvatarZhTw.internal(_root);
@@ -292,6 +293,21 @@ class TranslationsProfileSectionsZhTw {
 
 	/// zh-TW: '危險區域'
 	String get dangerZone => '危險區域';
+}
+
+// Path: profile.dangerZone
+class TranslationsProfileDangerZoneZhTw {
+	TranslationsProfileDangerZoneZhTw.internal(this._root);
+
+	final Translations _root; // ignore: unused_field
+
+	// Translations
+
+	/// zh-TW: '非 Flutter 框架崩潰'
+	String get nonFlutterCrash => '非 Flutter 框架崩潰';
+
+	/// zh-TW: '模擬非同步錯誤'
+	String get nonFlutterCrashException => '模擬非同步錯誤';
 }
 
 // Path: profile.options
@@ -491,6 +507,8 @@ extension on Translations {
 			'profile.sections.appSettings' => '應用程式設定',
 			'profile.sections.notices' => '訊息範例',
 			'profile.sections.dangerZone' => '危險區域',
+			'profile.dangerZone.nonFlutterCrash' => '非 Flutter 框架崩潰',
+			'profile.dangerZone.nonFlutterCrashException' => '模擬非同步錯誤',
 			'profile.options.changePassword' => '更改密碼',
 			'profile.options.changeAvatar' => '更改個人圖片',
 			'profile.options.supportUs' => '支持我們',

@@ -48,6 +48,9 @@ profile:
     appSettings: App Settings
     notices: Notices
     dangerZone: Danger Zone
+  dangerZone:
+    nonFlutterCrash: Non-Flutter Framework Crash
+    nonFlutterCrashException: Simulation of asynchronous error
   options:
     changePassword: Change Password
     changeAvatar: Change Avatar

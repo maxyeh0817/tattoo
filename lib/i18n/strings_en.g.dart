@@ -137,6 +137,7 @@ class _TranslationsProfileEn extends TranslationsProfileZhTw {
 
 	// Translations
 	@override late final _TranslationsProfileSectionsEn sections = _TranslationsProfileSectionsEn._(_root);
+	@override late final _TranslationsProfileDangerZoneEn dangerZone = _TranslationsProfileDangerZoneEn._(_root);
 	@override late final _TranslationsProfileOptionsEn options = _TranslationsProfileOptionsEn._(_root);
 	@override late final _TranslationsProfileNoticesEn notices = _TranslationsProfileNoticesEn._(_root);
 	@override late final _TranslationsProfileAvatarEn avatar = _TranslationsProfileAvatarEn._(_root);
@@ -206,6 +207,17 @@ class _TranslationsProfileSectionsEn extends TranslationsProfileSectionsZhTw {
 	@override String get appSettings => 'App Settings';
 	@override String get notices => 'Notices';
 	@override String get dangerZone => 'Danger Zone';
+}
+
+// Path: profile.dangerZone
+class _TranslationsProfileDangerZoneEn extends TranslationsProfileDangerZoneZhTw {
+	_TranslationsProfileDangerZoneEn._(TranslationsEn root) : this._root = root, super.internal(root);
+
+	final TranslationsEn _root; // ignore: unused_field
+
+	// Translations
+	@override String get nonFlutterCrash => 'Non-Flutter Framework Crash';
+	@override String get nonFlutterCrashException => 'Simulation of asynchronous error';
 }
 
 // Path: profile.options
@@ -352,6 +364,8 @@ extension on TranslationsEn {
 			'profile.sections.appSettings' => 'App Settings',
 			'profile.sections.notices' => 'Notices',
 			'profile.sections.dangerZone' => 'Danger Zone',
+			'profile.dangerZone.nonFlutterCrash' => 'Non-Flutter Framework Crash',
+			'profile.dangerZone.nonFlutterCrashException' => 'Simulation of asynchronous error',
 			'profile.options.changePassword' => 'Change Password',
 			'profile.options.changeAvatar' => 'Change Avatar',
 			'profile.options.supportUs' => 'Support Us',
