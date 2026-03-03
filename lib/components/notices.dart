@@ -139,14 +139,12 @@ class ClearNoticeVertical extends StatelessWidget {
     return Column(
       spacing: 8.0,
       children: [
-        SizedBox(
-          child: IconTheme(
-            data: IconThemeData(
-              color: resolvedColor,
-              size: 24,
-            ),
-            child: icon ?? const Icon(Icons.info_outline),
+        IconTheme(
+          data: IconThemeData(
+            color: resolvedColor,
+            size: 24,
           ),
+          child: icon ?? const Icon(Icons.info_outline),
         ),
         Text.rich(
           text,
