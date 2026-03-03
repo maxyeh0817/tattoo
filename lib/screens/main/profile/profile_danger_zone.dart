@@ -18,7 +18,8 @@ class ProfileDangerZone extends ConsumerWidget {
       return const SizedBox.shrink();
     }
 
-    final testerAction = ref.watch(testerActionProvider);
+    final testerActionIndex = ref.watch(testerActionProvider);
+    final testerAction = t.about.easter.actions[testerActionIndex];
 
     return Column(
       spacing: 8,
@@ -26,15 +27,27 @@ class ProfileDangerZone extends ConsumerWidget {
         SectionHeader(title: t.profile.sections.dangerZone, color: dangerColor),
         OptionEntryTile.icon(
           icon: Icons.sports_bar_outlined,
-          title: '去酒吧$testerAction',
+          title: t.about.easter.goBar(action: testerAction),
           color: dangerColor,
           borderColor: dangerColor,
           onTap: () {
-            if (testerAction == '跑進吧檯被店員拖出去') {
-              SystemNavigator.pop();
-            } else {
-              throw Exception('酒吧陷入火海');
-            }
+            showDialog<void>(
+              context: context,
+              builder: (context) => AlertDialog(
+                title: Text(t.about.easter.barTitle),
+                content: Text(
+                  testerActionIndex == t.about.easter.actions.length - 1
+                      ? t.about.easter.barKicked
+                      : t.about.easter.barClosed,
+                ),
+                actions: [
+                  TextButton(
+                    onPressed: () => Navigator.of(context).pop(),
+                    child: Text(t.general.ok),
+                  ),
+                ],
+              ),
+            );
           },
         ),
         OptionEntryTile.icon(
@@ -50,5 +63,6 @@ class ProfileDangerZone extends ConsumerWidget {
         ),
       ],
     );
+
   }
 }

@@ -78,4 +78,18 @@ about:
   viewSource: 查看原始碼與貢獻
   relatedLinks: 相關連結
   copyright: © 2025 北科程式設計研究社\n以GNU GPL v3.0授權條款釋出
+  easter:
+    barTitle: 酒吧暫未營業
+    barClosed: "酒吧今天打烊了，改天再來探索吧！"
+    barKicked: "你被店員勸退，還是早點回家休息吧～"
+    full: "已經吃飽了"
+    goBar: "去酒吧{action}"
+    actions:
+      - 點 0 杯啤酒
+      - 點 999999999 杯啤酒
+      - 點 1 支蜥蜴
+      - 點 -1 杯啤酒
+      - 點 1 份 asdfghjkl
+      - 點 1 碗炒飯
+      - 跑進吧檯被店員拖出去
 

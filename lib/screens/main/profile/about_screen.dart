@@ -68,11 +68,20 @@ class _AboutScreenState extends ConsumerState<AboutScreen> {
                                       ?.value ??
                                   false;
 
+                              final newTesterActionIndex =
+                                  ref.read(testerActionProvider);
+                              final newTesterAction =
+                                  t.about.easter.actions[newTesterActionIndex];
+
                               if (context.mounted) {
                                 ScaffoldMessenger.of(context).showSnackBar(
                                   SnackBar(
                                     content: Text(
-                                      newState ? '去酒吧$testerAction' : '已經吃飽了',
+                                      newState
+                                          ? t.about.easter.goBar(
+                                            action: newTesterAction,
+                                          )
+                                          : t.about.easter.full,
                                     ),
                                     behavior: SnackBarBehavior.floating,
                                   ),

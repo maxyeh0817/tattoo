@@ -168,6 +168,7 @@ class _TranslationsAboutEn extends TranslationsAboutZhTw {
 	@override String get viewSource => 'View source code and contributions';
 	@override String get relatedLinks => 'Related Links';
 	@override String get copyright => '© 2025 NTUT Programming Club\nLicensed under the GNU GPL v3.0';
+	@override late final _TranslationsAboutEasterEn easter = _TranslationsAboutEasterEn._(_root);
 }
 
 // Path: intro.features
@@ -247,6 +248,29 @@ class _TranslationsProfileAvatarEn extends TranslationsProfileAvatarZhTw {
 	@override String get tooLarge => 'Image exceeds the 20 MB size limit';
 	@override String get invalidFormat => 'Unrecognized image format';
 	@override String get uploadFailed => 'Failed to change avatar. Please try again later.';
+}
+
+// Path: about.easter
+class _TranslationsAboutEasterEn extends TranslationsAboutEasterZhTw {
+	_TranslationsAboutEasterEn._(TranslationsEn root) : this._root = root, super.internal(root);
+
+	final TranslationsEn _root; // ignore: unused_field
+
+	// Translations
+	@override String get barTitle => 'Bar is currently closed';
+	@override String get barClosed => 'The bar is closed today, come back another time to explore!';
+	@override String get barKicked => 'You were kicked out by the staff, you should go home and rest early~';
+	@override String get full => 'Already full';
+	@override String get goBar => 'Go to the bar {action}';
+	@override List<String> get actions => [
+		'order 0 beers',
+		'order 999999999 beers',
+		'order 1 lizard',
+		'order -1 beer',
+		'order 1 asdfghjkl',
+		'order 1 bowl of fried rice',
+		'run into the bar and get kicked out by the staff',
+	];
 }
 
 // Path: intro.features.courseTable
@@ -353,6 +377,18 @@ extension on TranslationsEn {
 			'about.viewSource' => 'View source code and contributions',
 			'about.relatedLinks' => 'Related Links',
 			'about.copyright' => '© 2025 NTUT Programming Club\nLicensed under the GNU GPL v3.0',
+			'about.easter.barTitle' => 'Bar is currently closed',
+			'about.easter.barClosed' => 'The bar is closed today, come back another time to explore!',
+			'about.easter.barKicked' => 'You were kicked out by the staff, you should go home and rest early~',
+			'about.easter.full' => 'Already full',
+			'about.easter.goBar' => 'Go to the bar {action}',
+			'about.easter.actions.0' => 'order 0 beers',
+			'about.easter.actions.1' => 'order 999999999 beers',
+			'about.easter.actions.2' => 'order 1 lizard',
+			'about.easter.actions.3' => 'order -1 beer',
+			'about.easter.actions.4' => 'order 1 asdfghjkl',
+			'about.easter.actions.5' => 'order 1 bowl of fried rice',
+			'about.easter.actions.6' => 'run into the bar and get kicked out by the staff',
 			_ => null,
 		};
 	}

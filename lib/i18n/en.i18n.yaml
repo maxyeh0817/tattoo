@@ -78,5 +78,19 @@ about:
   viewSource: View source code and contributions
   relatedLinks: Related Links
   copyright: © 2025 NTUT Programming Club\nLicensed under the GNU GPL v3.0
+  easter:
+    barTitle: Bar is currently closed
+    barClosed: "The bar is closed today, come back another time to explore!"
+    barKicked: "You were kicked out by the staff, you should go home and rest early~"
+    full: "Already full"
+    goBar: "Go to the bar {action}"
+    actions:
+      - order 0 beers
+      - order 999999999 beers
+      - order 1 lizard
+      - order -1 beer
+      - order 1 asdfghjkl
+      - order 1 bowl of fried rice
+      - run into the bar and get kicked out by the staff
 
 

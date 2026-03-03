@@ -11,8 +11,8 @@ enum PrefKey<T> {
   /// Whether to use mock data instead of live NTUT services.
   demoMode<bool>(PrefType.boolean, false),
 
-  /// Whether the "點一碗炒飯" easter egg is enabled.
-  isFriedRiceEnabled<bool>(PrefType.boolean, false);
+  /// Whether the "Bar" easter egg is enabled.
+  isBarEnabled<bool>(PrefType.boolean, false);
 
   const PrefKey(this.type, this.defaultValue);
   final PrefType type;
@@ -62,25 +62,25 @@ class PreferencesRepository {
   }
 }
 
-/// Provides the "isFriedRiceEnabled" easter egg preference.
-final isBarEnabledProvider = AsyncNotifierProvider<FriedRiceNotifier, bool>(
-  FriedRiceNotifier.new,
+/// Provides the "isBarEnabled" easter egg preference.
+final isBarEnabledProvider = AsyncNotifierProvider<BarEnabledNotifier, bool>(
+  BarEnabledNotifier.new,
 );
 
-class FriedRiceNotifier extends AsyncNotifier<bool> {
+class BarEnabledNotifier extends AsyncNotifier<bool> {
   @override
   Future<bool> build() async {
     final prefs = ref.watch(preferencesRepositoryProvider);
-    return await prefs.get(PrefKey.isFriedRiceEnabled);
+    return await prefs.get(PrefKey.isBarEnabled);
   }
 
   Future<void> toggle() async {
     state = const AsyncValue.loading();
     state = await AsyncValue.guard(() async {
       final prefs = ref.read(preferencesRepositoryProvider);
-      final current = await prefs.get(PrefKey.isFriedRiceEnabled);
+      final current = await prefs.get(PrefKey.isBarEnabled);
       final newState = !current;
-      await prefs.set(PrefKey.isFriedRiceEnabled, newState);
+      await prefs.set(PrefKey.isBarEnabled, newState);
       return newState;
     });
   }

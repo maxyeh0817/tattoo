@@ -239,6 +239,8 @@ class TranslationsAboutZhTw {
 
 	/// zh-TW: '© 2025 北科程式設計研究社\n以GNU GPL v3.0授權條款釋出'
 	String get copyright => '© 2025 北科程式設計研究社\n以GNU GPL v3.0授權條款釋出';
+
+	late final TranslationsAboutEasterZhTw easter = TranslationsAboutEasterZhTw.internal(_root);
 }
 
 // Path: intro.features
@@ -364,6 +366,40 @@ class TranslationsProfileAvatarZhTw {
 	String get uploadFailed => '更改個人圖片失敗，請稍後再試';
 }
 
+// Path: about.easter
+class TranslationsAboutEasterZhTw {
+	TranslationsAboutEasterZhTw.internal(this._root);
+
+	final Translations _root; // ignore: unused_field
+
+	// Translations
+
+	/// zh-TW: '酒吧暫未營業'
+	String get barTitle => '酒吧暫未營業';
+
+	/// zh-TW: '酒吧今天打烊了，改天再來探索吧！'
+	String get barClosed => '酒吧今天打烊了，改天再來探索吧！';
+
+	/// zh-TW: '你被店員勸退，還是早點回家休息吧～'
+	String get barKicked => '你被店員勸退，還是早點回家休息吧～';
+
+	/// zh-TW: '已經吃飽了'
+	String get full => '已經吃飽了';
+
+	/// zh-TW: '去酒吧{action}'
+	String get goBar => '去酒吧{action}';
+
+	List<String> get actions => [
+		'點 0 杯啤酒',
+		'點 999999999 杯啤酒',
+		'點 1 支蜥蜴',
+		'點 -1 杯啤酒',
+		'點 1 份 asdfghjkl',
+		'點 1 碗炒飯',
+		'跑進吧檯被店員拖出去',
+	];
+}
+
 // Path: intro.features.courseTable
 class TranslationsIntroFeaturesCourseTableZhTw {
 	TranslationsIntroFeaturesCourseTableZhTw.internal(this._root);
@@ -480,6 +516,18 @@ extension on Translations {
 			'about.viewSource' => '查看原始碼與貢獻',
 			'about.relatedLinks' => '相關連結',
 			'about.copyright' => '© 2025 北科程式設計研究社\n以GNU GPL v3.0授權條款釋出',
+			'about.easter.barTitle' => '酒吧暫未營業',
+			'about.easter.barClosed' => '酒吧今天打烊了，改天再來探索吧！',
+			'about.easter.barKicked' => '你被店員勸退，還是早點回家休息吧～',
+			'about.easter.full' => '已經吃飽了',
+			'about.easter.goBar' => '去酒吧{action}',
+			'about.easter.actions.0' => '點 0 杯啤酒',
+			'about.easter.actions.1' => '點 999999999 杯啤酒',
+			'about.easter.actions.2' => '點 1 支蜥蜴',
+			'about.easter.actions.3' => '點 -1 杯啤酒',
+			'about.easter.actions.4' => '點 1 份 asdfghjkl',
+			'about.easter.actions.5' => '點 1 碗炒飯',
+			'about.easter.actions.6' => '跑進吧檯被店員拖出去',
 			_ => null,
 		};
 	}
