@@ -47,6 +47,7 @@ profile:
     accountSettings: Account Settings
     appSettings: App Settings
     notices: Notices
+    dangerZone: Danger Zone
   options:
     changePassword: Change Password
     changeAvatar: Change Avatar

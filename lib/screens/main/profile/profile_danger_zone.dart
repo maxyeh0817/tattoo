@@ -23,7 +23,7 @@ class ProfileDangerZone extends ConsumerWidget {
     return Column(
       spacing: 8,
       children: [
-        SectionHeader(title: t.$wip('Danger Zone'), color: dangerColor),
+        SectionHeader(title: t.profile.sections.dangerZone, color: dangerColor),
         OptionEntryTile.icon(
           icon: Icons.sports_bar_outlined,
           title: '去酒吧$testerAction',

@@ -287,6 +287,9 @@ class TranslationsProfileSectionsZhTw {
 
 	/// zh-TW: '訊息範例'
 	String get notices => '訊息範例';
+
+	/// zh-TW: '危險區域'
+	String get dangerZone => '危險區域';
 }
 
 // Path: profile.options
@@ -451,6 +454,7 @@ extension on Translations {
 			'profile.sections.accountSettings' => '帳號設定',
 			'profile.sections.appSettings' => '應用程式設定',
 			'profile.sections.notices' => '訊息範例',
+			'profile.sections.dangerZone' => '危險區域',
 			'profile.options.changePassword' => '更改密碼',
 			'profile.options.changeAvatar' => '更改個人圖片',
 			'profile.options.supportUs' => '支持我們',

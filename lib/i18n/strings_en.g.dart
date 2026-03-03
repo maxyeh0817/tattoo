@@ -204,6 +204,7 @@ class _TranslationsProfileSectionsEn extends TranslationsProfileSectionsZhTw {
 	@override String get accountSettings => 'Account Settings';
 	@override String get appSettings => 'App Settings';
 	@override String get notices => 'Notices';
+	@override String get dangerZone => 'Danger Zone';
 }
 
 // Path: profile.options
@@ -326,6 +327,7 @@ extension on TranslationsEn {
 			'profile.sections.accountSettings' => 'Account Settings',
 			'profile.sections.appSettings' => 'App Settings',
 			'profile.sections.notices' => 'Notices',
+			'profile.sections.dangerZone' => 'Danger Zone',
 			'profile.options.changePassword' => 'Change Password',
 			'profile.options.changeAvatar' => 'Change Avatar',
 			'profile.options.supportUs' => 'Support Us',
