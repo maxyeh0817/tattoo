@@ -2,7 +2,6 @@ import 'dart:io';
 
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
@@ -12,16 +11,15 @@ import 'package:tattoo/components/notices.dart';
 import 'package:tattoo/components/section_header.dart';
 import 'package:tattoo/i18n/strings.g.dart';
 import 'package:tattoo/repositories/auth_repository.dart';
-import 'package:tattoo/repositories/preferences_repository.dart';
 import 'package:tattoo/router/app_router.dart';
 import 'package:tattoo/services/portal_service.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:tattoo/screens/main/profile/profile_card.dart';
+import 'package:tattoo/screens/main/profile/profile_danger_zone.dart';
 import 'package:tattoo/screens/main/profile/profile_providers.dart';
 
 class ProfileScreen extends ConsumerWidget {
   const ProfileScreen({super.key});
-  static const Color dangerColor = Colors.red;
   static final _imagePicker = ImagePicker();
   Future<void> _refresh(WidgetRef ref) async {
     await ref.read(authRepositoryProvider).getUser(refresh: true);
@@ -126,8 +124,6 @@ class ProfileScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final testerAction = ref.watch(testerActionProvider);
-
     // settings options for the profile tab
     final options = [
       SectionHeader(title: t.profile.sections.accountSettings),
@@ -183,36 +179,7 @@ class ProfileScreen extends ConsumerWidget {
         title: t.profile.options.logout,
         onTap: () => _logout(context, ref),
       ),
-
-      // only trigger danger zone if easter egg is enabled
-      if (ref.watch(isBarEnabledProvider).asData?.value ?? false) ...[
-        SectionHeader(title: t.$wip('Danger Zone'), color: dangerColor),
-        OptionEntryTile.icon(
-          icon: Icons.sports_bar_outlined,
-          title: '去酒吧$testerAction',
-          color: dangerColor,
-          borderColor: dangerColor,
-          onTap: () {
-            if (testerAction == '跑進吧檯被店員拖出去') {
-              SystemNavigator.pop();
-            } else {
-              throw Exception('酒吧陷入火海');
-            }
-          },
-        ),
-        OptionEntryTile.icon(
-          icon: Icons.bug_report_outlined,
-          title: '非 Flutter 框架崩潰',
-          color: dangerColor,
-          borderColor: dangerColor,
-          onTap: () async {
-            // This will be caught by PlatformDispatcher.instance.onError
-            Future.delayed(Duration.zero, () {
-              throw Exception('非框架崩潰');
-            });
-          },
-        ),
-      ],
+      const ProfileDangerZone(),
     ];
 
     return Scaffold(
