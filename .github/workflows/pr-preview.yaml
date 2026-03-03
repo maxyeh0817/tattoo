@@ -233,8 +233,8 @@ jobs:
 
       - name: Verify Podfile.lock is up-to-date
         run: |
-          cd ios && bundle exec pod install
-          git diff --exit-code Podfile.lock
+          flutter build ios --config-only
+          git diff --exit-code ios/Podfile.lock
 
       - name: Find preview comment
         if: github.event_name == 'pull_request'
