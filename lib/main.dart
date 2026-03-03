@@ -3,9 +3,9 @@ import 'dart:ui';
 
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:tattoo/firebase_options.dart';
 import 'package:tattoo/i18n/strings.g.dart';
 import 'package:tattoo/repositories/auth_repository.dart';
@@ -33,6 +33,8 @@ Future<void> main() async {
 
   final container = ProviderContainer();
   final firebase = container.read(firebaseServiceProvider);
+
+  firebase.log('App starting...');
 
   void showErrorDialog(Object error, {ErrorType type = ErrorType.unknown}) {
     final context = rootNavigatorKey.currentContext;
@@ -81,7 +83,7 @@ Future<void> main() async {
   final authRepository = container.read(authRepositoryProvider);
   final user = await authRepository.getUser();
   final initialLocation = user != null ? AppRoutes.home : AppRoutes.intro;
-  final router = buildAppRouter(initialLocation: initialLocation);
+  final router = createAppRouter(firebase, initialLocation: initialLocation);
 
   runApp(
     UncontrolledProviderScope(
