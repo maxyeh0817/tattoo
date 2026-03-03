@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 
+const previewPlaceholder =
+    'Preview placeholder text for demonstration purposes.';
+
 class WidgetPreviewFrame extends StatelessWidget {
   const WidgetPreviewFrame({required this.child, super.key});
 

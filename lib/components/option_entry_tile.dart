@@ -230,12 +230,13 @@ Widget optionEntryTileProfileOptionsPreview() {
           ),
           OptionEntryTile.icon(
             title: t.general.unknown,
-            description: "這是一個帶描述的範例元件，採用預設 Icon。",
+            description:
+                'Example tile with a description, using the default icon.',
             onTap: () {},
           ),
           OptionEntryTile(
             title: t.general.unknown,
-            description: "Custom Leading Widget.",
+            description: previewPlaceholder,
             leading: const CircleAvatar(
               radius: 12,
               backgroundColor: Colors.blue,
