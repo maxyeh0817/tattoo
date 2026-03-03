@@ -18,8 +18,6 @@ class GithubService {
     _dio = createDio()..options.baseUrl = 'https://api.github.com/';
   }
 
-  Dio get dio => _dio;
-
   Future<List<Contributor>?> getContributors() async {
     final response = await _dio.get('repos/NTUT-NPC/tattoo/contributors');
 
