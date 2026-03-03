@@ -32,6 +32,11 @@ enum OptionEntryTileActionIcon {
 ///   onTap: () => context.push('/profile'),
 /// );
 ///
+/// OptionEntryTile.icon(
+///   title: 'Settings',
+///   description: 'Default leading icon with custom description',
+/// );
+///
 /// OptionEntryTile.svg(
 ///   svgIconAsset: 'assets/settings.svg',
 ///   title: 'Settings',
@@ -48,7 +53,7 @@ class OptionEntryTile extends StatelessWidget {
   /// Creates an [OptionEntryTile] with a custom leading widget.
   const OptionEntryTile({
     super.key,
-    Widget leading = const Icon(Icons.adjust_outlined),
+    required leading,
     required this.title,
     this.description,
     this.onTap,
@@ -61,7 +66,7 @@ class OptionEntryTile extends StatelessWidget {
   /// Creates an [OptionEntryTile] with a built-in [Icon] as the leading widget.
   const OptionEntryTile.icon({
     super.key,
-    required IconData icon,
+    IconData icon = Icons.adjust_outlined,
     required this.title,
     this.description,
     this.onTap,
@@ -223,7 +228,7 @@ Widget optionEntryTileProfileOptionsPreview() {
             actionIcon: OptionEntryTileActionIcon.exitToApp,
             onTap: () {},
           ),
-          OptionEntryTile(
+          OptionEntryTile.icon(
             title: t.general.unknown,
             description: "這是一個帶描述的範例元件，採用預設 Icon。",
             onTap: () {},

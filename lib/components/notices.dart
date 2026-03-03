@@ -333,8 +333,7 @@ Widget clearNoticeVerticalLoginPrivacyPreview() {
               privacyPolicy: (text) => TextSpan(
                 text: text,
                 style: const TextStyle(decoration: TextDecoration.underline),
-                recognizer: TapGestureRecognizer()
-                  ..onTap = () {}
+                recognizer: TapGestureRecognizer()..onTap = () {},
               ),
             ),
           ),
