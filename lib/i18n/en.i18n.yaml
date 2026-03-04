@@ -43,10 +43,11 @@ nav:
   scores: Scores
   profile: Me
 profile:
+  dataDisclaimer: For reference only. Not valid as official documentation.
   sections:
     accountSettings: Account Settings
     appSettings: App Settings
-    notices: Notices
+    dangerZone: Danger Zone
   options:
     changePassword: Change Password
     changeAvatar: Change Avatar
@@ -55,17 +56,29 @@ profile:
     npcClub: NTUT NPC Club
     preferences: Preferences
     logout: Sign Out
-  notices:
-    betaTesting: The new version of TAT is still in beta. Please report any issues you encounter.
-    passwordExpiring: Your password will expire in 7 days. Please update it to avoid being locked out.
-    connectionError: Cannot connect to the server. Data may be inaccurate.
   avatar:
     uploading: Updating avatar...
     uploadSuccess: Avatar updated
     tooLarge: Image exceeds the 20 MB size limit
     invalidFormat: Unrecognized image format
     uploadFailed: Failed to change avatar. Please try again later.
-  dataDisclaimer: For reference only. Not valid as official documentation.
+  dangerZone:
+    nonFlutterCrash: Non-Flutter Framework Crash
+    nonFlutterCrashException: Simulation of asynchronous error
+    closedTitle: Bar is currently closed
+    closedMessage: "The bar is closed today, come back another time to explore!"
+    kickedMessage: "You were kicked out by the staff. Better head home and rest!"
+    fireMessage: "Bar is on fire"
+    alreadyFull: "Already full"
+    goAction: "Go to the bar and ${action}"
+    actions:
+      - order 0 beers
+      - order 999999999 beers
+      - order 1 lizard
+      - order -1 beer
+      - order 1 asdfghjkl
+      - order 1 bowl of fried rice
+      - get kicked out by the staff
 enrollmentStatus:
   learning: Enrolled
   leaveOfAbsence: Leave of Absence

@@ -187,13 +187,14 @@ class TranslationsProfileZhTw {
 	final Translations _root; // ignore: unused_field
 
 	// Translations
-	late final TranslationsProfileSectionsZhTw sections = TranslationsProfileSectionsZhTw.internal(_root);
-	late final TranslationsProfileOptionsZhTw options = TranslationsProfileOptionsZhTw.internal(_root);
-	late final TranslationsProfileNoticesZhTw notices = TranslationsProfileNoticesZhTw.internal(_root);
-	late final TranslationsProfileAvatarZhTw avatar = TranslationsProfileAvatarZhTw.internal(_root);
 
 	/// zh-TW: '本資料僅供參考，不做其他證明用途'
 	String get dataDisclaimer => '本資料僅供參考，不做其他證明用途';
+
+	late final TranslationsProfileSectionsZhTw sections = TranslationsProfileSectionsZhTw.internal(_root);
+	late final TranslationsProfileOptionsZhTw options = TranslationsProfileOptionsZhTw.internal(_root);
+	late final TranslationsProfileAvatarZhTw avatar = TranslationsProfileAvatarZhTw.internal(_root);
+	late final TranslationsProfileDangerZoneZhTw dangerZone = TranslationsProfileDangerZoneZhTw.internal(_root);
 }
 
 // Path: enrollmentStatus
@@ -285,8 +286,8 @@ class TranslationsProfileSectionsZhTw {
 	/// zh-TW: '應用程式設定'
 	String get appSettings => '應用程式設定';
 
-	/// zh-TW: '訊息範例'
-	String get notices => '訊息範例';
+	/// zh-TW: '危險區域'
+	String get dangerZone => '危險區域';
 }
 
 // Path: profile.options
@@ -319,24 +320,6 @@ class TranslationsProfileOptionsZhTw {
 	String get logout => '登出帳號';
 }
 
-// Path: profile.notices
-class TranslationsProfileNoticesZhTw {
-	TranslationsProfileNoticesZhTw.internal(this._root);
-
-	final Translations _root; // ignore: unused_field
-
-	// Translations
-
-	/// zh-TW: '目前新版的 TAT 仍在測試階段，若有問題歡迎和我們反映。'
-	String get betaTesting => '目前新版的 TAT 仍在測試階段，若有問題歡迎和我們反映。';
-
-	/// zh-TW: '您的密碼將於 7 天後到期，請盡快更新以免無法登入。'
-	String get passwordExpiring => '您的密碼將於 7 天後到期，請盡快更新以免無法登入。';
-
-	/// zh-TW: '無法連接到伺服器，資料可能不正確。'
-	String get connectionError => '無法連接到伺服器，資料可能不正確。';
-}
-
 // Path: profile.avatar
 class TranslationsProfileAvatarZhTw {
 	TranslationsProfileAvatarZhTw.internal(this._root);
@@ -359,6 +342,49 @@ class TranslationsProfileAvatarZhTw {
 
 	/// zh-TW: '更改個人圖片失敗，請稍後再試'
 	String get uploadFailed => '更改個人圖片失敗，請稍後再試';
+}
+
+// Path: profile.dangerZone
+class TranslationsProfileDangerZoneZhTw {
+	TranslationsProfileDangerZoneZhTw.internal(this._root);
+
+	final Translations _root; // ignore: unused_field
+
+	// Translations
+
+	/// zh-TW: '非 Flutter 框架崩潰'
+	String get nonFlutterCrash => '非 Flutter 框架崩潰';
+
+	/// zh-TW: '模擬非同步錯誤'
+	String get nonFlutterCrashException => '模擬非同步錯誤';
+
+	/// zh-TW: '酒吧暫未營業'
+	String get closedTitle => '酒吧暫未營業';
+
+	/// zh-TW: '酒吧今天打烊了，改天再來探索吧！'
+	String get closedMessage => '酒吧今天打烊了，改天再來探索吧！';
+
+	/// zh-TW: '你被店員勸退，還是早點回家休息吧～'
+	String get kickedMessage => '你被店員勸退，還是早點回家休息吧～';
+
+	/// zh-TW: '酒吧陷入火海'
+	String get fireMessage => '酒吧陷入火海';
+
+	/// zh-TW: '已經吃飽了'
+	String get alreadyFull => '已經吃飽了';
+
+	/// zh-TW: '去酒吧${action}'
+	String goAction({required Object action}) => '去酒吧${action}';
+
+	List<String> get actions => [
+		'點 0 杯啤酒',
+		'點 999999999 杯啤酒',
+		'點 1 支蜥蜴',
+		'點 -1 杯啤酒',
+		'點 1 份 asdfghjkl',
+		'點 1 碗炒飯',
+		'跑進吧檯被店員拖出去',
+	];
 }
 
 // Path: intro.features.courseTable
@@ -448,9 +474,10 @@ extension on Translations {
 			'nav.courseTable' => '課表',
 			'nav.scores' => '成績',
 			'nav.profile' => '我',
+			'profile.dataDisclaimer' => '本資料僅供參考，不做其他證明用途',
 			'profile.sections.accountSettings' => '帳號設定',
 			'profile.sections.appSettings' => '應用程式設定',
-			'profile.sections.notices' => '訊息範例',
+			'profile.sections.dangerZone' => '危險區域',
 			'profile.options.changePassword' => '更改密碼',
 			'profile.options.changeAvatar' => '更改個人圖片',
 			'profile.options.supportUs' => '支持我們',
@@ -458,15 +485,26 @@ extension on Translations {
 			'profile.options.npcClub' => '北科程式設計研究社',
 			'profile.options.preferences' => '偏好設定',
 			'profile.options.logout' => '登出帳號',
-			'profile.notices.betaTesting' => '目前新版的 TAT 仍在測試階段，若有問題歡迎和我們反映。',
-			'profile.notices.passwordExpiring' => '您的密碼將於 7 天後到期，請盡快更新以免無法登入。',
-			'profile.notices.connectionError' => '無法連接到伺服器，資料可能不正確。',
 			'profile.avatar.uploading' => '正在更新個人圖片...',
 			'profile.avatar.uploadSuccess' => '個人圖片已更新',
 			'profile.avatar.tooLarge' => '圖片大小超過 20 MB 限制',
 			'profile.avatar.invalidFormat' => '無法辨識的圖片格式',
 			'profile.avatar.uploadFailed' => '更改個人圖片失敗，請稍後再試',
-			'profile.dataDisclaimer' => '本資料僅供參考，不做其他證明用途',
+			'profile.dangerZone.nonFlutterCrash' => '非 Flutter 框架崩潰',
+			'profile.dangerZone.nonFlutterCrashException' => '模擬非同步錯誤',
+			'profile.dangerZone.closedTitle' => '酒吧暫未營業',
+			'profile.dangerZone.closedMessage' => '酒吧今天打烊了，改天再來探索吧！',
+			'profile.dangerZone.kickedMessage' => '你被店員勸退，還是早點回家休息吧～',
+			'profile.dangerZone.fireMessage' => '酒吧陷入火海',
+			'profile.dangerZone.alreadyFull' => '已經吃飽了',
+			'profile.dangerZone.goAction' => ({required Object action}) => '去酒吧${action}',
+			'profile.dangerZone.actions.0' => '點 0 杯啤酒',
+			'profile.dangerZone.actions.1' => '點 999999999 杯啤酒',
+			'profile.dangerZone.actions.2' => '點 1 支蜥蜴',
+			'profile.dangerZone.actions.3' => '點 -1 杯啤酒',
+			'profile.dangerZone.actions.4' => '點 1 份 asdfghjkl',
+			'profile.dangerZone.actions.5' => '點 1 碗炒飯',
+			'profile.dangerZone.actions.6' => '跑進吧檯被店員拖出去',
 			'enrollmentStatus.learning' => '在學',
 			'enrollmentStatus.leaveOfAbsence' => '休學',
 			'enrollmentStatus.droppedOut' => '退學',

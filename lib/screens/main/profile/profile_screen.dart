@@ -15,6 +15,7 @@ import 'package:tattoo/router/app_router.dart';
 import 'package:tattoo/services/portal_service.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:tattoo/screens/main/profile/profile_card.dart';
+import 'package:tattoo/screens/main/profile/profile_danger_zone.dart';
 import 'package:tattoo/screens/main/profile/profile_providers.dart';
 
 class ProfileScreen extends ConsumerWidget {
@@ -145,22 +146,6 @@ class ProfileScreen extends ConsumerWidget {
       ),
 
       SectionHeader(title: 'TAT'),
-      // TODO: remove before release
-      OptionEntryTile.icon(
-        icon: Icons.rice_bowl_outlined,
-        title: '點一碗炒飯',
-        onTap: () => throw Exception('炒飯'),
-      ),
-      OptionEntryTile.icon(
-        icon: Icons.bug_report_outlined,
-        title: '非 Flutter 框架崩潰',
-        onTap: () async {
-          // This will be caught by PlatformDispatcher.instance.onError
-          Future.delayed(Duration.zero, () {
-            throw Exception('非框架崩潰');
-          });
-        },
-      ),
       OptionEntryTile.icon(
         icon: Icons.favorite_border_outlined,
         title: t.profile.options.supportUs,
@@ -188,6 +173,7 @@ class ProfileScreen extends ConsumerWidget {
         title: t.profile.options.logout,
         onTap: () => _logout(context, ref),
       ),
+      const ProfileDangerZone(),
     ];
 
     return Scaffold(

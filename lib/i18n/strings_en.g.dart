@@ -136,11 +136,11 @@ class _TranslationsProfileEn extends TranslationsProfileZhTw {
 	final TranslationsEn _root; // ignore: unused_field
 
 	// Translations
+	@override String get dataDisclaimer => 'For reference only. Not valid as official documentation.';
 	@override late final _TranslationsProfileSectionsEn sections = _TranslationsProfileSectionsEn._(_root);
 	@override late final _TranslationsProfileOptionsEn options = _TranslationsProfileOptionsEn._(_root);
-	@override late final _TranslationsProfileNoticesEn notices = _TranslationsProfileNoticesEn._(_root);
 	@override late final _TranslationsProfileAvatarEn avatar = _TranslationsProfileAvatarEn._(_root);
-	@override String get dataDisclaimer => 'For reference only. Not valid as official documentation.';
+	@override late final _TranslationsProfileDangerZoneEn dangerZone = _TranslationsProfileDangerZoneEn._(_root);
 }
 
 // Path: enrollmentStatus
@@ -203,7 +203,7 @@ class _TranslationsProfileSectionsEn extends TranslationsProfileSectionsZhTw {
 	// Translations
 	@override String get accountSettings => 'Account Settings';
 	@override String get appSettings => 'App Settings';
-	@override String get notices => 'Notices';
+	@override String get dangerZone => 'Danger Zone';
 }
 
 // Path: profile.options
@@ -222,18 +222,6 @@ class _TranslationsProfileOptionsEn extends TranslationsProfileOptionsZhTw {
 	@override String get logout => 'Sign Out';
 }
 
-// Path: profile.notices
-class _TranslationsProfileNoticesEn extends TranslationsProfileNoticesZhTw {
-	_TranslationsProfileNoticesEn._(TranslationsEn root) : this._root = root, super.internal(root);
-
-	final TranslationsEn _root; // ignore: unused_field
-
-	// Translations
-	@override String get betaTesting => 'The new version of TAT is still in beta. Please report any issues you encounter.';
-	@override String get passwordExpiring => 'Your password will expire in 7 days. Please update it to avoid being locked out.';
-	@override String get connectionError => 'Cannot connect to the server. Data may be inaccurate.';
-}
-
 // Path: profile.avatar
 class _TranslationsProfileAvatarEn extends TranslationsProfileAvatarZhTw {
 	_TranslationsProfileAvatarEn._(TranslationsEn root) : this._root = root, super.internal(root);
@@ -246,6 +234,32 @@ class _TranslationsProfileAvatarEn extends TranslationsProfileAvatarZhTw {
 	@override String get tooLarge => 'Image exceeds the 20 MB size limit';
 	@override String get invalidFormat => 'Unrecognized image format';
 	@override String get uploadFailed => 'Failed to change avatar. Please try again later.';
+}
+
+// Path: profile.dangerZone
+class _TranslationsProfileDangerZoneEn extends TranslationsProfileDangerZoneZhTw {
+	_TranslationsProfileDangerZoneEn._(TranslationsEn root) : this._root = root, super.internal(root);
+
+	final TranslationsEn _root; // ignore: unused_field
+
+	// Translations
+	@override String get nonFlutterCrash => 'Non-Flutter Framework Crash';
+	@override String get nonFlutterCrashException => 'Simulation of asynchronous error';
+	@override String get closedTitle => 'Bar is currently closed';
+	@override String get closedMessage => 'The bar is closed today, come back another time to explore!';
+	@override String get kickedMessage => 'You were kicked out by the staff. Better head home and rest!';
+	@override String get fireMessage => 'Bar is on fire';
+	@override String get alreadyFull => 'Already full';
+	@override String goAction({required Object action}) => 'Go to the bar and ${action}';
+	@override List<String> get actions => [
+		'order 0 beers',
+		'order 999999999 beers',
+		'order 1 lizard',
+		'order -1 beer',
+		'order 1 asdfghjkl',
+		'order 1 bowl of fried rice',
+		'get kicked out by the staff',
+	];
 }
 
 // Path: intro.features.courseTable
@@ -323,9 +337,10 @@ extension on TranslationsEn {
 			'nav.courseTable' => 'Courses',
 			'nav.scores' => 'Scores',
 			'nav.profile' => 'Me',
+			'profile.dataDisclaimer' => 'For reference only. Not valid as official documentation.',
 			'profile.sections.accountSettings' => 'Account Settings',
 			'profile.sections.appSettings' => 'App Settings',
-			'profile.sections.notices' => 'Notices',
+			'profile.sections.dangerZone' => 'Danger Zone',
 			'profile.options.changePassword' => 'Change Password',
 			'profile.options.changeAvatar' => 'Change Avatar',
 			'profile.options.supportUs' => 'Support Us',
@@ -333,15 +348,26 @@ extension on TranslationsEn {
 			'profile.options.npcClub' => 'NTUT NPC Club',
 			'profile.options.preferences' => 'Preferences',
 			'profile.options.logout' => 'Sign Out',
-			'profile.notices.betaTesting' => 'The new version of TAT is still in beta. Please report any issues you encounter.',
-			'profile.notices.passwordExpiring' => 'Your password will expire in 7 days. Please update it to avoid being locked out.',
-			'profile.notices.connectionError' => 'Cannot connect to the server. Data may be inaccurate.',
 			'profile.avatar.uploading' => 'Updating avatar...',
 			'profile.avatar.uploadSuccess' => 'Avatar updated',
 			'profile.avatar.tooLarge' => 'Image exceeds the 20 MB size limit',
 			'profile.avatar.invalidFormat' => 'Unrecognized image format',
 			'profile.avatar.uploadFailed' => 'Failed to change avatar. Please try again later.',
-			'profile.dataDisclaimer' => 'For reference only. Not valid as official documentation.',
+			'profile.dangerZone.nonFlutterCrash' => 'Non-Flutter Framework Crash',
+			'profile.dangerZone.nonFlutterCrashException' => 'Simulation of asynchronous error',
+			'profile.dangerZone.closedTitle' => 'Bar is currently closed',
+			'profile.dangerZone.closedMessage' => 'The bar is closed today, come back another time to explore!',
+			'profile.dangerZone.kickedMessage' => 'You were kicked out by the staff. Better head home and rest!',
+			'profile.dangerZone.fireMessage' => 'Bar is on fire',
+			'profile.dangerZone.alreadyFull' => 'Already full',
+			'profile.dangerZone.goAction' => ({required Object action}) => 'Go to the bar and ${action}',
+			'profile.dangerZone.actions.0' => 'order 0 beers',
+			'profile.dangerZone.actions.1' => 'order 999999999 beers',
+			'profile.dangerZone.actions.2' => 'order 1 lizard',
+			'profile.dangerZone.actions.3' => 'order -1 beer',
+			'profile.dangerZone.actions.4' => 'order 1 asdfghjkl',
+			'profile.dangerZone.actions.5' => 'order 1 bowl of fried rice',
+			'profile.dangerZone.actions.6' => 'get kicked out by the staff',
 			'enrollmentStatus.learning' => 'Enrolled',
 			'enrollmentStatus.leaveOfAbsence' => 'Leave of Absence',
 			'enrollmentStatus.droppedOut' => 'Withdrawn',

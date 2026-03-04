@@ -9,7 +9,10 @@ enum PrefType { boolean, integer, double, string, stringList }
 /// Typed preference keys with defaults.
 enum PrefKey<T> {
   /// Whether to use mock data instead of live NTUT services.
-  demoMode<bool>(PrefType.boolean, false);
+  demoMode<bool>(PrefType.boolean, false),
+
+  /// Whether the danger zone section is shown on the profile screen.
+  showDangerZone<bool>(PrefType.boolean, false);
 
   const PrefKey(this.type, this.defaultValue);
   final PrefType type;

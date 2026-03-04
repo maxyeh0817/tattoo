@@ -6,6 +6,8 @@ import 'package:skeletonizer/skeletonizer.dart';
 import 'package:tattoo/components/option_entry_tile.dart';
 import 'package:tattoo/components/section_header.dart';
 import 'package:tattoo/i18n/strings.g.dart';
+import 'package:tattoo/repositories/preferences_repository.dart';
+import 'package:tattoo/screens/main/profile/profile_providers.dart';
 import 'package:tattoo/services/github_service.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -13,11 +15,46 @@ final packageInfoProvider = FutureProvider.autoDispose<PackageInfo>((ref) {
   return PackageInfo.fromPlatform();
 });
 
-class AboutScreen extends ConsumerWidget {
+class AboutScreen extends ConsumerStatefulWidget {
   const AboutScreen({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<AboutScreen> createState() => _AboutScreenState();
+}
+
+class _AboutScreenState extends ConsumerState<AboutScreen> {
+  int _logoClickCount = 0;
+
+  Future<void> _onLogoTap(BuildContext context, WidgetRef ref) async {
+    _logoClickCount++;
+    if (_logoClickCount != 7) return;
+
+    _logoClickCount = 0;
+    final prefs = ref.read(preferencesRepositoryProvider);
+    final current = await prefs.get(PrefKey.showDangerZone);
+    final newState = !current;
+    await prefs.set(PrefKey.showDangerZone, newState);
+
+    ref.invalidate(dangerZoneActionProvider);
+
+    final action = ref.read(dangerZoneActionProvider);
+
+    if (context.mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            newState
+                ? t.profile.dangerZone.goAction(action: action)
+                : t.profile.dangerZone.alreadyFull,
+          ),
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final contributorsAsync = ref.watch(contributorsProvider);
     final packageInfoAsync = ref.watch(packageInfoProvider);
     final theme = Theme.of(context);
@@ -39,10 +76,13 @@ class AboutScreen extends ConsumerWidget {
                     Column(
                       spacing: 8,
                       children: [
-                        SvgPicture.asset(
-                          'assets/tat_icon.svg',
-                          width: 80,
-                          height: 80,
+                        GestureDetector(
+                          onTap: () => _onLogoTap(context, ref),
+                          child: SvgPicture.asset(
+                            'assets/tat_icon.svg',
+                            width: 80,
+                            height: 80,
+                          ),
                         ),
                         Text(
                           t.general.appTitle,
