@@ -189,7 +189,8 @@ typedef CourseTableSummaryObject = ({
   Period earliestStartSection,
   Period latestEndSection,
   bool hasWeekdayCourse,
-  bool hasWeekendCourse,
+  bool hasSatCourse,
+  bool hasSunCourse,
 
   /// Total credits of all courses in the table.
   double totalCredits,
