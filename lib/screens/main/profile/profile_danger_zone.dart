@@ -17,7 +17,7 @@ class ProfileDangerZone extends ConsumerWidget {
     final prefs = ref.watch(preferencesRepositoryProvider);
 
     return FutureBuilder<bool>(
-      future: prefs.get(PrefKey.isBarEnabled),
+      future: prefs.get(PrefKey.showDangerZone),
       builder: (context, snapshot) {
         if (!(snapshot.data ?? false)) return const SizedBox.shrink();
 

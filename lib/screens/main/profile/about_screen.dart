@@ -31,9 +31,9 @@ class _AboutScreenState extends ConsumerState<AboutScreen> {
 
     _logoClickCount = 0;
     final prefs = ref.read(preferencesRepositoryProvider);
-    final current = await prefs.get(PrefKey.isBarEnabled);
+    final current = await prefs.get(PrefKey.showDangerZone);
     final newState = !current;
-    await prefs.set(PrefKey.isBarEnabled, newState);
+    await prefs.set(PrefKey.showDangerZone, newState);
 
     ref.read(testerActionProvider.notifier).refresh();
 
