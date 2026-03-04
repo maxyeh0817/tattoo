@@ -10,6 +10,7 @@ import 'package:dio_cookie_manager/dio_cookie_manager.dart';
 import 'package:intl/intl.dart';
 // ignore: implementation_imports
 import 'package:dio/src/transformers/util/consolidate_bytes.dart';
+import 'package:tattoo/services/firebase_service.dart';
 
 export 'package:dio/dio.dart';
 
@@ -83,6 +84,9 @@ class PlainTextTransformer extends BackgroundTransformer {
 }
 
 /// One-line log [Interceptor] for requests and responses.
+///
+/// Logs to both `dart:developer` and Firebase Crashlytics for breadcrumb
+/// context in crash reports.
 class LogInterceptor extends Interceptor {
   @override
   void onResponse(Response response, ResponseInterceptorHandler handler) {
@@ -119,7 +123,9 @@ class LogInterceptor extends Interceptor {
       if (cookies > 0) "$cookies cookie${cookies != 1 ? 's' : ''}",
     ].join(' ');
 
-    log("$requestLog => $responseLog", name: 'HTTP');
+    final message = "$requestLog => $responseLog";
+    log(message, name: 'HTTP');
+    firebase.log(message);
     handler.next(response);
   }
 }
