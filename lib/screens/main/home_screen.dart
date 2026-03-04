@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:tattoo/i18n/strings.g.dart';
+import 'package:tattoo/router/app_router.dart';
 import 'package:tattoo/screens/main/profile/profile_providers.dart';
 
 class HomeScreen extends ConsumerWidget {
@@ -13,7 +14,8 @@ class HomeScreen extends ConsumerWidget {
   final StatefulNavigationShell navigationShell;
 
   void _onDestinationSelected(WidgetRef ref, int index) {
-    if (index == 2) {
+    final route = navigationShell.route.branches[index].defaultRoute?.path;
+    if (route == AppRoutes.profile) {
       ref.invalidate(dangerZoneActionProvider);
     }
     navigationShell.goBranch(

@@ -28,7 +28,6 @@ class ProfileScreen extends ConsumerWidget {
       ref.refresh(userAvatarProvider.future),
       ref.refresh(activeRegistrationProvider.future),
     ]);
-    ref.invalidate(dangerZoneActionProvider);
   }
 
   Future<void> _logout(BuildContext context, WidgetRef ref) async {
@@ -155,12 +154,7 @@ class ProfileScreen extends ConsumerWidget {
       OptionEntryTile.icon(
         icon: Icons.info_outline,
         title: t.profile.options.about,
-        onTap: () async {
-          await context.push(AppRoutes.about);
-          if (context.mounted) {
-            ref.invalidate(dangerZoneActionProvider);
-          }
-        },
+        onTap: () => context.push(AppRoutes.about),
       ),
       OptionEntryTile.svg(
         svgIconAsset: "assets/npc_logo.svg",
