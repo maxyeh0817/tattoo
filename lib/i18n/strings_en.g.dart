@@ -250,7 +250,7 @@ class _TranslationsProfileDangerZoneEn extends TranslationsProfileDangerZoneZhTw
 	@override String get kickedMessage => 'You were kicked out by the staff. Better head home and rest!';
 	@override String get fireMessage => 'Bar is on fire';
 	@override String get alreadyFull => 'Already full';
-	@override String goAction({required Object action}) => 'Go to the bar ${action}';
+	@override String goAction({required Object action}) => 'Go to the bar and ${action}';
 	@override List<String> get actions => [
 		'order 0 beers',
 		'order 999999999 beers',
@@ -258,7 +258,7 @@ class _TranslationsProfileDangerZoneEn extends TranslationsProfileDangerZoneZhTw
 		'order -1 beer',
 		'order 1 asdfghjkl',
 		'order 1 bowl of fried rice',
-		'run into the bar and get kicked out by the staff',
+		'get kicked out by the staff',
 	];
 }
 
@@ -360,14 +360,14 @@ extension on TranslationsEn {
 			'profile.dangerZone.kickedMessage' => 'You were kicked out by the staff. Better head home and rest!',
 			'profile.dangerZone.fireMessage' => 'Bar is on fire',
 			'profile.dangerZone.alreadyFull' => 'Already full',
-			'profile.dangerZone.goAction' => ({required Object action}) => 'Go to the bar ${action}',
+			'profile.dangerZone.goAction' => ({required Object action}) => 'Go to the bar and ${action}',
 			'profile.dangerZone.actions.0' => 'order 0 beers',
 			'profile.dangerZone.actions.1' => 'order 999999999 beers',
 			'profile.dangerZone.actions.2' => 'order 1 lizard',
 			'profile.dangerZone.actions.3' => 'order -1 beer',
 			'profile.dangerZone.actions.4' => 'order 1 asdfghjkl',
 			'profile.dangerZone.actions.5' => 'order 1 bowl of fried rice',
-			'profile.dangerZone.actions.6' => 'run into the bar and get kicked out by the staff',
+			'profile.dangerZone.actions.6' => 'get kicked out by the staff',
 			'enrollmentStatus.learning' => 'Enrolled',
 			'enrollmentStatus.leaveOfAbsence' => 'Leave of Absence',
 			'enrollmentStatus.droppedOut' => 'Withdrawn',
