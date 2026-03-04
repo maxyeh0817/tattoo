@@ -138,9 +138,9 @@ class _TranslationsProfileEn extends TranslationsProfileZhTw {
 	// Translations
 	@override String get dataDisclaimer => 'For reference only. Not valid as official documentation.';
 	@override late final _TranslationsProfileSectionsEn sections = _TranslationsProfileSectionsEn._(_root);
-	@override late final _TranslationsProfileDangerZoneEn dangerZone = _TranslationsProfileDangerZoneEn._(_root);
 	@override late final _TranslationsProfileOptionsEn options = _TranslationsProfileOptionsEn._(_root);
 	@override late final _TranslationsProfileAvatarEn avatar = _TranslationsProfileAvatarEn._(_root);
+	@override late final _TranslationsProfileDangerZoneEn dangerZone = _TranslationsProfileDangerZoneEn._(_root);
 }
 
 // Path: enrollmentStatus
@@ -168,7 +168,6 @@ class _TranslationsAboutEn extends TranslationsAboutZhTw {
 	@override String get viewSource => 'View source code and contributions';
 	@override String get relatedLinks => 'Related Links';
 	@override String get copyright => '© 2025 NTUT Programming Club\nLicensed under the GNU GPL v3.0';
-	@override late final _TranslationsAboutEasterEn easter = _TranslationsAboutEasterEn._(_root);
 }
 
 // Path: intro.features
@@ -207,17 +206,6 @@ class _TranslationsProfileSectionsEn extends TranslationsProfileSectionsZhTw {
 	@override String get dangerZone => 'Danger Zone';
 }
 
-// Path: profile.dangerZone
-class _TranslationsProfileDangerZoneEn extends TranslationsProfileDangerZoneZhTw {
-	_TranslationsProfileDangerZoneEn._(TranslationsEn root) : this._root = root, super.internal(root);
-
-	final TranslationsEn _root; // ignore: unused_field
-
-	// Translations
-	@override String get nonFlutterCrash => 'Non-Flutter Framework Crash';
-	@override String get nonFlutterCrashException => 'Simulation of asynchronous error';
-}
-
 // Path: profile.options
 class _TranslationsProfileOptionsEn extends TranslationsProfileOptionsZhTw {
 	_TranslationsProfileOptionsEn._(TranslationsEn root) : this._root = root, super.internal(root);
@@ -248,19 +236,21 @@ class _TranslationsProfileAvatarEn extends TranslationsProfileAvatarZhTw {
 	@override String get uploadFailed => 'Failed to change avatar. Please try again later.';
 }
 
-// Path: about.easter
-class _TranslationsAboutEasterEn extends TranslationsAboutEasterZhTw {
-	_TranslationsAboutEasterEn._(TranslationsEn root) : this._root = root, super.internal(root);
+// Path: profile.dangerZone
+class _TranslationsProfileDangerZoneEn extends TranslationsProfileDangerZoneZhTw {
+	_TranslationsProfileDangerZoneEn._(TranslationsEn root) : this._root = root, super.internal(root);
 
 	final TranslationsEn _root; // ignore: unused_field
 
 	// Translations
-	@override String get barTitle => 'Bar is currently closed';
-	@override String get barClosed => 'The bar is closed today, come back another time to explore!';
-	@override String get barKicked => 'You were kicked out by the staff, you should go home and rest early~';
-	@override String get barFire => 'Bar is on fire';
-	@override String get full => 'Already full';
-	@override String goBar({required Object action}) => 'Go to the bar ${action}';
+	@override String get nonFlutterCrash => 'Non-Flutter Framework Crash';
+	@override String get nonFlutterCrashException => 'Simulation of asynchronous error';
+	@override String get closedTitle => 'Bar is currently closed';
+	@override String get closedMessage => 'The bar is closed today, come back another time to explore!';
+	@override String get kickedMessage => 'You were kicked out by the staff. Better head home and rest!';
+	@override String get fireMessage => 'Bar is on fire';
+	@override String get alreadyFull => 'Already full';
+	@override String goAction({required Object action}) => 'Go to the bar ${action}';
 	@override List<String> get actions => [
 		'order 0 beers',
 		'order 999999999 beers',
@@ -351,8 +341,6 @@ extension on TranslationsEn {
 			'profile.sections.accountSettings' => 'Account Settings',
 			'profile.sections.appSettings' => 'App Settings',
 			'profile.sections.dangerZone' => 'Danger Zone',
-			'profile.dangerZone.nonFlutterCrash' => 'Non-Flutter Framework Crash',
-			'profile.dangerZone.nonFlutterCrashException' => 'Simulation of asynchronous error',
 			'profile.options.changePassword' => 'Change Password',
 			'profile.options.changeAvatar' => 'Change Avatar',
 			'profile.options.supportUs' => 'Support Us',
@@ -365,6 +353,21 @@ extension on TranslationsEn {
 			'profile.avatar.tooLarge' => 'Image exceeds the 20 MB size limit',
 			'profile.avatar.invalidFormat' => 'Unrecognized image format',
 			'profile.avatar.uploadFailed' => 'Failed to change avatar. Please try again later.',
+			'profile.dangerZone.nonFlutterCrash' => 'Non-Flutter Framework Crash',
+			'profile.dangerZone.nonFlutterCrashException' => 'Simulation of asynchronous error',
+			'profile.dangerZone.closedTitle' => 'Bar is currently closed',
+			'profile.dangerZone.closedMessage' => 'The bar is closed today, come back another time to explore!',
+			'profile.dangerZone.kickedMessage' => 'You were kicked out by the staff. Better head home and rest!',
+			'profile.dangerZone.fireMessage' => 'Bar is on fire',
+			'profile.dangerZone.alreadyFull' => 'Already full',
+			'profile.dangerZone.goAction' => ({required Object action}) => 'Go to the bar ${action}',
+			'profile.dangerZone.actions.0' => 'order 0 beers',
+			'profile.dangerZone.actions.1' => 'order 999999999 beers',
+			'profile.dangerZone.actions.2' => 'order 1 lizard',
+			'profile.dangerZone.actions.3' => 'order -1 beer',
+			'profile.dangerZone.actions.4' => 'order 1 asdfghjkl',
+			'profile.dangerZone.actions.5' => 'order 1 bowl of fried rice',
+			'profile.dangerZone.actions.6' => 'run into the bar and get kicked out by the staff',
 			'enrollmentStatus.learning' => 'Enrolled',
 			'enrollmentStatus.leaveOfAbsence' => 'Leave of Absence',
 			'enrollmentStatus.droppedOut' => 'Withdrawn',
@@ -374,19 +377,6 @@ extension on TranslationsEn {
 			'about.viewSource' => 'View source code and contributions',
 			'about.relatedLinks' => 'Related Links',
 			'about.copyright' => '© 2025 NTUT Programming Club\nLicensed under the GNU GPL v3.0',
-			'about.easter.barTitle' => 'Bar is currently closed',
-			'about.easter.barClosed' => 'The bar is closed today, come back another time to explore!',
-			'about.easter.barKicked' => 'You were kicked out by the staff, you should go home and rest early~',
-			'about.easter.barFire' => 'Bar is on fire',
-			'about.easter.full' => 'Already full',
-			'about.easter.goBar' => ({required Object action}) => 'Go to the bar ${action}',
-			'about.easter.actions.0' => 'order 0 beers',
-			'about.easter.actions.1' => 'order 999999999 beers',
-			'about.easter.actions.2' => 'order 1 lizard',
-			'about.easter.actions.3' => 'order -1 beer',
-			'about.easter.actions.4' => 'order 1 asdfghjkl',
-			'about.easter.actions.5' => 'order 1 bowl of fried rice',
-			'about.easter.actions.6' => 'run into the bar and get kicked out by the staff',
 			_ => null,
 		};
 	}

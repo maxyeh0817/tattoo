@@ -69,18 +69,20 @@ class _AboutScreenState extends ConsumerState<AboutScreen> {
                               final newTesterActionIndex = ref.read(
                                 testerActionProvider,
                               );
-                              final newTesterAction =
-                                  t.about.easter.actions[newTesterActionIndex];
+                              final newTesterAction = t
+                                  .profile
+                                  .dangerZone
+                                  .actions[newTesterActionIndex];
 
                               if (context.mounted) {
                                 ScaffoldMessenger.of(context).showSnackBar(
                                   SnackBar(
                                     content: Text(
                                       newState
-                                          ? t.about.easter.goBar(
+                                          ? t.profile.dangerZone.goAction(
                                               action: newTesterAction,
                                             )
-                                          : t.about.easter.full,
+                                          : t.profile.dangerZone.alreadyFull,
                                     ),
                                     behavior: SnackBarBehavior.floating,
                                   ),

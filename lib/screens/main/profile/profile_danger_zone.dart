@@ -19,7 +19,7 @@ class ProfileDangerZone extends ConsumerWidget {
     }
 
     final testerActionIndex = ref.watch(testerActionProvider);
-    final testerAction = t.about.easter.actions[testerActionIndex];
+    final testerAction = t.profile.dangerZone.actions[testerActionIndex];
 
     return Column(
       spacing: 8,
@@ -27,14 +27,14 @@ class ProfileDangerZone extends ConsumerWidget {
         SectionHeader(title: t.profile.sections.dangerZone, color: dangerColor),
         OptionEntryTile.icon(
           icon: Icons.sports_bar_outlined,
-          title: t.about.easter.goBar(action: testerAction),
+          title: t.profile.dangerZone.goAction(action: testerAction),
           color: dangerColor,
           borderColor: dangerColor,
           onTap: () {
-            if (testerActionIndex == t.about.easter.actions.length - 1) {
+            if (testerActionIndex == t.profile.dangerZone.actions.length - 1) {
               SystemNavigator.pop();
             } else {
-              throw Exception(t.about.easter.barFire);
+              throw Exception(t.profile.dangerZone.fireMessage);
             }
           },
         ),

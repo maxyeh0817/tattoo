@@ -39,12 +39,12 @@ final testerActionProvider =
 class TesterActionNotifier extends Notifier<int> {
   @override
   int build() {
-    final length = t.about.easter.actions.length;
+    final length = t.profile.dangerZone.actions.length;
     return Random().nextInt(length);
   }
 
   void refresh() {
-    final length = t.about.easter.actions.length;
+    final length = t.profile.dangerZone.actions.length;
     state = Random().nextInt(length);
   }
 }

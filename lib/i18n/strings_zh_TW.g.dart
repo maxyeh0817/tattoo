@@ -192,9 +192,9 @@ class TranslationsProfileZhTw {
 	String get dataDisclaimer => '本資料僅供參考，不做其他證明用途';
 
 	late final TranslationsProfileSectionsZhTw sections = TranslationsProfileSectionsZhTw.internal(_root);
-	late final TranslationsProfileDangerZoneZhTw dangerZone = TranslationsProfileDangerZoneZhTw.internal(_root);
 	late final TranslationsProfileOptionsZhTw options = TranslationsProfileOptionsZhTw.internal(_root);
 	late final TranslationsProfileAvatarZhTw avatar = TranslationsProfileAvatarZhTw.internal(_root);
+	late final TranslationsProfileDangerZoneZhTw dangerZone = TranslationsProfileDangerZoneZhTw.internal(_root);
 }
 
 // Path: enrollmentStatus
@@ -240,8 +240,6 @@ class TranslationsAboutZhTw {
 
 	/// zh-TW: '© 2025 北科程式設計研究社\n以GNU GPL v3.0授權條款釋出'
 	String get copyright => '© 2025 北科程式設計研究社\n以GNU GPL v3.0授權條款釋出';
-
-	late final TranslationsAboutEasterZhTw easter = TranslationsAboutEasterZhTw.internal(_root);
 }
 
 // Path: intro.features
@@ -290,21 +288,6 @@ class TranslationsProfileSectionsZhTw {
 
 	/// zh-TW: '危險區域'
 	String get dangerZone => '危險區域';
-}
-
-// Path: profile.dangerZone
-class TranslationsProfileDangerZoneZhTw {
-	TranslationsProfileDangerZoneZhTw.internal(this._root);
-
-	final Translations _root; // ignore: unused_field
-
-	// Translations
-
-	/// zh-TW: '非 Flutter 框架崩潰'
-	String get nonFlutterCrash => '非 Flutter 框架崩潰';
-
-	/// zh-TW: '模擬非同步錯誤'
-	String get nonFlutterCrashException => '模擬非同步錯誤';
 }
 
 // Path: profile.options
@@ -361,31 +344,37 @@ class TranslationsProfileAvatarZhTw {
 	String get uploadFailed => '更改個人圖片失敗，請稍後再試';
 }
 
-// Path: about.easter
-class TranslationsAboutEasterZhTw {
-	TranslationsAboutEasterZhTw.internal(this._root);
+// Path: profile.dangerZone
+class TranslationsProfileDangerZoneZhTw {
+	TranslationsProfileDangerZoneZhTw.internal(this._root);
 
 	final Translations _root; // ignore: unused_field
 
 	// Translations
 
+	/// zh-TW: '非 Flutter 框架崩潰'
+	String get nonFlutterCrash => '非 Flutter 框架崩潰';
+
+	/// zh-TW: '模擬非同步錯誤'
+	String get nonFlutterCrashException => '模擬非同步錯誤';
+
 	/// zh-TW: '酒吧暫未營業'
-	String get barTitle => '酒吧暫未營業';
+	String get closedTitle => '酒吧暫未營業';
 
 	/// zh-TW: '酒吧今天打烊了，改天再來探索吧！'
-	String get barClosed => '酒吧今天打烊了，改天再來探索吧！';
+	String get closedMessage => '酒吧今天打烊了，改天再來探索吧！';
 
 	/// zh-TW: '你被店員勸退，還是早點回家休息吧～'
-	String get barKicked => '你被店員勸退，還是早點回家休息吧～';
+	String get kickedMessage => '你被店員勸退，還是早點回家休息吧～';
 
 	/// zh-TW: '酒吧陷入火海'
-	String get barFire => '酒吧陷入火海';
+	String get fireMessage => '酒吧陷入火海';
 
 	/// zh-TW: '已經吃飽了'
-	String get full => '已經吃飽了';
+	String get alreadyFull => '已經吃飽了';
 
 	/// zh-TW: '去酒吧${action}'
-	String goBar({required Object action}) => '去酒吧${action}';
+	String goAction({required Object action}) => '去酒吧${action}';
 
 	List<String> get actions => [
 		'點 0 杯啤酒',
@@ -489,8 +478,6 @@ extension on Translations {
 			'profile.sections.accountSettings' => '帳號設定',
 			'profile.sections.appSettings' => '應用程式設定',
 			'profile.sections.dangerZone' => '危險區域',
-			'profile.dangerZone.nonFlutterCrash' => '非 Flutter 框架崩潰',
-			'profile.dangerZone.nonFlutterCrashException' => '模擬非同步錯誤',
 			'profile.options.changePassword' => '更改密碼',
 			'profile.options.changeAvatar' => '更改個人圖片',
 			'profile.options.supportUs' => '支持我們',
@@ -503,6 +490,21 @@ extension on Translations {
 			'profile.avatar.tooLarge' => '圖片大小超過 20 MB 限制',
 			'profile.avatar.invalidFormat' => '無法辨識的圖片格式',
 			'profile.avatar.uploadFailed' => '更改個人圖片失敗，請稍後再試',
+			'profile.dangerZone.nonFlutterCrash' => '非 Flutter 框架崩潰',
+			'profile.dangerZone.nonFlutterCrashException' => '模擬非同步錯誤',
+			'profile.dangerZone.closedTitle' => '酒吧暫未營業',
+			'profile.dangerZone.closedMessage' => '酒吧今天打烊了，改天再來探索吧！',
+			'profile.dangerZone.kickedMessage' => '你被店員勸退，還是早點回家休息吧～',
+			'profile.dangerZone.fireMessage' => '酒吧陷入火海',
+			'profile.dangerZone.alreadyFull' => '已經吃飽了',
+			'profile.dangerZone.goAction' => ({required Object action}) => '去酒吧${action}',
+			'profile.dangerZone.actions.0' => '點 0 杯啤酒',
+			'profile.dangerZone.actions.1' => '點 999999999 杯啤酒',
+			'profile.dangerZone.actions.2' => '點 1 支蜥蜴',
+			'profile.dangerZone.actions.3' => '點 -1 杯啤酒',
+			'profile.dangerZone.actions.4' => '點 1 份 asdfghjkl',
+			'profile.dangerZone.actions.5' => '點 1 碗炒飯',
+			'profile.dangerZone.actions.6' => '跑進吧檯被店員拖出去',
 			'enrollmentStatus.learning' => '在學',
 			'enrollmentStatus.leaveOfAbsence' => '休學',
 			'enrollmentStatus.droppedOut' => '退學',
@@ -512,19 +514,6 @@ extension on Translations {
 			'about.viewSource' => '查看原始碼與貢獻',
 			'about.relatedLinks' => '相關連結',
 			'about.copyright' => '© 2025 北科程式設計研究社\n以GNU GPL v3.0授權條款釋出',
-			'about.easter.barTitle' => '酒吧暫未營業',
-			'about.easter.barClosed' => '酒吧今天打烊了，改天再來探索吧！',
-			'about.easter.barKicked' => '你被店員勸退，還是早點回家休息吧～',
-			'about.easter.barFire' => '酒吧陷入火海',
-			'about.easter.full' => '已經吃飽了',
-			'about.easter.goBar' => ({required Object action}) => '去酒吧${action}',
-			'about.easter.actions.0' => '點 0 杯啤酒',
-			'about.easter.actions.1' => '點 999999999 杯啤酒',
-			'about.easter.actions.2' => '點 1 支蜥蜴',
-			'about.easter.actions.3' => '點 -1 杯啤酒',
-			'about.easter.actions.4' => '點 1 份 asdfghjkl',
-			'about.easter.actions.5' => '點 1 碗炒飯',
-			'about.easter.actions.6' => '跑進吧檯被店員拖出去',
 			_ => null,
 		};
 	}

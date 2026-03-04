@@ -48,9 +48,6 @@ profile:
     accountSettings: 帳號設定
     appSettings: 應用程式設定
     dangerZone: 危險區域
-  dangerZone:
-    nonFlutterCrash: 非 Flutter 框架崩潰
-    nonFlutterCrashException: 模擬非同步錯誤
   options:
     changePassword: 更改密碼
     changeAvatar: 更改個人圖片
@@ -65,6 +62,23 @@ profile:
     tooLarge: 圖片大小超過 20 MB 限制
     invalidFormat: 無法辨識的圖片格式
     uploadFailed: 更改個人圖片失敗，請稍後再試
+  dangerZone:
+    nonFlutterCrash: 非 Flutter 框架崩潰
+    nonFlutterCrashException: 模擬非同步錯誤
+    closedTitle: 酒吧暫未營業
+    closedMessage: "酒吧今天打烊了，改天再來探索吧！"
+    kickedMessage: "你被店員勸退，還是早點回家休息吧～"
+    fireMessage: 酒吧陷入火海
+    alreadyFull: "已經吃飽了"
+    goAction: "去酒吧${action}"
+    actions:
+      - 點 0 杯啤酒
+      - 點 999999999 杯啤酒
+      - 點 1 支蜥蜴
+      - 點 -1 杯啤酒
+      - 點 1 份 asdfghjkl
+      - 點 1 碗炒飯
+      - 跑進吧檯被店員拖出去
 enrollmentStatus:
   learning: 在學
   leaveOfAbsence: 休學
@@ -76,19 +90,4 @@ about:
   viewSource: 查看原始碼與貢獻
   relatedLinks: 相關連結
   copyright: © 2025 北科程式設計研究社\n以GNU GPL v3.0授權條款釋出
-  easter:
-    barTitle: 酒吧暫未營業
-    barClosed: "酒吧今天打烊了，改天再來探索吧！"
-    barKicked: "你被店員勸退，還是早點回家休息吧～"
-    barFire: 酒吧陷入火海
-    full: "已經吃飽了"
-    goBar: "去酒吧${action}"
-    actions:
-      - 點 0 杯啤酒
-      - 點 999999999 杯啤酒
-      - 點 1 支蜥蜴
-      - 點 -1 杯啤酒
-      - 點 1 份 asdfghjkl
-      - 點 1 碗炒飯
-      - 跑進吧檯被店員拖出去
 
