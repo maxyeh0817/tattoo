@@ -239,12 +239,18 @@ class CourseService {
 
     final document = parse(response.data);
     final tables = document.querySelectorAll('table');
+    if (tables.length < 2) {
+      throw Exception('Expected timetable grid and course list tables.');
+    }
 
     // Parse the timetable grid (table[0]) for per-timeslot schedule+classroom
     // Structure: header row has day labels (一–日), data rows have period
     // labels in column 0 and course cells with <a> links for the rest.
     final timetableGrid = tables[0];
     final timetableRows = timetableGrid.querySelectorAll('tr');
+    if (timetableRows.length < 3) {
+      throw Exception('Timetable grid has no data rows.');
+    }
 
     // Build column -> DayOfWeek map from header row
     const dayCharToEnum = {
