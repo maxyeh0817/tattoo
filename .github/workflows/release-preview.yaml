@@ -139,14 +139,14 @@ jobs:
           SECTION=$(cat <<SECTION_EOF
 
           ### Android
+          You can join the testing program here:
+          [Join Firebase App Distribution](${{ vars.FIREBASE_PUBLIC_LINK }})
+
           [Install build ${{ needs.prepare.outputs.build_number }}]($TESTING_URI) (Firebase App Distribution)
 
           1. Open the Firebase App Distribution app on your Android device
           2. Select "Project Tattoo"
           3. Install or update to the latest build
-
-          If you don't have Firebase App Distribution installed, install it via the link above (not on Google Play).
-          You should join the testing program first: [Join Firebase App Distribution](${{ vars.FIREBASE_PUBLIC_LINK }})
 
           > If you can't find the new release in Firebase App Distribution, navigate to the home page and back.
           > Installing the App Distribution app is optional but recommended.
@@ -200,12 +200,12 @@ jobs:
           SECTION=$(cat <<SECTION_EOF
 
           ### iOS (TestFlight)
+          You can also join the TestFlight program here:
+          [Join TestFlight](${{ vars.TESTFLIGHT_PUBLIC_LINK }}) to install build ${{ needs.prepare.outputs.build_number }}.
+
           1. Open the TestFlight app on your iOS device
           2. Select "Project Tattoo"
           3. Install build ${{ needs.prepare.outputs.build_number }}
-
-          You can also join the TestFlight program here:
-          [Join TestFlight](${{ vars.TESTFLIGHT_PUBLIC_LINK }}) to install build ${{ needs.prepare.outputs.build_number }}.
 
           > Install TestFlight app from App Store if you don't have it (required iOS 16.0 or later)
           > TestFlight app is blocked by NTUT WiFi, please use your own mobile data or other WiFi to install.
