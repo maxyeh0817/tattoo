@@ -5,20 +5,20 @@ on:
   workflow_dispatch:
     inputs:
       branch_name:
-        description: 'Specific branch to build from HEAD (Uses CI logic from dropdown)'
+        description: "Specific branch to build from HEAD (Uses CI logic from dropdown)"
         required: false
         type: string
       commit_sha:
-        description: 'Specific commit SHA to build (overrides branch)'
+        description: "Specific commit SHA to build (overrides branch)"
         required: false
         type: string
       deploy_android:
-        description: 'Deploy Android to Firebase App Distribution'
+        description: "Deploy Android to Firebase App Distribution"
         required: false
         type: boolean
         default: true
       deploy_ios:
-        description: 'Deploy iOS to TestFlight'
+        description: "Deploy iOS to TestFlight"
         required: false
         type: boolean
         default: false
@@ -188,7 +188,7 @@ jobs:
         uses: ./.github/actions/android-summary
         with:
           build_number: ${{ needs.prepare.outputs.build_number }}
-          type: 'firebase'
+          type: "firebase"
           testing_uri: ${{ steps.upload.outputs.testing_uri }}
 
       - name: Update comment with Android build
@@ -231,7 +231,6 @@ jobs:
         with:
           platform: ios
 
-
       - name: Find preview comment
         if: github.event_name == 'pull_request'
         uses: peter-evans/find-comment@b30e6a3c0ed37e7c023ccd3f1db5c6c0b0c23aad # v4
@@ -262,7 +261,7 @@ jobs:
           fi
 
       - name: Build and Upload to TestFlight
-        run: bundle exec fastlane ios beta skip_upload:${{ steps.check-deploy.outputs.skip_upload }}
+        run: bundle exec fastlane ios testflight skip_upload:${{ steps.check-deploy.outputs.skip_upload }}
 
       - name: Write iOS Job Summary
         if: steps.check-deploy.outputs.skip_upload != 'true'

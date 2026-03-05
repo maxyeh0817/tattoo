@@ -75,6 +75,7 @@ jobs:
       COMMIT_SHA: ${{ needs.prepare.outputs.commit_sha }}
       COMMIT_MESSAGE: ${{ needs.prepare.outputs.commit_message }}
       PUBLIC_TESTER: ${{ inputs.public_tester }}
+      FIREBASEAPPDISTRO_APP: ${{ secrets.FIREBASEAPPDISTRO_APP }}
     steps:
       - name: Checkout code
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
@@ -86,17 +87,8 @@ jobs:
         with:
           platform: android
 
-      - name: Build Android App Bundle
-        run: bundle exec fastlane android build
-
-      - name: Upload to Google Play Console
-        run: bundle exec fastlane android release_googleplay skip_build:true
-
-      - name: Upload to Firebase App Distribution
-        id: upload
-        env:
-          FIREBASEAPPDISTRO_APP: ${{ secrets.FIREBASEAPPDISTRO_APP }}
-        run: bundle exec fastlane android release_firebase skip_build:true
+      - name: Build and Upload Android
+        run: bundle exec fastlane android release
 
       - name: Write Android Job Summary
         uses: ./.github/actions/android-summary
@@ -135,7 +127,7 @@ jobs:
           platform: ios
 
       - name: Build and Upload to TestFlight (App Store Connect)
-        run: bundle exec fastlane ios beta
+        run: bundle exec fastlane ios testflight
 
       - name: Write iOS Job Summary
         uses: ./.github/actions/ios-summary
