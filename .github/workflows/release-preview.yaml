@@ -81,17 +81,14 @@ jobs:
           BODY_EOF
           )
 
-          if gh release view pre-release &>/dev/null; then
-            gh release edit pre-release \
-              --title "Pre-release Build #${{ steps.build-number.outputs.build_number }}" \
-              --notes "$BODY" \
-              --draft=false
-          else
-            gh release create pre-release \
-              --title "Pre-release Build #${{ steps.build-number.outputs.build_number }}" \
-              --notes "$BODY" \
-              --prerelease
+          if gh release view pr-preview &>/dev/null; then
+            gh release delete pr-preview --yes --cleanup-tag
           fi
+
+          gh release create pr-preview \
+            --title "Pre-release Build #${{ steps.build-number.outputs.build_number }}" \
+            --notes "$BODY" \
+            --prerelease
 
   android:
     runs-on: ubuntu-latest
