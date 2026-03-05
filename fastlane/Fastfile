@@ -124,12 +124,13 @@ platform :android do
   private_lane :build_appbundle do |options|
     build_number = options[:build_number] || ENV["BUILD_NUMBER"] || 1
     Dir.chdir("..") { sh("dart", "run", "tool/credentials.dart", "fetch") }
-    
-    flutter_build(
+
+    aab_path = flutter_build(
       build: "appbundle",
       build_number: build_number,
       build_args: ["--dart-define=USE_FIREBASE=true"],
     )
+    aab_path
   end
 
   private_lane :upload_firebase do |options|
