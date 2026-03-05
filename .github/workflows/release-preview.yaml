@@ -131,28 +131,22 @@ jobs:
           testing_uri: ${{ steps.upload.outputs.testing_uri }}
 
       - name: Append Android result to pre-release
-        env:
-          GH_TOKEN: ${{ github.token }}
-          TESTING_URI: ${{ steps.upload.outputs.testing_uri }}
-        run: |
-          CURRENT=$(gh release view pre-release --json body -q .body)
-          SECTION=$(cat <<SECTION_EOF
+        uses: ./.github/actions/append-release-notes
+        with:
+          github_token: ${{ github.token }}
+          body: |
+            ### Android
+            You can join the testing program here:
+            [Join Firebase App Distribution](${{ vars.FIREBASE_PUBLIC_LINK }})
 
-          ### Android
-          You can join the testing program here:
-          [Join Firebase App Distribution](${{ vars.FIREBASE_PUBLIC_LINK }})
+            [Install build ${{ needs.prepare.outputs.build_number }}](${{ steps.upload.outputs.testing_uri }}) (Firebase App Distribution)
 
-          [Install build ${{ needs.prepare.outputs.build_number }}]($TESTING_URI) (Firebase App Distribution)
+            1. Open the Firebase App Distribution app on your Android device
+            2. Select "Project Tattoo"
+            3. Install or update to the latest build
 
-          1. Open the Firebase App Distribution app on your Android device
-          2. Select "Project Tattoo"
-          3. Install or update to the latest build
-
-          > If you can't find the new release in Firebase App Distribution, navigate to the home page and back.
-          > Installing the App Distribution app is optional but recommended.
-          SECTION_EOF
-          )
-          gh release edit pre-release --notes "$CURRENT$SECTION"
+            > If you cannot find the new release in Firebase App Distribution, navigate to the home page and back.
+            > Installing the App Distribution app is optional but recommended.
 
   ios:
     runs-on: macos-latest
@@ -193,22 +187,17 @@ jobs:
           build_number: ${{ needs.prepare.outputs.build_number }}
 
       - name: Append iOS result to pre-release
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: |
-          CURRENT=$(gh release view pre-release --json body -q .body)
-          SECTION=$(cat <<SECTION_EOF
+        uses: ./.github/actions/append-release-notes
+        with:
+          github_token: ${{ github.token }}
+          body: |
+            ### iOS (TestFlight)
+            You can also join the TestFlight program here:
+            [Join TestFlight](${{ vars.TESTFLIGHT_PUBLIC_LINK }}) to install build ${{ needs.prepare.outputs.build_number }}.
 
-          ### iOS (TestFlight)
-          You can also join the TestFlight program here:
-          [Join TestFlight](${{ vars.TESTFLIGHT_PUBLIC_LINK }}) to install build ${{ needs.prepare.outputs.build_number }}.
+            1. Open the TestFlight app on your iOS device
+            2. Select "Project Tattoo"
+            3. Install build ${{ needs.prepare.outputs.build_number }}
 
-          1. Open the TestFlight app on your iOS device
-          2. Select "Project Tattoo"
-          3. Install build ${{ needs.prepare.outputs.build_number }}
-
-          > Install TestFlight app from App Store if you don't have it (required iOS 16.0 or later)
-          > TestFlight app is blocked by NTUT WiFi, please use your own mobile data or other WiFi to install.
-          SECTION_EOF
-          )
-          gh release edit pre-release --notes "$CURRENT$SECTION"
+            > Install TestFlight app from App Store if you don't have it (required iOS 16.0 or later)
+            > TestFlight app is blocked by NTUT WiFi, please use your own mobile data or other WiFi to install.

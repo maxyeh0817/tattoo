@@ -23,10 +23,10 @@ For _fastlane_ installation instructions, see [Installing _fastlane_](https://do
 
 Build, install on connected device, and upload dSYMs
 
-### ios beta
+### ios upload_testflight
 
 ```sh
-[bundle exec] fastlane ios beta
+[bundle exec] fastlane ios upload_testflight
 ```
 
 Build and upload to TestFlight
