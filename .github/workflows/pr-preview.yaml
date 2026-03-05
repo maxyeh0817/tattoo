@@ -261,7 +261,7 @@ jobs:
           fi
 
       - name: Build and Upload to TestFlight
-        run: bundle exec fastlane ios testflight skip_upload:${{ steps.check-deploy.outputs.skip_upload }}
+        run: bundle exec fastlane ios upload_testflight skip_upload:${{ steps.check-deploy.outputs.skip_upload }}
 
       - name: Write iOS Job Summary
         if: steps.check-deploy.outputs.skip_upload != 'true'

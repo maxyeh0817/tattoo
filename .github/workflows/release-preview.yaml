@@ -183,7 +183,7 @@ jobs:
           platform: ios
 
       - name: Build and Upload to TestFlight (App Store Connect)
-        run: bundle exec fastlane ios testflight
+        run: bundle exec fastlane ios upload_testflight
 
       - name: Write iOS Job Summary
         uses: ./.github/actions/ios-summary

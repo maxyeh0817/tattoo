@@ -55,7 +55,7 @@ platform :ios do
   end
 
   desc "Build and upload to TestFlight"
-  lane :testflight do |options|
+  lane :upload_testflight do |options|
     build_number = options[:build_number] || ENV["BUILD_NUMBER"] || 1
     pr_number = options[:pr_number] || ENV["PR_NUMBER"] || ""
     pr_title = options[:pr_title] || ENV["PR_TITLE"] || "manual build"
