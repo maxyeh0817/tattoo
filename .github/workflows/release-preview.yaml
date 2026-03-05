@@ -84,13 +84,13 @@ jobs:
           if gh release view pre-release &>/dev/null; then
             gh release edit pre-release \
               --title "Pre-release Build #${{ steps.build-number.outputs.build_number }}" \
-              --notes "$BODY"
+              --notes "$BODY" \
+              --draft=false
           else
             gh release create pre-release \
               --title "Pre-release Build #${{ steps.build-number.outputs.build_number }}" \
               --notes "$BODY" \
-              --prerelease \
-              --draft
+              --prerelease
           fi
 
   android:
