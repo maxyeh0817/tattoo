@@ -40,14 +40,14 @@ This app will never provide, exchange, rent, or sell any of your personal data t
 
 This app uses the following third-party services:
 
-### (1) Firebase (Release Builds Only)
+### (1) Firebase
 
-Release builds of the app may include Firebase Analytics and Firebase Crashlytics, provided by Google. When enabled, these services collect:
+The app may include Firebase Analytics and Firebase Crashlytics, provided by Google. When enabled, these services collect:
 
 - **Crashlytics:** Crash reports, device model, OS version, and app state at the time of a crash
 - **Analytics:** Anonymous usage events (e.g., screen views) and device information
 
-Firebase data collection is controlled by a compile-time flag and is disabled in debug builds. Firebase is governed by [Google's Privacy Policy](https://policies.google.com/privacy).
+Firebase is governed by [Google's Privacy Policy](https://policies.google.com/privacy).
 
 ### (2) GitHub
 

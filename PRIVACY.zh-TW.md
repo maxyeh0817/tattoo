@@ -40,14 +40,14 @@
 
 本應用程式使用以下第三方服務：
 
-### （一）Firebase（僅限正式版本）
+### （一）Firebase
 
-正式版本的應用程式可能包含由 Google 提供的 Firebase Analytics 與 Firebase Crashlytics。啟用時，這些服務會蒐集：
+本應用程式可能包含由 Google 提供的 Firebase Analytics 與 Firebase Crashlytics。啟用時，這些服務會蒐集：
 
 - **Crashlytics：** 當機報告、裝置型號、作業系統版本，以及當機時的應用程式狀態
 - **Analytics：** 匿名使用事件（例如畫面瀏覽）與裝置資訊
 
-Firebase 資料蒐集由編譯時期旗標控制，在除錯版本中預設停用。Firebase 受 [Google 隱私權政策](https://policies.google.com/privacy)規範。
+Firebase 受 [Google 隱私權政策](https://policies.google.com/privacy)規範。
 
 ### （二）GitHub
 
