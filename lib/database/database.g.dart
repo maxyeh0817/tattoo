@@ -4881,7 +4881,7 @@ class $CourseOfferingTeachersTable extends CourseOfferingTeachers
     type: DriftSqlType.int,
     requiredDuringInsert: true,
     defaultConstraints: GeneratedColumn.constraintIsAlways(
-      'REFERENCES course_offerings (id)',
+      'REFERENCES course_offerings (id) ON DELETE CASCADE',
     ),
   );
   static const VerificationMeta _teacherMeta = const VerificationMeta(
@@ -5120,7 +5120,7 @@ class $CourseOfferingClassesTable extends CourseOfferingClasses
     type: DriftSqlType.int,
     requiredDuringInsert: true,
     defaultConstraints: GeneratedColumn.constraintIsAlways(
-      'REFERENCES course_offerings (id)',
+      'REFERENCES course_offerings (id) ON DELETE CASCADE',
     ),
   );
   static const VerificationMeta _classEntityMeta = const VerificationMeta(
@@ -5367,7 +5367,7 @@ class $CourseOfferingStudentsTable extends CourseOfferingStudents
     type: DriftSqlType.int,
     requiredDuringInsert: true,
     defaultConstraints: GeneratedColumn.constraintIsAlways(
-      'REFERENCES course_offerings (id)',
+      'REFERENCES course_offerings (id) ON DELETE CASCADE',
     ),
   );
   static const VerificationMeta _studentMeta = const VerificationMeta(
@@ -5619,7 +5619,7 @@ class $SchedulesTable extends Schedules
     type: DriftSqlType.int,
     requiredDuringInsert: true,
     defaultConstraints: GeneratedColumn.constraintIsAlways(
-      'REFERENCES course_offerings (id)',
+      'REFERENCES course_offerings (id) ON DELETE CASCADE',
     ),
   );
   @override
@@ -6009,7 +6009,7 @@ class $MaterialsTable extends Materials
     type: DriftSqlType.int,
     requiredDuringInsert: true,
     defaultConstraints: GeneratedColumn.constraintIsAlways(
-      'REFERENCES course_offerings (id)',
+      'REFERENCES course_offerings (id) ON DELETE CASCADE',
     ),
   );
   static const VerificationMeta _titleMeta = const VerificationMeta('title');
@@ -9631,6 +9631,45 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   ];
   @override
   StreamQueryUpdateRules get streamUpdateRules => const StreamQueryUpdateRules([
+    WritePropagation(
+      on: TableUpdateQuery.onTableName(
+        'course_offerings',
+        limitUpdateKind: UpdateKind.delete,
+      ),
+      result: [
+        TableUpdate('course_offering_teachers', kind: UpdateKind.delete),
+      ],
+    ),
+    WritePropagation(
+      on: TableUpdateQuery.onTableName(
+        'course_offerings',
+        limitUpdateKind: UpdateKind.delete,
+      ),
+      result: [TableUpdate('course_offering_classes', kind: UpdateKind.delete)],
+    ),
+    WritePropagation(
+      on: TableUpdateQuery.onTableName(
+        'course_offerings',
+        limitUpdateKind: UpdateKind.delete,
+      ),
+      result: [
+        TableUpdate('course_offering_students', kind: UpdateKind.delete),
+      ],
+    ),
+    WritePropagation(
+      on: TableUpdateQuery.onTableName(
+        'course_offerings',
+        limitUpdateKind: UpdateKind.delete,
+      ),
+      result: [TableUpdate('schedules', kind: UpdateKind.delete)],
+    ),
+    WritePropagation(
+      on: TableUpdateQuery.onTableName(
+        'course_offerings',
+        limitUpdateKind: UpdateKind.delete,
+      ),
+      result: [TableUpdate('materials', kind: UpdateKind.delete)],
+    ),
     WritePropagation(
       on: TableUpdateQuery.onTableName(
         'users',
