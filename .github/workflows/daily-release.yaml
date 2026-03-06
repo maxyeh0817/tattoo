@@ -118,6 +118,11 @@ jobs:
           <!--android-build-->
 
           <!--ios-build-->
+
+          ---
+          > [!WARNING]
+          > Installing via the provided APK or IPA below is **discouraged**.
+          > Please use **Firebase App Distribution** (Android) or **TestFlight** (iOS) for the best experience and automatic updates.
           BODY_EOF
           )
 
