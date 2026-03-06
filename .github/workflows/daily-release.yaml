@@ -125,13 +125,16 @@ jobs:
         with:
           platform: android
 
-      - name: Build and Upload Android
-        id: upload
+      - name: Build Android
+        id: build
         run: |
           bundle exec fastlane android build
           bundle exec fastlane android release
           APK_PATH=$(find build/app/outputs/flutter-apk -name "*.apk" -not -name "*sha1" | head -n 1)
-          gh release upload daily "${APK_PATH}#tattoo-${{ needs.prepare.outputs.build_number }}-android.apk" --clobber
+          echo "apk_path=$APK_PATH" >> $GITHUB_OUTPUT
+
+      - name: Upload Android to Release
+        run: gh release upload daily "${{ steps.build.outputs.apk_path }}#tattoo-${{ needs.prepare.outputs.build_number }}-android.apk" --clobber
         env:
           GH_TOKEN: ${{ github.token }}
 
@@ -140,7 +143,7 @@ jobs:
         with:
           build_number: ${{ needs.prepare.outputs.build_number }}
           type: release
-          testing_uri: ${{ steps.upload.outputs.testing_uri }}
+          testing_uri: ${{ steps.build.outputs.testing_uri }}
 
       - name: Append Android result to pre-release
         uses: ./.github/actions/append-release-notes
@@ -192,11 +195,15 @@ jobs:
         with:
           platform: ios
 
-      - name: Build and Upload to TestFlight (App Store Connect)
+      - name: Build iOS
+        id: build
         run: |
           bundle exec fastlane ios upload_testflight
           IPA_PATH=$(find . -maxdepth 2 -name "*.ipa" | head -n 1)
-          gh release upload daily "${IPA_PATH}#tattoo-${{ needs.prepare.outputs.build_number }}-ios.ipa" --clobber
+          echo "ipa_path=$IPA_PATH" >> $GITHUB_OUTPUT
+
+      - name: Upload iOS to Release
+        run: gh release upload daily "${{ steps.build.outputs.ipa_path }}#tattoo-${{ needs.prepare.outputs.build_number }}-ios.ipa" --clobber
         env:
           GH_TOKEN: ${{ github.token }}
 
