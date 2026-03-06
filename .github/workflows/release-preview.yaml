@@ -77,6 +77,10 @@ jobs:
           **Build Number:** ${{ steps.build-number.outputs.build_number }}
           **Commit:** ${{ steps.summary.outputs.sha }}
           **Message:** ${{ steps.summary.outputs.message }}
+
+          <!--android-build-->
+
+          <!--ios-build-->
           BODY_EOF
           )
 
@@ -86,7 +90,6 @@ jobs:
 
           gh release create daily \
             --title "Daily Build $(TZ='Asia/Taipei' date +'%Y-%m-%d')" \
-            --body "#${{ steps.build-number.outputs.build_number }}" \
             --notes "$BODY" \
             --prerelease
 
@@ -131,6 +134,7 @@ jobs:
         uses: ./.github/actions/append-release-notes
         with:
           github_token: ${{ github.token }}
+          tag: "<!--android-build-->"
           body: |
             ### Android
             You can join the testing program here:
@@ -187,6 +191,7 @@ jobs:
         uses: ./.github/actions/append-release-notes
         with:
           github_token: ${{ github.token }}
+          tag: "<!--ios-build-->"
           body: |
             ### iOS (TestFlight)
             You can also join the TestFlight program here:
@@ -197,4 +202,4 @@ jobs:
             3. Install build ${{ needs.prepare.outputs.build_number }}
 
             > Install TestFlight app from App Store if you don't have it (required iOS 16.0 or later)
-            > TestFlight app is blocked by NTUT WiFi, please use your own mobile data or other WiFi to install.
+            > TestFlight app is blocked by NTUT Wi-Fi, please use your own mobile data or other Wi-Fi to install.
