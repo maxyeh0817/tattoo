@@ -18,9 +18,27 @@ def changelog(pr_number, pr_title, commit_sha, commit_message)
   "#{prefix}\n#{commit_sha} #{commit_message}"
 end
 
+def get_pubspec_version
+  require 'yaml'
+  pubspec = YAML.load_file(File.expand_path("../pubspec.yaml", __dir__))
+  pubspec['version']
+end
+
+def get_build_settings(options)
+  version_suffix = options[:version_suffix] || ENV["VERSION_SUFFIX"] || ""
+  full_version = get_pubspec_version
+  version_name, version_number_from_pubspec = full_version.split('+')
+
+  build_number = options[:build_number] || ENV["BUILD_NUMBER"] || version_number_from_pubspec || 1
+  build_name = version_suffix.empty? ? version_name : "#{version_name}-#{version_suffix}"
+
+  { build_name: build_name, build_number: build_number }
+end
+
 platform :ios do
   desc "Build, install on connected device, and upload dSYMs"
-  lane :device do
+  lane :device do |options|
+    settings = get_build_settings(options)
     sync_code_signing(type: "adhoc")
 
     update_code_signing_settings(
@@ -32,6 +50,8 @@ platform :ios do
 
     archive_path = flutter_build(
       build: "ipa",
+      build_name: settings[:build_name],
+      build_number: settings[:build_number],
       build_args: ["--no-codesign", "--dart-define=USE_FIREBASE=true"],
     )
 
@@ -56,7 +76,7 @@ platform :ios do
 
   desc "Build and upload to TestFlight"
   lane :upload_testflight do |options|
-    build_number = options[:build_number] || ENV["BUILD_NUMBER"] || 1
+    settings = get_build_settings(options)
     pr_number = options[:pr_number] || ENV["PR_NUMBER"] || ""
     pr_title = options[:pr_title] || ENV["PR_TITLE"] || "manual build"
     commit_sha = options[:commit_sha] || ENV["COMMIT_SHA"] || "manual build"
@@ -81,7 +101,8 @@ platform :ios do
     # Build and create xcarchive without code signing
     archive_path = flutter_build(
       build: "ipa",
-      build_number: build_number,
+      build_name: settings[:build_name],
+      build_number: settings[:build_number],
       build_args: ["--no-codesign", "--dart-define=USE_FIREBASE=true"],
     )
 
@@ -120,23 +141,25 @@ end
 
 platform :android do
   private_lane :build_apk do |options|
-    build_number = options[:build_number] || ENV["BUILD_NUMBER"] || 1
+    settings = get_build_settings(options)
     Dir.chdir("..") { sh("dart", "run", "tool/credentials.dart", "fetch") }
 
     flutter_build(
       build: "apk",
-      build_number: build_number,
+      build_name: settings[:build_name],
+      build_number: settings[:build_number],
       build_args: ["--dart-define=USE_FIREBASE=true"],
     )
   end
 
   private_lane :build_appbundle do |options|
-    build_number = options[:build_number] || ENV["BUILD_NUMBER"] || 1
+    settings = get_build_settings(options)
     Dir.chdir("..") { sh("dart", "run", "tool/credentials.dart", "fetch") }
 
     flutter_build(
       build: "appbundle",
-      build_number: build_number,
+      build_name: settings[:build_name],
+      build_number: settings[:build_number],
       build_args: ["--dart-define=USE_FIREBASE=true"],
     )
   end
@@ -196,9 +219,15 @@ platform :android do
     )
   end
 
-  desc "Build the Android App Bundle"
+  desc "Build the APK"
   lane :build do |options|
     build_apk(options)
+  end
+
+  desc "Build and install on connected Android device"
+  lane :device do |options|
+    apk_path = build_apk(options)
+    sh("adb -d install -r #{apk_path}")
   end
 
   desc "Build and upload PR preview to Firebase App Distribution"

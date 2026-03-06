@@ -42,7 +42,15 @@ Build and upload to TestFlight
 [bundle exec] fastlane android build
 ```
 
-Build the Android App Bundle
+Build the APK
+
+### android device
+
+```sh
+[bundle exec] fastlane android device
+```
+
+Build and install on connected Android device
 
 ### android preview
 
