@@ -121,7 +121,12 @@ jobs:
 
       - name: Build and Upload Android
         id: upload
-        run: bundle exec fastlane android release
+        run: |
+          bundle exec fastlane android build
+          bundle exec fastlane android release
+          gh release upload daily build/app/outputs/flutter-apk/app-release.apk#tattoo-${{ needs.prepare.outputs.build_number }}-android.apk --clobber
+        env:
+          GH_TOKEN: ${{ github.token }}
 
       - name: Write Android Job Summary
         uses: ./.github/actions/android-summary
@@ -180,7 +185,11 @@ jobs:
           platform: ios
 
       - name: Build and Upload to TestFlight (App Store Connect)
-        run: bundle exec fastlane ios upload_testflight
+        run: |
+          bundle exec fastlane ios upload_testflight
+          gh release upload daily Runner.ipa#tattoo-${{ needs.prepare.outputs.build_number }}-ios.ipa --clobber
+        env:
+          GH_TOKEN: ${{ github.token }}
 
       - name: Write iOS Job Summary
         uses: ./.github/actions/ios-summary
