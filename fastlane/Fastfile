@@ -174,7 +174,7 @@ platform :android do
     changelog_text = changelog(pr_number, pr_title, commit_sha, commit_message)
     aab_path = options[:aab] || File.expand_path("../build/app/outputs/bundle/release/app-release.aab", __dir__)
 
-    target_groups = include_public_testers ? ["pub-tester", "dev-tester"] : ["dev-tester"]
+    target_groups = include_public_testers ? "pub-tester,dev-tester" : "dev-tester"
 
     release = firebase_app_distribution(
       groups: target_groups,
