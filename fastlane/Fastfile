@@ -18,21 +18,13 @@ def changelog(pr_number, pr_title, commit_sha, commit_message)
   "#{prefix}\n#{commit_sha} #{commit_message}"
 end
 
-def get_pubspec_version
+def get_build_settings(options)
   require 'yaml'
   pubspec = YAML.load_file(File.expand_path("../pubspec.yaml", __dir__))
-  pubspec['version']
-end
-
-def get_build_settings(options)
-  version_suffix = options[:version_suffix] || ENV["VERSION_SUFFIX"] || ""
-  full_version = get_pubspec_version
-  version_name, version_number_from_pubspec = full_version.split('+')
-
-  build_number = options[:build_number] || ENV["BUILD_NUMBER"] || version_number_from_pubspec || 1
-  build_name = version_suffix.empty? ? version_name : "#{version_name}-#{version_suffix}"
-
-  { build_name: build_name, build_number: build_number }
+  { 
+    build_number: options[:build_number] || ENV["BUILD_NUMBER"] || pubspec['version'].split('+').last || 1,
+    version_suffix: options[:version_suffix] || ENV["VERSION_SUFFIX"] || "dev"
+  }
 end
 
 platform :ios do
@@ -50,9 +42,12 @@ platform :ios do
 
     archive_path = flutter_build(
       build: "ipa",
-      build_name: settings[:build_name],
       build_number: settings[:build_number],
-      build_args: ["--no-codesign", "--dart-define=USE_FIREBASE=true"],
+      build_args: [
+        "--no-codesign", 
+        "--dart-define=USE_FIREBASE=true",
+        "--dart-define=VERSION_SUFFIX=#{settings[:version_suffix]}"
+      ],
     )
 
     build_app(
@@ -101,9 +96,12 @@ platform :ios do
     # Build and create xcarchive without code signing
     archive_path = flutter_build(
       build: "ipa",
-      build_name: settings[:build_name],
       build_number: settings[:build_number],
-      build_args: ["--no-codesign", "--dart-define=USE_FIREBASE=true"],
+      build_args: [
+        "--no-codesign", 
+        "--dart-define=USE_FIREBASE=true",
+        "--dart-define=VERSION_SUFFIX=#{settings[:version_suffix]}"
+      ],
     )
 
     build_app(
@@ -146,9 +144,11 @@ platform :android do
 
     flutter_build(
       build: "apk",
-      build_name: settings[:build_name],
       build_number: settings[:build_number],
-      build_args: ["--dart-define=USE_FIREBASE=true"],
+      build_args: [
+        "--dart-define=USE_FIREBASE=true",
+        "--dart-define=VERSION_SUFFIX=#{settings[:version_suffix]}"
+      ],
     )
   end
 
@@ -158,9 +158,11 @@ platform :android do
 
     flutter_build(
       build: "appbundle",
-      build_name: settings[:build_name],
       build_number: settings[:build_number],
-      build_args: ["--dart-define=USE_FIREBASE=true"],
+      build_args: [
+        "--dart-define=USE_FIREBASE=true",
+        "--dart-define=VERSION_SUFFIX=#{settings[:version_suffix]}"
+      ],
     )
   end
 
