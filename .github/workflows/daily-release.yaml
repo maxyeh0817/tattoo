@@ -167,15 +167,15 @@ jobs:
         with:
           platform: android
 
-      - name: Build Android
+      - name: Build packages and upload to Firebase App Distribution
         id: build
         run: |
-          bundle exec fastlane android build
+          bundle exec fastlane android build_apk
           bundle exec fastlane android release
           APK_PATH=$(find build/app/outputs/flutter-apk -name "*.apk" -not -name "*sha1" | head -n 1)
           echo "apk_path=$APK_PATH" >> $GITHUB_OUTPUT
 
-      - name: Upload Android to Release
+      - name: Upload APK to Release
         run: gh release upload daily "${{ steps.build.outputs.apk_path }}#tattoo-${{ needs.prepare.outputs.build_number }}-android.apk" --clobber
         env:
           GH_TOKEN: ${{ github.token }}
@@ -197,7 +197,7 @@ jobs:
             You can join the testing program here:
             [Join Firebase App Distribution](${{ vars.FIREBASE_PUBLIC_LINK }})
 
-            [Install build ${{ needs.prepare.outputs.build_number }}](${{ steps.upload.outputs.testing_uri }}) (Firebase App Distribution)
+            [Install build ${{ needs.prepare.outputs.build_number }}](${{ steps.build.outputs.testing_uri }}) (Firebase App Distribution)
 
             1. Open the Firebase App Distribution app on your Android device
             2. Select "Project Tattoo"
