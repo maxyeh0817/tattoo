@@ -113,8 +113,6 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: |
           BODY=$(cat <<'BODY_EOF'
-          <!-- release-preview -->
-          ## Release Preview Build
           **Build Number:** ${{ steps.build-number.outputs.build_number }}
           **Commit:** ${{ steps.summary.outputs.sha }}
           **Message:** ${{ steps.summary.outputs.message }}
@@ -197,7 +195,7 @@ jobs:
             You can join the testing program here:
             [Join Firebase App Distribution](${{ vars.FIREBASE_PUBLIC_LINK }})
 
-            [Install build ${{ needs.prepare.outputs.build_number }}](${{ steps.build.outputs.testing_uri }}) (Firebase App Distribution)
+            [Install build ${{ needs.prepare.outputs.build_number }} in Firebase App Distribution](${{ steps.build.outputs.testing_uri }})
 
             1. Open the Firebase App Distribution app on your Android device
             2. Select "Project Tattoo"
@@ -270,4 +268,4 @@ jobs:
             3. Install build ${{ needs.prepare.outputs.build_number }}
 
             > Install TestFlight app from App Store if you don't have it (required iOS 16.0 or later)
-            > TestFlight app is blocked by NTUT Wi-Fi, please use your own mobile data or other Wi-Fi to install.
+            > TestFlight app is blocked by NTUT Wi-Fi, please use your own mobile data or other networks to install.
