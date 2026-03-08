@@ -11,8 +11,14 @@ import 'package:tattoo/screens/main/profile/profile_providers.dart';
 import 'package:tattoo/services/github_service.dart';
 import 'package:url_launcher/url_launcher.dart';
 
-final packageInfoProvider = FutureProvider.autoDispose<PackageInfo>((ref) {
-  return PackageInfo.fromPlatform();
+final packageInfoProvider = FutureProvider.autoDispose<String>((ref) async {
+  final packageInfo = await PackageInfo.fromPlatform();
+  const suffix = String.fromEnvironment('VERSION_SUFFIX');
+
+  if (suffix.isEmpty) {
+    return '${packageInfo.version} (${packageInfo.buildNumber})';
+  }
+  return '${packageInfo.version}-$suffix (${packageInfo.buildNumber})';
 });
 
 class AboutScreen extends ConsumerStatefulWidget {
@@ -90,24 +96,10 @@ class _AboutScreenState extends ConsumerState<AboutScreen> {
                             fontWeight: FontWeight.bold,
                           ),
                         ),
-                        packageInfoAsync.when(
-                          data: (packageInfo) => Text(
-                            '${packageInfo.version} (${packageInfo.buildNumber})',
-                            style: theme.textTheme.bodyMedium?.copyWith(
-                              color: theme.hintColor,
-                            ),
-                          ),
-                          loading: () => Text(
-                            '... (...)',
-                            style: theme.textTheme.bodyMedium?.copyWith(
-                              color: theme.hintColor,
-                            ),
-                          ),
-                          error: (error, stackTrace) => Text(
-                            '... (...)',
-                            style: theme.textTheme.bodyMedium?.copyWith(
-                              color: theme.hintColor,
-                            ),
+                        Text(
+                          packageInfoAsync.value ?? '... (...)',
+                          style: theme.textTheme.bodyMedium?.copyWith(
+                            color: theme.hintColor,
                           ),
                         ),
                       ],
