@@ -192,7 +192,9 @@ class _ChipTabSwitcherState extends State<ChipTabSwitcher> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _pendingUpdate = false;
       if (!mounted) return;
-      final resolved = _resolveActiveIndex(_tabController!);
+      final currentController = _tabController;
+      if (currentController == null) return;
+      final resolved = _resolveActiveIndex(currentController);
       if (_activeIndex == resolved) return;
       setState(() {
         _activeIndex = resolved;
