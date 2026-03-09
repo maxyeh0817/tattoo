@@ -135,6 +135,7 @@ jobs:
           gh release create daily \
             --title "Daily Build $(TZ='Asia/Taipei' date +'%Y-%m-%d')" \
             --notes "$BODY" \
+            --target $(git rev-parse HEAD) \
             --prerelease
 
   android:
