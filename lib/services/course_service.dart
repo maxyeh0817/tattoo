@@ -251,13 +251,16 @@ class CourseService {
     final courses = _parseZhCourseTable(zhResponse.data);
     final englishNames = switch (enResponse) {
       final r? => _parseEnCourseTable(r.data),
-      null => <String, _EnglishCourseNames>{},
+      null => <_EnglishCourseNames>[],
     };
 
-    // Merge English names into Chinese-parsed DTOs
-    return courses.map((dto) {
-      final en = englishNames[dto.number];
+    // Merge English names into Chinese-parsed DTOs by index - both tables
+    // list courses in the same order
+    return courses.indexed.map((pair) {
+      final (index, dto) = pair;
+      final en = englishNames.elementAtOrNull(index);
       if (en == null) return dto;
+
       return (
         number: dto.number,
         course: (
@@ -425,42 +428,36 @@ class CourseService {
     }).toList();
   }
 
-  /// Parses the English course list page into a map keyed by course number.
-  Map<String, _EnglishCourseNames> _parseEnCourseTable(String html) {
+  /// Parses the English course list page into a list matching course order.
+  ///
+  /// Returns entries in the same order as the Chinese table so they can be
+  /// merged by index.
+  List<_EnglishCourseNames> _parseEnCourseTable(String html) {
     final document = parse(html);
     final tables = document.querySelectorAll('table');
-    if (tables.length < 2) return {};
+    if (tables.length < 2) return [];
 
     final tableRows = tables[1].querySelectorAll('tr');
-    if (tableRows.length < 2) return {};
+    if (tableRows.length < 2) return [];
     // English table has 1 header row (Chinese table has 2 — student info is in
     // a separate table here). Last row is the "Total" summary.
     final dataRows = tableRows.sublist(1, tableRows.length - 1);
 
-    // Parse the table and build a map of course number -> English names
-    // Columns also present in the Chinese page are skipped
-    final map = <String, _EnglishCourseNames>{};
-    for (final row in dataRows) {
+    return dataRows.map((row) {
       final cells = row.children;
-      if (cells.length < 6) continue;
-      final number = _parseCellText(cells[0]);
-      if (number == null) continue;
 
-      final courseName = _parseCellText(cells[1]);
-      final teacherName = _parseCellText(cells[4]);
-      final classes = cells[5]
-          .querySelectorAll('a')
-          .map(_parseAnchorRef)
-          .toList();
+      final courseName = cells.length > 1 ? _parseCellText(cells[1]) : null;
+      final teacherName = cells.length > 4 ? _parseCellText(cells[4]) : null;
+      final classes = cells.length > 5
+          ? cells[5].querySelectorAll('a').map(_parseAnchorRef).toList()
+          : <ReferenceDto>[];
 
-      map[number] = (
+      return (
         courseName: courseName,
         teacherName: teacherName,
         classes: classes,
       );
-    }
-
-    return map;
+    }).toList();
   }
 
   /// Fetches detailed information about a specific course from the catalog.
