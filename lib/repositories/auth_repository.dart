@@ -51,7 +51,7 @@ enum AuthStatus {
   offline,
 
   /// Stored credentials were rejected or are missing.
-  credentialsExpired,
+  unauthenticated,
 }
 
 const _secureStorage = FlutterSecureStorage();
@@ -213,7 +213,7 @@ class AuthRepository {
       final username = await _secureStorage.read(key: _usernameKey);
       final password = await _secureStorage.read(key: _passwordKey);
       if (username == null || password == null) {
-        _onAuthStatusChanged(.credentialsExpired);
+        _onAuthStatusChanged(.unauthenticated);
         throw NotLoggedInException();
       }
 
@@ -224,7 +224,7 @@ class AuthRepository {
         rethrow;
       } catch (_) {
         await _clearCredentials();
-        _onAuthStatusChanged(.credentialsExpired);
+        _onAuthStatusChanged(.unauthenticated);
         throw InvalidCredentialsException();
       }
 
@@ -286,7 +286,7 @@ class AuthRepository {
     final username = await _secureStorage.read(key: _usernameKey);
     final password = await _secureStorage.read(key: _passwordKey);
     if (username == null || password == null) {
-      _onAuthStatusChanged(AuthStatus.credentialsExpired);
+      _onAuthStatusChanged(AuthStatus.unauthenticated);
       throw NotLoggedInException();
     }
 
@@ -301,7 +301,7 @@ class AuthRepository {
       rethrow;
     } catch (_) {
       await _clearCredentials();
-      _onAuthStatusChanged(AuthStatus.credentialsExpired);
+      _onAuthStatusChanged(AuthStatus.unauthenticated);
       throw InvalidCredentialsException();
     }
     _onAuthStatusChanged(AuthStatus.authenticated);
