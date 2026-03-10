@@ -17,6 +17,79 @@ class ProfileDangerZone extends ConsumerWidget {
 
   static const Color dangerColor = Colors.red;
 
+  Future<void> _clear(
+    BuildContext context,
+    String item,
+    Future<void> Function() action,
+  ) async {
+    try {
+      await action();
+    } catch (e) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(t.profile.dangerZone.clearFailed(item: item))),
+        );
+      }
+      return;
+    }
+    if (context.mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(t.profile.dangerZone.cleared(item: item))),
+      );
+    }
+  }
+
+  void _goAction(String action) {
+    if (action == t.profile.dangerZone.actions.last) {
+      SystemNavigator.pop();
+    } else {
+      throw Exception(t.profile.dangerZone.fireMessage);
+    }
+  }
+
+  void _triggerNonFlutterCrash() {
+    Future.delayed(Duration.zero, () {
+      throw Exception(t.profile.dangerZone.nonFlutterCrashException);
+    });
+  }
+
+  Future<void> _clearCache(BuildContext context) => _clear(
+    context,
+    t.profile.dangerZone.items.cache,
+    () async {
+      final cacheDir = await getApplicationCacheDirectory();
+      if (await cacheDir.exists()) {
+        await cacheDir.delete(recursive: true);
+      }
+    },
+  );
+
+  Future<void> _clearCookies(BuildContext context) => _clear(
+    context,
+    t.profile.dangerZone.items.cookies,
+    () async {
+      await cookieJar.deleteAll();
+    },
+  );
+
+  Future<void> _clearPreferences(BuildContext context, WidgetRef ref) => _clear(
+    context,
+    t.profile.dangerZone.items.preferences,
+    () async {
+      await ref.read(sharedPreferencesProvider).clear();
+    },
+  );
+
+  Future<void> _clearUserData(BuildContext context, WidgetRef ref) => _clear(
+    context,
+    t.profile.dangerZone.items.userData,
+    () async {
+      await ref.read(databaseProvider).deleteEverything();
+      await cookieJar.deleteAll();
+      await const FlutterSecureStorage().deleteAll();
+    },
+  );
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final prefs = ref.watch(preferencesRepositoryProvider);
@@ -40,103 +113,46 @@ class ProfileDangerZone extends ConsumerWidget {
               title: t.profile.dangerZone.goAction(action: action),
               color: dangerColor,
               borderColor: dangerColor,
-              onTap: () {
-                if (action == t.profile.dangerZone.actions.last) {
-                  SystemNavigator.pop();
-                } else {
-                  throw Exception(t.profile.dangerZone.fireMessage);
-                }
-              },
+              onTap: () => _goAction(action),
             ),
             OptionEntryTile.icon(
               icon: Icons.bug_report_outlined,
               title: t.profile.dangerZone.nonFlutterCrash,
               color: dangerColor,
               borderColor: dangerColor,
-              onTap: () {
-                Future.delayed(Duration.zero, () {
-                  throw Exception(
-                    t.profile.dangerZone.nonFlutterCrashException,
-                  );
-                });
-              },
+              onTap: _triggerNonFlutterCrash,
             ),
             OptionEntryTile.icon(
               icon: Icons.cached_outlined,
               title: t.profile.dangerZone.clearCache,
               color: dangerColor,
               borderColor: dangerColor,
-              onTap: () =>
-                  _clear(context, t.profile.dangerZone.items.cache, () async {
-                    final cacheDir = await getApplicationCacheDirectory();
-                    if (await cacheDir.exists()) {
-                      await cacheDir.delete(recursive: true);
-                    }
-                  }),
+              onTap: () => _clearCache(context),
             ),
             OptionEntryTile.icon(
               icon: Icons.cookie_outlined,
               title: t.profile.dangerZone.clearCookies,
               color: dangerColor,
               borderColor: dangerColor,
-              onTap: () =>
-                  _clear(context, t.profile.dangerZone.items.cookies, () async {
-                    await cookieJar.deleteAll();
-                  }),
+              onTap: () => _clearCookies(context),
             ),
             OptionEntryTile.icon(
               icon: Icons.settings_backup_restore_outlined,
               title: t.profile.dangerZone.clearPreferences,
               color: dangerColor,
               borderColor: dangerColor,
-              onTap: () => _clear(
-                context,
-                t.profile.dangerZone.items.preferences,
-                () async {
-                  await ref.read(sharedPreferencesProvider).clear();
-                },
-              ),
+              onTap: () => _clearPreferences(context, ref),
             ),
             OptionEntryTile.icon(
               icon: Icons.delete_forever_outlined,
               title: t.profile.dangerZone.clearUserData,
               color: dangerColor,
               borderColor: dangerColor,
-              onTap: () => _clear(
-                context,
-                t.profile.dangerZone.items.userData,
-                () async {
-                  await ref.read(databaseProvider).deleteEverything();
-                  await cookieJar.deleteAll();
-                  await const FlutterSecureStorage().deleteAll();
-                },
-              ),
+              onTap: () => _clearUserData(context, ref),
             ),
           ],
         );
       },
     );
-  }
-
-  Future<void> _clear(
-    BuildContext context,
-    String item,
-    Future<void> Function() action,
-  ) async {
-    try {
-      await action();
-    } catch (e) {
-      if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(t.profile.dangerZone.clearFailed(item: item))),
-        );
-      }
-      return;
-    }
-    if (context.mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(t.profile.dangerZone.cleared(item: item))),
-      );
-    }
   }
 }
