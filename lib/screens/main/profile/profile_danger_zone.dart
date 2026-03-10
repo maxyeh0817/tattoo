@@ -30,7 +30,7 @@ class ProfileDangerZone extends ConsumerWidget {
           SnackBar(content: Text(t.profile.dangerZone.clearFailed(item: item))),
         );
       }
-      return;
+      rethrow;
     }
     if (context.mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -59,7 +59,9 @@ class ProfileDangerZone extends ConsumerWidget {
     () async {
       final cacheDir = await getApplicationCacheDirectory();
       if (await cacheDir.exists()) {
-        await cacheDir.delete(recursive: true);
+        await for (final entity in cacheDir.list()) {
+          await entity.delete(recursive: true);
+        }
       }
     },
   );
