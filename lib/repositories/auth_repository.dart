@@ -190,8 +190,7 @@ class AuthRepository {
   ///
   /// If [call] fails with a non-[DioException] error (indicating session
   /// expiry or auth failure), this method re-authenticates using stored
-  /// credentials, clears SSO cache, re-establishes SSO sessions, and
-  /// retries [call] once.
+  /// credentials, re-establishes SSO sessions, and retries [call] once.
   ///
   /// Throws [NotLoggedInException] if no stored credentials are available.
   /// Throws [InvalidCredentialsException] if stored credentials are rejected
@@ -228,10 +227,16 @@ class AuthRepository {
         throw InvalidCredentialsException();
       }
 
-      _onAuthStatusChanged(.authenticated);
       _ssoCache.clear();
-      await _ensureSso(sso);
-      return await call();
+      try {
+        await _ensureSso(sso);
+        final result = await call();
+        _onAuthStatusChanged(.authenticated);
+        return result;
+      } on DioException {
+        _onAuthStatusChanged(.offline);
+        rethrow;
+      }
     }
   }
 
