@@ -195,6 +195,10 @@ class _TranslationsLoginErrorsEnUs extends TranslationsLoginErrorsZhTw {
 	@override String get emptyFields => 'Please enter your student ID and password';
 	@override String get useStudentId => 'Please use your student ID to sign in, not an email address';
 	@override String get loginFailed => 'Login failed. Please verify your credentials.';
+	@override String get wrongCredentials => 'Incorrect student ID or password.';
+	@override String get accountLocked => 'Account locked due to too many failed attempts. Please try again later.';
+	@override String get passwordExpired => 'Your password has expired. Please change it on the NTUT portal.';
+	@override String get mobileVerificationRequired => 'Mobile phone verification is required. Please complete it on the NTUT portal.';
 }
 
 // Path: profile.sections
@@ -357,6 +361,10 @@ extension on TranslationsEnUs {
 			'login.errors.emptyFields' => 'Please enter your student ID and password',
 			'login.errors.useStudentId' => 'Please use your student ID to sign in, not an email address',
 			'login.errors.loginFailed' => 'Login failed. Please verify your credentials.',
+			'login.errors.wrongCredentials' => 'Incorrect student ID or password.',
+			'login.errors.accountLocked' => 'Account locked due to too many failed attempts. Please try again later.',
+			'login.errors.passwordExpired' => 'Your password has expired. Please change it on the NTUT portal.',
+			'login.errors.mobileVerificationRequired' => 'Mobile phone verification is required. Please complete it on the NTUT portal.',
 			'nav.courseTable' => 'Courses',
 			'nav.scores' => 'Scores',
 			'nav.profile' => 'Me',

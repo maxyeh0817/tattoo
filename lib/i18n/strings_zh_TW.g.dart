@@ -279,6 +279,18 @@ class TranslationsLoginErrorsZhTw {
 
 	/// zh-TW: '登入失敗，請確認帳號密碼'
 	String get loginFailed => '登入失敗，請確認帳號密碼';
+
+	/// zh-TW: '學號或密碼錯誤'
+	String get wrongCredentials => '學號或密碼錯誤';
+
+	/// zh-TW: '帳號已被鎖定，請稍後再試'
+	String get accountLocked => '帳號已被鎖定，請稍後再試';
+
+	/// zh-TW: '密碼已過期，請至校園入口網站變更密碼'
+	String get passwordExpired => '密碼已過期，請至校園入口網站變更密碼';
+
+	/// zh-TW: '需要進行手機驗證，請至校園入口網站完成驗證'
+	String get mobileVerificationRequired => '需要進行手機驗證，請至校園入口網站完成驗證';
 }
 
 // Path: profile.sections
@@ -521,6 +533,10 @@ extension on Translations {
 			'login.errors.emptyFields' => '請填寫學號與密碼',
 			'login.errors.useStudentId' => '請直接使用學號登入，不要使用電子郵件',
 			'login.errors.loginFailed' => '登入失敗，請確認帳號密碼',
+			'login.errors.wrongCredentials' => '學號或密碼錯誤',
+			'login.errors.accountLocked' => '帳號已被鎖定，請稍後再試',
+			'login.errors.passwordExpired' => '密碼已過期，請至校園入口網站變更密碼',
+			'login.errors.mobileVerificationRequired' => '需要進行手機驗證，請至校園入口網站完成驗證',
 			'nav.courseTable' => '課表',
 			'nav.scores' => '成績',
 			'nav.profile' => '我',
