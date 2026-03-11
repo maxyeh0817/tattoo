@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/widget_previews.dart';
+import 'widget_preview_frame.dart';
 
 /// A horizontally scrollable chip-style tab switcher.
 ///
@@ -166,12 +167,14 @@ class _ChipTabSwitcherState extends State<ChipTabSwitcher> {
     _tabController = controller;
     _tabAnimation = controller?.animation;
 
-    if (controller != null) {
+    if (controller case final controller?) {
       _activeIndex = _resolveActiveIndex(controller);
       _attachControllerListeners();
       _scrollTabIntoView(_activeIndex, animate: false);
     }
   }
+
+  bool _pendingUpdate = false;
 
   void _handleTabChange() {
     final controller = _tabController;
@@ -184,10 +187,20 @@ class _ChipTabSwitcherState extends State<ChipTabSwitcher> {
       return;
     }
 
-    setState(() {
-      _activeIndex = nextActiveIndex;
+    if (_pendingUpdate) return;
+    _pendingUpdate = true;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _pendingUpdate = false;
+      if (!mounted) return;
+      final currentController = _tabController;
+      if (currentController == null) return;
+      final resolved = _resolveActiveIndex(currentController);
+      if (_activeIndex == resolved) return;
+      setState(() {
+        _activeIndex = resolved;
+      });
+      _scrollTabIntoView(_activeIndex);
     });
-    _scrollTabIntoView(_activeIndex);
   }
 
   int _resolveActiveIndex(TabController controller) {
@@ -421,30 +434,17 @@ class _TabSwitchChip extends StatelessWidget {
   }
 }
 
-// Widget previews for _TabSwitchChip
-void tabSwitchChipPreviewOnTap() {}
-
-Widget _tabSwitchChipPreviewFrame({required Widget child}) {
-  return MaterialApp(
-    home: Scaffold(
-      body: Center(
-        child: child,
-      ),
-    ),
-  );
-}
-
 @Preview(
   name: '_TabSwitchChip selected',
   size: Size(220, 72),
   group: 'Single Chip',
 )
 Widget tabSwitchChipSelectedPreview() {
-  return _tabSwitchChipPreviewFrame(
+  return WidgetPreviewFrame(
     child: _TabSwitchChip(
       label: '114-2',
       isSelected: true,
-      onTap: tabSwitchChipPreviewOnTap,
+      onTap: () {},
     ),
   );
 }
@@ -455,11 +455,11 @@ Widget tabSwitchChipSelectedPreview() {
   group: 'Single Chip',
 )
 Widget tabSwitchChipUnselectedPreview() {
-  return _tabSwitchChipPreviewFrame(
+  return WidgetPreviewFrame(
     child: _TabSwitchChip(
       label: '114-1',
       isSelected: false,
-      onTap: tabSwitchChipPreviewOnTap,
+      onTap: () {},
     ),
   );
 }
@@ -468,7 +468,7 @@ Widget tabSwitchChipUnselectedPreview() {
 Widget tabSwitcherPreview() {
   const tabs = ["114-1", "114-2", "113-1", "113-2", "112-1", "112-2"];
 
-  return _tabSwitchChipPreviewFrame(
+  return WidgetPreviewFrame(
     child: DefaultTabController(
       length: tabs.length,
       child: ChipTabSwitcher(

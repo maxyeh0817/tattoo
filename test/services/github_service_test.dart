@@ -1,0 +1,41 @@
+import 'package:flutter_test/flutter_test.dart';
+import 'package:tattoo/models/contributor.dart';
+import 'package:tattoo/services/github_service.dart';
+
+void main() {
+  group('Contributor Model', () {
+    test('should correctly identify bots', () {
+      final user = Contributor(
+        login: 'octocat',
+        avatarUrl: 'https://avatar.url',
+        htmlUrl: 'https://html.url',
+        type: 'User',
+      );
+      final bot = Contributor(
+        login: 'dependabot[bot]',
+        avatarUrl: 'https://avatar.url',
+        htmlUrl: 'https://html.url',
+        type: 'Bot',
+      );
+
+      expect(user.isBot, isFalse);
+      expect(bot.isBot, isTrue);
+    });
+  });
+
+  group('GithubService Integration Tests', () {
+    late GithubService githubService;
+
+    setUp(() {
+      githubService = GithubService();
+    });
+
+    test('fetches and filters contributors excluding bots', () async {
+      final contributors = await githubService.getContributors();
+
+      expect(contributors, isNotNull);
+      expect(contributors!.every((c) => !c.isBot), isTrue);
+      expect(contributors.every((c) => c.login.isNotEmpty), isTrue);
+    });
+  });
+}

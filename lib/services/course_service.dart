@@ -10,8 +10,8 @@ typedef ScheduleDto = ({
   /// Course offering number (e.g., "313146", "352902").
   String? number,
 
-  /// Reference to the course.
-  ReferenceDto? course,
+  /// Reference to the course with bilingual name.
+  LocalizedRefDto? course,
 
   /// Course sequence phase/stage number (階段, e.g., "1", "2").
   int? phase,
@@ -25,17 +25,17 @@ typedef ScheduleDto = ({
   /// Type of course (e.g., "必", "選", "通", "輔").
   String? type,
 
-  /// Reference to the instructor.
-  ReferenceDto? teacher,
+  /// Reference to the instructor with bilingual name.
+  LocalizedRefDto? teacher,
 
-  /// List of class/program references this course belongs to.
-  List<ReferenceDto>? classes,
+  /// List of class/program references with bilingual names.
+  List<LocalizedRefDto>? classes,
 
-  /// Weekly schedule as list of (day, period) tuples.
-  List<(DayOfWeek, Period)>? schedule,
-
-  /// Reference to the classroom location.
-  ReferenceDto? classroom,
+  /// Weekly schedule as list of (day, period, classroom) entries.
+  ///
+  /// Each entry includes the classroom for that specific timeslot, as some
+  /// courses use different rooms for different sessions.
+  List<({DayOfWeek day, Period period, ReferenceDto? classroom})>? schedule,
 
   /// Enrollment status for special cases (e.g., "撤選" for withdrawal).
   ///
@@ -157,6 +157,13 @@ typedef SyllabusDto = ({
   String? remarks,
 });
 
+/// English names parsed from the English course system for a single course.
+typedef _EnglishCourseNames = ({
+  String? courseName,
+  String? teacherName,
+  List<ReferenceDto> classes,
+});
+
 /// Provides the singleton [CourseService] instance.
 final courseServiceProvider = Provider<CourseService>((ref) => CourseService());
 
@@ -176,37 +183,36 @@ class CourseService {
 
   CourseService() {
     _courseDio = createDio()
-      ..options.baseUrl = 'https://aps.ntut.edu.tw/course/tw/';
+      ..options.baseUrl = 'https://aps.ntut.edu.tw/course/';
   }
 
-  /// Fetches the list of available semesters for a student's course schedule.
+  /// Fetches the list of available semesters for the authenticated student.
   ///
   /// Returns a list of semester identifiers (year and semester number) for which
-  /// course schedules are available for the given [username] (student ID).
+  /// course schedules are available. The server identifies the student from the
+  /// session cookie established by SSO.
   ///
   /// This method should be called before [getCourseTable] to determine which
   /// semesters have course data available.
-  Future<List<SemesterDto>> getCourseSemesterList(
-    String username,
-  ) async {
-    final response = await _courseDio.post(
-      'Select.jsp',
-      data: {'code': username, 'format': '-3'},
-    );
+  Future<List<SemesterDto>> getCourseSemesterList() async {
+    final response = await _courseDio.get('tw/Select.jsp');
 
     // Find available course tables by reading anchor references
     // Document structure: table>tr>td>img+a[href]
     final document = parse(response.data);
     final tableAnchors = document.querySelectorAll('table a[href]');
-    final tableLinks = tableAnchors.map((e) => e.attributes['href']).toList();
+    final tableLinks = tableAnchors
+        .map((e) => e.attributes['href'])
+        .nonNulls
+        .toList();
 
     // Parse links and extract query parameters
     // Link format: Select.jsp?format=-2&code=111360109&year=114&sem=1
     return tableLinks.map((link) {
-      final queryParams = Uri.parse(link!).queryParameters;
+      final queryParams = Uri.parse(link).queryParameters;
       return (
-        year: int.parse(queryParams['year']!),
-        term: int.parse(queryParams['sem']!),
+        year: int.tryParse(queryParams['year'] ?? ''),
+        term: int.tryParse(queryParams['sem'] ?? ''),
       );
     }).toList();
   }
@@ -227,24 +233,156 @@ class CourseService {
     required String username,
     required SemesterDto semester,
   }) async {
-    final response = await _courseDio.get(
-      'Select.jsp',
-      queryParameters: {
-        'format': '-2',
-        'code': username,
-        'year': semester.year,
-        'sem': semester.term,
-      },
-    );
+    final queryParameters = {
+      'format': '-2',
+      'code': username,
+      'year': semester.year,
+      'sem': semester.term,
+    };
 
-    final document = parse(response.data);
+    // Fetch Chinese and English pages in parallel
+    final (zhResponse, enResponse) = await (
+      _courseDio.get('tw/Select.jsp', queryParameters: queryParameters),
+      _courseDio
+          .get('en/Select.jsp', queryParameters: queryParameters)
+          .then<Response?>((r) => r, onError: (_) => null),
+    ).wait;
 
-    // There are two tables in the document; the first one is a timetable grid
-    // The second table is a list with one course per row, we'll extract that
-    final courseSelectionTable = document.querySelectorAll('table')[1];
+    final courses = _parseZhCourseTable(zhResponse.data);
+    final englishNames = switch (enResponse) {
+      final r? => _parseEnCourseTable(r.data),
+      null => <_EnglishCourseNames>[],
+    };
 
-    // Find all rows except the first two header rows and the last summary row
-    final tableRows = courseSelectionTable.querySelectorAll('tr');
+    // Merge English names into Chinese-parsed DTOs by index - both tables
+    // list courses in the same order
+    return courses.indexed.map((pair) {
+      final (index, dto) = pair;
+      final en = englishNames.elementAtOrNull(index);
+      if (en == null) return dto;
+
+      return (
+        number: dto.number,
+        course: (
+          id: dto.course?.id,
+          nameZh: dto.course?.nameZh,
+          nameEn: en.courseName,
+        ),
+        phase: dto.phase,
+        credits: dto.credits,
+        hours: dto.hours,
+        type: dto.type,
+        teacher: (
+          id: dto.teacher?.id,
+          nameZh: dto.teacher?.nameZh,
+          nameEn: en.teacherName,
+        ),
+        classes: dto.classes
+            ?.map(
+              (c) => (
+                id: c.id,
+                nameZh: c.nameZh,
+                nameEn: en.classes.firstWhereOrNull((e) => e.id == c.id)?.name,
+              ),
+            )
+            .toList(),
+        schedule: dto.schedule,
+        status: dto.status,
+        language: dto.language,
+        syllabusId: dto.syllabusId,
+        remarks: dto.remarks,
+      );
+    }).toList();
+  }
+
+  /// Parses the Chinese course table page (timetable grid + course list).
+  ///
+  /// Returns [ScheduleDto]s with `nameEn: null` — English names are merged
+  /// separately from the English page.
+  List<ScheduleDto> _parseZhCourseTable(String html) {
+    final document = parse(html);
+    final tables = document.querySelectorAll('table');
+    if (tables.length < 2) {
+      throw Exception('Expected timetable grid and course list tables.');
+    }
+
+    // Parse the timetable grid (table[0]) for per-timeslot schedule+classroom
+    // Structure: header row has day labels (一–日), data rows have period
+    // labels in column 0 and course cells with <a> links for the rest.
+    final timetableGrid = tables[0];
+    final timetableRows = timetableGrid.querySelectorAll('tr');
+    if (timetableRows.length < 3) {
+      throw Exception('Timetable grid has no data rows.');
+    }
+
+    // Build column -> DayOfWeek map from header row
+    const dayCharToEnum = {
+      '一': DayOfWeek.monday,
+      '二': DayOfWeek.tuesday,
+      '三': DayOfWeek.wednesday,
+      '四': DayOfWeek.thursday,
+      '五': DayOfWeek.friday,
+      '六': DayOfWeek.saturday,
+      '日': DayOfWeek.sunday,
+    };
+    final headerCells = timetableRows[1].children;
+    final colToDayMap = <int, DayOfWeek>{};
+    for (var i = 1; i < headerCells.length; i++) {
+      final text = headerCells[i].text.trim();
+      final day = dayCharToEnum.entries
+          .firstWhereOrNull((e) => text.contains(e.key))
+          ?.value;
+      if (day != null) colToDayMap[i] = day;
+    }
+
+    // Build schedule map keyed by course name from the grid
+    final periodRegex = RegExp(r'第 (\S) 節');
+    final scheduleMap =
+        <
+          String,
+          List<({DayOfWeek day, Period period, ReferenceDto? classroom})>
+        >{};
+
+    for (var rowIndex = 2; rowIndex < timetableRows.length; rowIndex++) {
+      final cells = timetableRows[rowIndex].children;
+      if (cells.isEmpty) continue;
+
+      final periodMatch = periodRegex.firstMatch(cells[0].text);
+      if (periodMatch == null) continue;
+      final period = Period.values.firstWhereOrNull(
+        (p) => p.code == periodMatch.group(1),
+      );
+      if (period == null) continue;
+
+      for (var colIndex = 1; colIndex < cells.length; colIndex++) {
+        final day = colToDayMap[colIndex];
+        if (day == null) continue;
+
+        final anchors = cells[colIndex].querySelectorAll('a');
+
+        // Key by course name — works for both regular courses (with <a>
+        // links) and special entries like 班週會 (plain text).
+        final courseName = anchors.isNotEmpty
+            ? anchors[0].text.trim()
+            : cells[colIndex].text.trim();
+        if (courseName.isEmpty) continue;
+
+        final classroomRef = anchors.length >= 3
+            ? _parseAnchorRef(anchors[2])
+            : null;
+
+        scheduleMap.putIfAbsent(courseName, () => []);
+        scheduleMap[courseName]!.add((
+          day: day,
+          period: period,
+          classroom: classroomRef,
+        ));
+      }
+    }
+
+    // Parse the course list (table[1]) for metadata
+    final courseListTable = tables[1];
+    final tableRows = courseListTable.querySelectorAll('tr');
     final trimmedTableRows = tableRows.sublist(2, tableRows.length - 1);
     if (trimmedTableRows.isEmpty) {
       throw Exception('No courses found in the selection table.');
@@ -253,37 +391,18 @@ class CourseService {
     return trimmedTableRows.map((row) {
       final cells = row.children;
 
-      // Extract basic course information
       final number = _parseCellText(cells[0]);
       final course = _parseCellRef(cells[1]);
       final phase = int.tryParse(cells[2].text.trim());
       final credits = double.tryParse(cells[3].text.trim());
       final hours = int.tryParse(cells[4].text.trim());
       final type = _parseCellText(cells[5]);
-      final teacher = _parseCellRef(cells[6]);
+      final teacher = _parseCellRef(cells[6]); // TODO: Handle multiple teachers
       final classes = _parseCellRefs(cells[7]);
 
-      // Parse schedule from day columns (indices 8-14)
-      final schedule = <(DayOfWeek, Period)>[];
-      final days = DayOfWeek.values;
+      // Look up schedule+classroom from the timetable grid by course name
+      final schedule = scheduleMap[course.name];
 
-      for (var i = 0; i < days.length; i++) {
-        final dayText = _parseCellText(cells[8 + i]);
-        if (dayText == null) continue;
-
-        // Parse period codes (e.g., "7 8" or "8 9 A") and skip invalid ones
-        final periods = dayText
-            .split(' ')
-            .map(
-              (e) => Period.values.firstWhereOrNull((p) => p.code == e.trim()),
-            )
-            .whereType<Period>()
-            .toList();
-        final scheduleOfDay = periods.map((p) => (days[i], p));
-        schedule.addAll(scheduleOfDay);
-      }
-
-      final classroom = _parseCellRef(cells[15]);
       final status = _parseCellText(cells[16]);
       final language = _parseCellText(cells[17]);
       final syllabusId = _parseCellRef(cells[18]).id;
@@ -291,19 +410,54 @@ class CourseService {
 
       return (
         number: number,
-        course: course,
+        course: (id: course.id, nameZh: course.name, nameEn: null),
         phase: phase,
         credits: credits,
         hours: hours,
         type: type,
-        teacher: teacher,
-        classes: classes,
-        schedule: schedule.isEmpty ? null : schedule,
-        classroom: classroom,
+        teacher: (id: teacher.id, nameZh: teacher.name, nameEn: null),
+        classes: classes
+            ?.map<LocalizedRefDto>(
+              (c) => (id: c.id, nameZh: c.name, nameEn: null),
+            )
+            .toList(),
+        schedule: schedule,
         status: status,
         language: language,
         syllabusId: syllabusId,
         remarks: remarks,
+      );
+    }).toList();
+  }
+
+  /// Parses the English course list page into a list matching course order.
+  ///
+  /// Returns entries in the same order as the Chinese table so they can be
+  /// merged by index.
+  List<_EnglishCourseNames> _parseEnCourseTable(String html) {
+    final document = parse(html);
+    final tables = document.querySelectorAll('table');
+    if (tables.length < 2) return [];
+
+    final tableRows = tables[1].querySelectorAll('tr');
+    if (tableRows.length < 2) return [];
+    // English table has 1 header row (Chinese table has 2 — student info is in
+    // a separate table here). Last row is the "Total" summary.
+    final dataRows = tableRows.sublist(1, tableRows.length - 1);
+
+    return dataRows.map((row) {
+      final cells = row.children;
+
+      final courseName = cells.length > 1 ? _parseCellText(cells[1]) : null;
+      final teacherName = cells.length > 4 ? _parseCellText(cells[4]) : null;
+      final classes = cells.length > 5
+          ? cells[5].querySelectorAll('a').map(_parseAnchorRef).toList()
+          : <ReferenceDto>[];
+
+      return (
+        courseName: courseName,
+        teacherName: teacherName,
+        classes: classes,
       );
     }).toList();
   }
@@ -319,7 +473,7 @@ class CourseService {
   /// Throws an [Exception] if the course details table is not found.
   Future<CourseDto> getCourse(String courseId) async {
     final response = await _courseDio.get(
-      'Curr.jsp',
+      'tw/Curr.jsp',
       queryParameters: {'format': '-2', 'code': courseId},
     );
 
@@ -373,11 +527,11 @@ class CourseService {
 
     final (profileResponse, officeHoursResponse) = await (
       _courseDio.get(
-        'Teach.jsp',
+        'tw/Teach.jsp',
         queryParameters: {'format': '-3', ...queryParams},
       ),
       _courseDio.get(
-        'Teach.jsp',
+        'tw/Teach.jsp',
         queryParameters: {'format': '-6', ...queryParams},
       ),
     ).wait;
@@ -502,7 +656,7 @@ class CourseService {
     required SemesterDto semester,
   }) async {
     await _courseDio.get(
-      'Croom.jsp',
+      'tw/Croom.jsp',
       queryParameters: {
         'format': '-3',
         'year': semester.year,
@@ -529,7 +683,7 @@ class CourseService {
     required String syllabusId,
   }) async {
     final response = await _courseDio.get(
-      'ShowSyllabus.jsp',
+      'tw/ShowSyllabus.jsp',
       queryParameters: {'snum': courseNumber, 'code': syllabusId},
     );
 
@@ -596,6 +750,14 @@ class CourseService {
   String? _parseCellText(Element cell) {
     final text = cell.text.trim();
     return text.isNotEmpty ? text : null;
+  }
+
+  ReferenceDto _parseAnchorRef(Element anchor) {
+    final name = anchor.text.trim();
+    final href = anchor.attributes['href'];
+    if (href == null) return (id: null, name: name.isNotEmpty ? name : null);
+    final code = Uri.parse(href).queryParameters['code'];
+    return (id: code, name: name.isNotEmpty ? name : null);
   }
 
   ReferenceDto _parseCellRef(Element cell) {

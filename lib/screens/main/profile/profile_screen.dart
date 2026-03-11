@@ -2,10 +2,10 @@ import 'dart:io';
 
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:package_info_plus/package_info_plus.dart';
 import 'package:tattoo/components/option_entry_tile.dart';
 import 'package:tattoo/components/notices.dart';
 import 'package:tattoo/components/section_header.dart';
@@ -13,8 +13,9 @@ import 'package:tattoo/i18n/strings.g.dart';
 import 'package:tattoo/repositories/auth_repository.dart';
 import 'package:tattoo/router/app_router.dart';
 import 'package:tattoo/services/portal_service.dart';
-import 'package:url_launcher/url_launcher.dart';
+import 'package:tattoo/utils/launch_url.dart';
 import 'package:tattoo/screens/main/profile/profile_card.dart';
+import 'package:tattoo/screens/main/profile/profile_danger_zone.dart';
 import 'package:tattoo/screens/main/profile/profile_providers.dart';
 
 class ProfileScreen extends ConsumerWidget {
@@ -103,14 +104,11 @@ class ProfileScreen extends ConsumerWidget {
           .withAuth(
             () => ref.read(portalServiceProvider).getSsoUrl(serviceCode),
           );
-      final launched = await launchUrl(
-        url,
-        // iOS doesn't preserve the in-app browser's session, so we have to open externally to maintain login state.
-        mode: Platform.isIOS ? .externalApplication : .platformDefault,
-      );
-      if (!launched) throw Exception('Could not open browser');
-    } catch (e) {
-      if (context.mounted) _showMessage(context, 'Failed to open: $e');
+      // iOS doesn't preserve the in-app browser's session, so we have to
+      // open externally to maintain login state.
+      await launchUrl(url, inExternalApplication: Platform.isIOS);
+    } on DioException {
+      if (context.mounted) _showMessage(context, t.errors.connectionFailed);
     }
   }
 
@@ -125,19 +123,19 @@ class ProfileScreen extends ConsumerWidget {
     // settings options for the profile tab
     final options = [
       SectionHeader(title: t.profile.sections.accountSettings),
-      OptionEntryTile(
+      OptionEntryTile.icon(
         icon: Icons.password,
         title: t.profile.options.changePassword,
         onTap: () => _showDemoTap(context),
       ),
-      OptionEntryTile(
+      OptionEntryTile.icon(
         icon: Icons.image,
         title: t.profile.options.changeAvatar,
         onTap: () => _changeAvatar(context, ref),
       ),
 
       SectionHeader(title: t.$wip('資訊系統')),
-      OptionEntryTile(
+      OptionEntryTile.icon(
         icon: Icons.open_in_browser,
         title: t.$wip('學生查詢專區'),
         onTap: () =>
@@ -145,112 +143,69 @@ class ProfileScreen extends ConsumerWidget {
       ),
 
       SectionHeader(title: 'TAT'),
-      // TODO: remove before release
-      OptionEntryTile(
-        icon: Icons.rice_bowl_outlined,
-        title: '點一碗炒飯',
-        onTap: () => throw Exception('炒飯'),
-      ),
-      OptionEntryTile(
-        icon: Icons.bug_report_outlined,
-        title: '非 Flutter 框架崩潰',
-        onTap: () async {
-          // This will be caught by PlatformDispatcher.instance.onError
-          Future.delayed(Duration.zero, () {
-            throw Exception('非框架崩潰');
-          });
-        },
-      ),
-      OptionEntryTile(
+      OptionEntryTile.icon(
         icon: Icons.favorite_border_outlined,
         title: t.profile.options.supportUs,
         onTap: () => _showDemoTap(context),
       ),
-      OptionEntryTile(
+      OptionEntryTile.icon(
         icon: Icons.info_outline,
         title: t.profile.options.about,
-        onTap: () => _showDemoTap(context),
+        onTap: () => context.push(AppRoutes.about),
       ),
-      OptionEntryTile(
+      OptionEntryTile.svg(
         svgIconAsset: "assets/npc_logo.svg",
         title: t.profile.options.npcClub,
-        onTap: () => _showDemoTap(context),
+        onTap: () => launchUrl(Uri.parse('https://ntut.club')),
       ),
 
       SectionHeader(title: t.profile.sections.appSettings),
-      OptionEntryTile(
+      OptionEntryTile.icon(
         icon: Icons.settings_outlined,
         title: t.profile.options.preferences,
         onTap: () => _showDemoTap(context),
       ),
-      OptionEntryTile(
+      OptionEntryTile.icon(
         icon: Icons.logout,
         title: t.profile.options.logout,
         onTap: () => _logout(context, ref),
       ),
+      const ProfileDangerZone(),
     ];
 
-    final notices = [
-      // TODO: make notices dynamic and animated.
-      SectionHeader(title: t.profile.sections.notices),
+    return AnnotatedRegion<SystemUiOverlayStyle>(
+      value: switch (Theme.of(context).brightness) {
+        Brightness.light => SystemUiOverlayStyle.dark,
+        Brightness.dark => SystemUiOverlayStyle.light,
+      },
+      child: Scaffold(
+        body: SafeArea(
+          child: RefreshIndicator(
+            onRefresh: () => _refresh(ref),
+            child: CustomScrollView(
+              slivers: [
+                SliverPadding(
+                  padding: const EdgeInsets.all(16),
+                  sliver: SliverToBoxAdapter(
+                    child: Column(
+                      spacing: 16,
+                      children: [
+                        ProfileCard(),
 
-      BackgroundNotice(
-        text: t.profile.notices.betaTesting,
-        noticeType: NoticeType.info,
-      ),
-
-      BackgroundNotice(
-        text: t.profile.notices.passwordExpiring,
-        noticeType: NoticeType.warning,
-      ),
-
-      BackgroundNotice(
-        text: t.profile.notices.connectionError,
-        noticeType: NoticeType.error,
-      ),
-    ];
-
-    return Scaffold(
-      body: SafeArea(
-        child: RefreshIndicator(
-          onRefresh: () => _refresh(ref),
-          child: CustomScrollView(
-            slivers: [
-              SliverPadding(
-                padding: const EdgeInsets.all(16),
-                sliver: SliverToBoxAdapter(
-                  child: Column(
-                    spacing: 16,
-                    children: [
-                      ProfileCard(),
-
-                      ClearNotice(
-                        text: t.profile.dataDisclaimer,
-                      ),
-
-                      Column(
-                        spacing: 8,
-                        children: notices,
-                      ),
-
-                      Column(
-                        spacing: 8,
-                        children: options,
-                      ),
-
-                      FutureBuilder<PackageInfo>(
-                        future: PackageInfo.fromPlatform(),
-                        builder: (context, snapshot) => ClearNotice(
-                          text: snapshot.hasData
-                              ? "TAT ${snapshot.data!.version} (${snapshot.data!.buildNumber})"
-                              : "TAT",
+                        ClearNotice(
+                          text: t.profile.dataDisclaimer,
                         ),
-                      ),
-                    ],
+
+                        Column(
+                          spacing: 8,
+                          children: options,
+                        ),
+                      ],
+                    ),
                   ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ),

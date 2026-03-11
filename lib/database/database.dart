@@ -20,7 +20,6 @@ final databaseProvider = Provider<AppDatabase>((ref) {
 });
 
 @DriftDatabase(
-  views: [UserRegistrations],
   tables: [
     // Base tables
     Users,
@@ -36,7 +35,6 @@ final databaseProvider = Provider<AppDatabase>((ref) {
     // Junction tables and dependent tables
     CourseOfferingTeachers,
     CourseOfferingClasses,
-    CourseOfferingClassrooms,
     CourseOfferingStudents,
     Schedules,
     Materials,
@@ -46,6 +44,10 @@ final databaseProvider = Provider<AppDatabase>((ref) {
     UserSemesterSummaryTutors,
     UserSemesterSummaryCadreRoles,
     UserSemesterRankings,
+  ],
+  views: [
+    CourseTableSlots,
+    UserRegistrations,
   ],
 )
 class AppDatabase extends _$AppDatabase {
@@ -59,7 +61,8 @@ class AppDatabase extends _$AppDatabase {
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
-    beforeOpen: (details) async {
+    onUpgrade: destructiveFallback.onUpgrade,
+    beforeOpen: (_) async {
       await customStatement('PRAGMA foreign_keys = ON');
     },
   );

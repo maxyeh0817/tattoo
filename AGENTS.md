@@ -4,12 +4,17 @@ Flutter app for NTUT students: course schedules, scores, enrollment, announcemen
 
 Follow @CONTRIBUTING.md for git operation guidelines.
 
+<<<<<<< NTUT-Calendar-Service
 **Last updated:** 2026-03-03. If stale (>30 days), verify Status section against codebase.
+=======
+**Last updated:** 2026-03-05. If stale (>7 days), verify Status section against codebase.
+>>>>>>> main
 
 ## Status
 
 **Done:**
 
+<<<<<<< NTUT-Calendar-Service
 - PortalService (auth+SSO, getSsoUrl for system browser auth, changePassword, getAvatar, uploadAvatar), CourseService (HTML parsing), ISchoolPlusService (getStudents, getMaterials, getMaterial)
 - CalendarService (getCalendar - academic calendar events via calModeApp.do JSON API)
 - StudentQueryService (getAcademicPerformance, getRegistrationRecords, getGradeRanking, getStudentProfile)
@@ -23,6 +28,14 @@ Follow @CONTRIBUTING.md for git operation guidelines.
 - go_router navigation setup
 - UI: intro screen, login screen, home screen with bottom navigation bar and three tabs (table, score, profile). Uses `StatefulShellRoute` with `AnimatedShellContainer` for tab state preservation and cross-fade transitions. Each tab owns its own `Scaffold`.
 - i18n (zh_TW, en_US) via slang
+=======
+- PortalService, CourseService, ISchoolPlusService, StudentQueryService, GitHubService
+- Service integration tests
+- Drift database schema
+- AuthRepository, PreferencesRepository, CourseRepository (stubs)
+- Riverpod, go_router, i18n (zh_TW, en_US)
+- UI: intro, login, home (table/score/profile tabs), about, easter egg, ShowcaseShell
+>>>>>>> main
 
 **Todo - Service Layer:**
 
@@ -53,26 +66,29 @@ Follow @CONTRIBUTING.md for git operation guidelines.
 
 ## Architecture
 
-MVVM pattern with Riverpod for DI and reactive state:
+MVVM pattern with Riverpod for DI and reactive state (manual providers, no codegen — riverpod_generator incompatible with Drift-generated types):
 
 - UI calls repository actions directly via constructor providers (`ref.read`)
 - UI observes data through screen-level FutureProviders (`ref.watch`)
 - Repositories encapsulate business logic, coordinate Services (HTTP) and Database (Drift)
 
-**Credentials:** `tool/credentials.dart` manages encrypted credentials from the `tattoo-credentials` Git repo. Run `dart run tool/credentials.dart fetch` to decrypt and place Firebase configs, Android keystore, and service account. Compatible with match_keystore encryption format (AES-256-CBC, PBKDF2). Config from env vars or `.env` file.
+**Code generation:** Run `dart run build_runner build` (Drift, Riverpod) and `dart run slang` (i18n) after modifying annotated source files or i18n YAMLs. Commit generated files (`.g.dart`) alongside source changes.
+
+**Credentials:** `tool/credentials.dart` manages encrypted credentials from the `tattoo-credentials` Git repo. Run `dart run tool/credentials.dart fetch` to decrypt and place Firebase configs, Android keystore, and service account. Config from env vars or `.env` file.
 
 **Structure:**
 
-- `tool/` - Dart CLI tools (credentials management)
+- `lib/components/` - Reusable UI widgets (AppSkeleton, notices, OptionEntryTile, SectionHeader)
+- `lib/database/` - Drift schema and database class
+- `lib/i18n/` - slang i18n YAML sources and generated strings
 - `lib/models/` - Shared domain enums (DayOfWeek, Period, CourseType, ScoreStatus)
 - `lib/repositories/` - Repository class + constructor provider (DI wiring)
-- `lib/services/` - Clients that talk to external systems (NTUT HTTP services, Firebase, etc.)
-- `lib/database/` - Drift schema and database class
-- `lib/utils/` - HTTP utilities (cookie jar, interceptors)
-- `lib/i18n/` - slang i18n YAML sources and generated strings
-- `lib/components/` - Reusable UI widgets (AppSkeleton, notices, OptionEntryTile, SectionHeader)
 - `lib/router/` - go_router config and AnimatedShellContainer for tab transitions
-- `lib/screens/` - Screen widgets organized by feature (welcome/, main/)
+- `lib/screens/` - Screen widgets organized by feature (welcome/, main/). Home uses `StatefulShellRoute` with `AnimatedShellContainer` for tab state preservation and cross-fade transitions. Each tab owns its own `Scaffold`.
+- `lib/services/` - Clients that talk to external systems (NTUT HTTP services, Firebase, etc.)
+- `lib/shells/` - Layout shells (AnimatedShellContainer for tab transitions, ShowcaseShell for onboarding)
+- `lib/utils/` - HTTP utilities (cookie jar, interceptors)
+- `tool/` - Dart CLI tools (credentials management)
 
 **Provider placement:**
 
@@ -95,27 +111,42 @@ MVVM pattern with Riverpod for DI and reactive state:
 
 **Services:**
 
+<<<<<<< NTUT-Calendar-Service
 - PortalService - Portal auth, SSO
 - CalendarService - 學校行事曆 (calModeApp.do JSON API, requires portal session)
 - CourseService - 課程系統 (`aa_0010-oauth`)
 - ISchoolPlusService - 北科i學園PLUS (`ischool_plus_oauth`)
 - StudentQueryService - 學生查詢專區 (`sa_003_oauth`)
 - FirebaseService - Unified wrapper for Firebase Analytics and Crashlytics with global `useFirebase` toggle
+=======
+- PortalService - Portal auth, SSO (auth+SSO, getSsoUrl, changePassword, getAvatar, uploadAvatar)
+- CourseService - 課程系統 (`aa_0010-oauth`) — HTML parsing
+- ISchoolPlusService - 北科i學園PLUS (`ischool_plus_oauth`) — getStudents, getMaterials, getMaterial
+- StudentQueryService - 學生查詢專區 (`sa_003_oauth`) — getAcademicPerformance, getRegistrationRecords, getGradeRanking, getStudentProfile
+- GitHubService - fetches repo contributors, filters bots
+- FirebaseService - Unified wrapper for Firebase Analytics and Crashlytics. Gated by compile-time `USE_FIREBASE` flag (`--dart-define=USE_FIREBASE=true`), defaults to `false` to avoid package name mismatch in debug builds. Callers use null-aware access (`firebase.analytics?.logAppOpen()`)
+>>>>>>> main
 - NTUT services share single cookie jar (NTUT session state)
 - NTUT services return DTOs as records (UserDto, SemesterDto, ScheduleDto, etc.) - no database writes
 - DTOs are typedef'd records co-located with service implementation
+- **Integration tests:** copy `test/test_config.json.example` to `test/test_config.json`, then run `flutter test --dart-define-from-file=test/test_config.json -r failures-only`
 
 **Repositories:**
 
-- AuthRepository - User identity, session, profile
-- CourseRepository - Course schedules, catalog, materials, rosters, announcements
+- AuthRepository - User identity, session, profile. Implemented: login, logout, lazy auth via `withAuth<T>()`, session persistence via flutter_secure_storage
+- PreferencesRepository - Typed `PrefKey<T>` enum with SharedPreferencesAsync
+- CourseRepository - Course schedules, catalog, materials, rosters, announcements (stubs only)
 - StudentRepository (TODO) - Grades, GPA, rankings, warnings, graduation status
 - Transform DTOs into relational DB tables
 - Return DTOs or domain models to UI
 - Handle data persistence and caching strategies
 - **Method pattern (AuthRepository):** `getX({refresh})` methods use `fetchWithTtl` helper for smart caching - returns cached data if fresh (within TTL), fetches from network if stale. Set `refresh: true` to bypass TTL (pull-to-refresh). Internal `_fetchXFromNetwork()` methods handle network fetch logic. Special cases that only need partial data (e.g., `getAvatar()` only needs `avatarFilename`) query DB directly. Follow this pattern when implementing other repositories.
 
-## Database Performance
+## Database
+
+**Migrations:** No migration strategy until first release. Schema changes are made directly — the database is recreated on each install during development.
+
+**Cache Timestamps:** For data that doesn't have its own `fetchedAt` column, add a nullable `{feature}FetchedAt` column on the parent row's table (e.g., `Semesters.courseTableFetchedAt` for per-semester course table cache). For data with no natural parent row (e.g., the semester list itself), use a column on the `Users` table.
 
 **Indexing Strategy:**
 
@@ -138,6 +169,8 @@ MVVM pattern with Riverpod for DI and reactive state:
 **SSO Flow:** PortalService centralizes auth services. The SSO uses OAuth2 authorization code flow: `ssoIndex.do` returns an auto-submitting form that POSTs to `oauth2Server.do`, which 302-redirects to the target service's login endpoint with a `code` parameter (e.g., `LoginOAuthCourseCH.jsp?code=...`). This code URL is **reusable** and **cookie-independent** — any HTTP client (including a system browser) can open it to establish an authenticated session. `PortalService.getSsoUrl(apOu)` captures this URL by cloning the Dio instance without `RedirectInterceptor` to intercept the 302 Location header.
 
 **User-Agent:** PortalService uses `app.ntut.edu.tw` endpoints designed for the official NTUT iOS app (`User-Agent: Direk ios App`). This bypasses login captcha that the web portal (`nportal.ntut.edu.tw`) requires. Without the correct User-Agent, the server will refuse requests. Browser-based testing of these endpoints won't work.
+
+**Localized String Helper:** `localized(zh, en)` in `lib/utils/localized.dart` picks the appropriate string based on device locale — Chinese (zh_TW) prefers `zh` with `en` fallback, all other locales prefer `en` with `zh` fallback. Use this when NTUT services return both Chinese and English data.
 
 **InvalidCookieFilter:** iSchool+ returns malformed cookies; custom interceptor filters them.
 
