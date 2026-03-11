@@ -1,21 +1,19 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:tattoo/services/calendar_service.dart';
+import 'package:tattoo/services/firebase_service.dart';
 import 'package:tattoo/services/portal_service.dart';
 
 import '../test_helpers.dart';
 
 void main() {
-  group('CalendarService Tests', () {
+  group('PortalService (Calendar) Tests', () {
     late PortalService portalService;
-    late CalendarService calendarService;
 
     setUpAll(() {
       TestCredentials.validate();
     });
 
     setUp(() async {
-      portalService = PortalService();
-      calendarService = CalendarService(portalService);
+      portalService = PortalService(FirebaseService());
       await portalService.login(
         TestCredentials.username,
         TestCredentials.password,
@@ -24,7 +22,7 @@ void main() {
     });
 
     test('should return calendar events for a semester date range', () async {
-      final events = await calendarService.getCalendar(
+      final events = await portalService.getCalendar(
         DateTime(2025, 1, 1),
         DateTime(2025, 6, 30),
       );
@@ -49,7 +47,7 @@ void main() {
 
     test('should return empty list for a date range with no events', () async {
       // A single day far in the past unlikely to have events
-      final events = await calendarService.getCalendar(
+      final events = await portalService.getCalendar(
         DateTime(2000, 1, 1),
         DateTime(2000, 1, 2),
       );

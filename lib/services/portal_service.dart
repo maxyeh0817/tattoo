@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:typed_data';
+import 'package:intl/intl.dart';
 
 import 'package:dio_redirect_interceptor/dio_redirect_interceptor.dart';
 import 'package:html/parser.dart';
@@ -25,6 +26,45 @@ typedef UserDto = ({
   /// The value corresponds to the `passwordExpiredRemind` field from the login API.
   /// Null if there is no expiration warning.
   int? passwordExpiresInDays,
+});
+
+/// Represents a calendar event from the NTUT Portal.
+///
+/// Events come in two flavors:
+/// - **Named events** with [id], [calTitle], [ownerName], [creatorName]
+///   (e.g., exam periods, registration deadlines)
+/// - **Holiday markers** with [isHoliday] = "1" and an empty title
+///   (weekends and national holidays)
+typedef CalendarEventDto = ({
+  /// Event ID (absent for holiday markers).
+  int? id,
+
+  /// Event start time (epoch milliseconds).
+  int? calStart,
+
+  /// Event end time (epoch milliseconds).
+  int? calEnd,
+
+  /// Whether this is an all-day event ("1" = yes).
+  String? allDay,
+
+  /// Event title / description.
+  String? calTitle,
+
+  /// Event location.
+  String? calPlace,
+
+  /// Event content / details.
+  String? calContent,
+
+  /// Owner name (e.g., "學校行事曆").
+  String? ownerName,
+
+  /// Creator name (e.g., "教務處").
+  String? creatorName,
+
+  /// Whether this is a holiday ("1" = yes).
+  String? isHoliday,
 });
 
 // dart format off
@@ -296,5 +336,44 @@ class PortalService {
     };
 
     return (actionUrl, formData);
+  }
+
+  /// Fetches academic calendar events within a date range.
+  ///
+  /// Returns a list of calendar events (e.g., holidays, exam periods,
+  /// registration deadlines) between [startDate] and [endDate] inclusive.
+  ///
+  /// Requires an active portal session (call [login] first).
+  Future<List<CalendarEventDto>> getCalendar(
+    DateTime startDate,
+    DateTime endDate,
+  ) async {
+    final formatter = DateFormat('yyyy/MM/dd');
+    final response = await _portalDio.get(
+      'calModeApp.do',
+      queryParameters: {
+        'startDate': formatter.format(startDate),
+        'endDate': formatter.format(endDate),
+      },
+    );
+
+    final List<dynamic> events = jsonDecode(response.data);
+    String? normalizeEmpty(String? value) =>
+        value?.isNotEmpty == true ? value : null;
+
+    return events.map<CalendarEventDto>((e) {
+      return (
+        id: e['id'] as int?,
+        calStart: e['calStart'] as int?,
+        calEnd: e['calEnd'] as int?,
+        allDay: normalizeEmpty(e['allDay'] as String?),
+        calTitle: normalizeEmpty(e['calTitle'] as String?),
+        calPlace: normalizeEmpty(e['calPlace'] as String?),
+        calContent: normalizeEmpty(e['calContent'] as String?),
+        ownerName: normalizeEmpty(e['ownerName'] as String?),
+        creatorName: normalizeEmpty(e['creatorName'] as String?),
+        isHoliday: normalizeEmpty(e['isHoliday'] as String?),
+      );
+    }).toList();
   }
 }

@@ -4,38 +4,21 @@ Flutter app for NTUT students: course schedules, scores, enrollment, announcemen
 
 Follow @CONTRIBUTING.md for git operation guidelines.
 
-<<<<<<< NTUT-Calendar-Service
-**Last updated:** 2026-03-03. If stale (>30 days), verify Status section against codebase.
-=======
-**Last updated:** 2026-03-05. If stale (>7 days), verify Status section against codebase.
->>>>>>> main
+**Last updated:** 2026-03-11. If stale (>7 days), verify Status section against codebase.
 
 ## Status
 
 **Done:**
 
-<<<<<<< NTUT-Calendar-Service
-- PortalService (auth+SSO, getSsoUrl for system browser auth, changePassword, getAvatar, uploadAvatar), CourseService (HTML parsing), ISchoolPlusService (getStudents, getMaterials, getMaterial)
-- CalendarService (getCalendar - academic calendar events via calModeApp.do JSON API)
-- StudentQueryService (getAcademicPerformance, getRegistrationRecords, getGradeRanking, getStudentProfile)
-- HTTP utils, InvalidCookieFilter interceptor
+- PortalService (auth+SSO, getSsoUrl for system browser auth, changePassword, getAvatar, uploadAvatar, getCalendar), CourseService (HTML parsing), ISchoolPlusService (getStudents, getMaterials, getMaterial), StudentQueryService (getAcademicPerformance, getRegistrationRecords, getGradeRanking, getStudentProfile), GitHubService
+- Service integration tests (copy `test/test_config.json.example` to `test/test_config.json`, then run `flutter test --dart-define-from-file=test/test_config.json -r failures-only`)
 - Drift database schema with all tables
 - Service DTOs migrated to Dart 3 records
-- Repository stubs (AuthRepository, CourseRepository)
+- AuthRepository implementation (login, logout, lazy auth via `withAuth<T>()`, session persistence via flutter_secure_storage), PreferencesRepository, CourseRepository (stubs)
 - Riverpod setup (manual providers, no codegen — riverpod_generator incompatible with Drift-generated types)
-- Service integration tests (copy `test/test_config.json.example` to `test/test_config.json`, then run `flutter test --dart-define-from-file=test/test_config.json -r failures-only`)
-- AuthRepository implementation (login, logout, lazy auth via `withAuth<T>()`, session persistence via flutter_secure_storage)
 - go_router navigation setup
-- UI: intro screen, login screen, home screen with bottom navigation bar and three tabs (table, score, profile). Uses `StatefulShellRoute` with `AnimatedShellContainer` for tab state preservation and cross-fade transitions. Each tab owns its own `Scaffold`.
+- UI: intro screen, login screen, home screen with bottom navigation bar and three tabs (table, score, profile), about, easter egg, ShowcaseShell. Home uses `StatefulShellRoute` with `AnimatedShellContainer` for tab state preservation and cross-fade transitions. Each tab owns its own `Scaffold`.
 - i18n (zh_TW, en_US) via slang
-=======
-- PortalService, CourseService, ISchoolPlusService, StudentQueryService, GitHubService
-- Service integration tests
-- Drift database schema
-- AuthRepository, PreferencesRepository, CourseRepository (stubs)
-- Riverpod, go_router, i18n (zh_TW, en_US)
-- UI: intro, login, home (table/score/profile tabs), about, easter egg, ShowcaseShell
->>>>>>> main
 
 **Todo - Service Layer:**
 
@@ -111,21 +94,12 @@ MVVM pattern with Riverpod for DI and reactive state (manual providers, no codeg
 
 **Services:**
 
-<<<<<<< NTUT-Calendar-Service
-- PortalService - Portal auth, SSO
-- CalendarService - 學校行事曆 (calModeApp.do JSON API, requires portal session)
-- CourseService - 課程系統 (`aa_0010-oauth`)
-- ISchoolPlusService - 北科i學園PLUS (`ischool_plus_oauth`)
-- StudentQueryService - 學生查詢專區 (`sa_003_oauth`)
-- FirebaseService - Unified wrapper for Firebase Analytics and Crashlytics with global `useFirebase` toggle
-=======
-- PortalService - Portal auth, SSO (auth+SSO, getSsoUrl, changePassword, getAvatar, uploadAvatar)
+- PortalService - Portal auth, SSO (auth+SSO, getSsoUrl, changePassword, getAvatar, uploadAvatar, getCalendar - academic calendar events via calModeApp.do JSON API)
 - CourseService - 課程系統 (`aa_0010-oauth`) — HTML parsing
 - ISchoolPlusService - 北科i學園PLUS (`ischool_plus_oauth`) — getStudents, getMaterials, getMaterial
 - StudentQueryService - 學生查詢專區 (`sa_003_oauth`) — getAcademicPerformance, getRegistrationRecords, getGradeRanking, getStudentProfile
 - GitHubService - fetches repo contributors, filters bots
 - FirebaseService - Unified wrapper for Firebase Analytics and Crashlytics. Gated by compile-time `USE_FIREBASE` flag (`--dart-define=USE_FIREBASE=true`), defaults to `false` to avoid package name mismatch in debug builds. Callers use null-aware access (`firebase.analytics?.logAppOpen()`)
->>>>>>> main
 - NTUT services share single cookie jar (NTUT session state)
 - NTUT services return DTOs as records (UserDto, SemesterDto, ScheduleDto, etc.) - no database writes
 - DTOs are typedef'd records co-located with service implementation
