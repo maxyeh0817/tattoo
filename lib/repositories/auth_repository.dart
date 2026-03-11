@@ -7,6 +7,7 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:riverpod/riverpod.dart';
 import 'package:tattoo/database/database.dart';
+import 'package:tattoo/models/login_exception.dart';
 import 'package:tattoo/models/user.dart';
 import 'package:tattoo/services/portal_service.dart';
 import 'package:tattoo/services/student_query_service.dart';
@@ -122,7 +123,8 @@ class AuthRepository {
 
   /// Authenticates with NTUT Portal and saves the user profile.
   ///
-  /// Throws [Exception] if credentials are invalid or network fails.
+  /// Throws [LoginException] if login is rejected (wrong credentials, account
+  /// locked, password expired, etc.). Throws [DioException] on network failure.
   /// On success, credentials are stored securely for auto-login.
   Future<User> login(String username, String password) async {
     final userDto = await _portalService.login(username, password);
@@ -152,7 +154,8 @@ class AuthRepository {
   Future<void> logout() async {
     await _database.delete(_database.users).go();
     await cookieJar.deleteAll();
-    await _clearCredentials();
+    await _secureStorage.delete(key: _usernameKey);
+    await _secureStorage.delete(key: _passwordKey);
     await _clearAvatarCache();
     _ssoCache.clear();
   }
@@ -193,8 +196,8 @@ class AuthRepository {
   /// credentials, re-establishes SSO sessions, and retries [call] once.
   ///
   /// Throws [NotLoggedInException] if no stored credentials are available.
-  /// Throws [InvalidCredentialsException] if stored credentials are rejected
-  /// (credentials are automatically cleared from secure storage).
+  /// Rethrows [LoginException] if re-authentication is rejected (wrong
+  /// credentials, account locked, password expired, etc.).
   /// Rethrows [DioException] from [call] or re-auth (network errors).
   Future<T> withAuth<T>(
     Future<T> Function() call, {
@@ -221,10 +224,9 @@ class AuthRepository {
       } on DioException {
         _onAuthStatusChanged(.offline);
         rethrow;
-      } catch (_) {
-        await _clearCredentials();
+      } on LoginException {
         _onAuthStatusChanged(.unauthenticated);
-        throw InvalidCredentialsException();
+        rethrow;
       }
 
       _ssoCache.clear();
@@ -304,10 +306,9 @@ class AuthRepository {
     } on DioException {
       _onAuthStatusChanged(.offline);
       rethrow;
-    } catch (_) {
-      await _clearCredentials();
+    } on LoginException {
       _onAuthStatusChanged(.unauthenticated);
-      throw InvalidCredentialsException();
+      rethrow;
     }
     _onAuthStatusChanged(.authenticated);
 
@@ -536,12 +537,6 @@ class AuthRepository {
       frameInfo?.image.dispose();
       codec?.dispose();
     }
-  }
-
-  /// Clears stored login credentials from secure storage.
-  Future<void> _clearCredentials() async {
-    await _secureStorage.delete(key: _usernameKey);
-    await _secureStorage.delete(key: _passwordKey);
   }
 
   /// Clears cached avatar files.

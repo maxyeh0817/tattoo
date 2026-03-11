@@ -38,6 +38,10 @@ login:
     emptyFields: Please enter your student ID and password
     useStudentId: Please use your student ID to sign in, not an email address
     loginFailed: Login failed. Please verify your credentials.
+    wrongCredentials: Incorrect student ID or password.
+    accountLocked: Account locked due to too many failed attempts. Please try again later.
+    passwordExpired: Your password has expired. Please change it on the NTUT portal.
+    mobileVerificationRequired: Mobile phone verification is required. Please complete it on the NTUT portal.
 nav:
   courseTable: Courses
   scores: Scores
