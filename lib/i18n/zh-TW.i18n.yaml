@@ -38,6 +38,10 @@ login:
     emptyFields: 請填寫學號與密碼
     useStudentId: 請直接使用學號登入，不要使用電子郵件
     loginFailed: 登入失敗，請確認帳號密碼
+    wrongCredentials: 學號或密碼錯誤
+    accountLocked: 帳號已被鎖定，請稍後再試
+    passwordExpired: 密碼已過期，請至校園入口網站變更密碼
+    mobileVerificationRequired: 需要進行手機驗證，請至校園入口網站完成驗證
 nav:
   courseTable: 課表
   scores: 成績

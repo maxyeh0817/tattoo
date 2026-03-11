@@ -5,6 +5,7 @@ import 'package:dio_redirect_interceptor/dio_redirect_interceptor.dart';
 import 'package:html/parser.dart';
 import 'package:http_parser/http_parser.dart';
 import 'package:riverpod/riverpod.dart';
+import 'package:tattoo/models/login_exception.dart';
 import 'package:tattoo/services/firebase_service.dart';
 import 'package:tattoo/utils/http.dart';
 
@@ -81,7 +82,9 @@ class PortalService {
   ///
   /// Returns user profile information including name, email, and avatar filename.
   ///
-  /// Throws an [Exception] if login fails due to invalid credentials.
+  /// Throws a [LoginException] subtype on failure — see [WrongCredentialsException],
+  /// [AccountLockedException], [PasswordExpiredException],
+  /// [MobileVerificationRequiredException], [UnknownLoginException].
   Future<UserDto> login(String username, String password) async {
     _firebase.log('Attempting login');
     final response = await _portalDio.post(
@@ -92,7 +95,18 @@ class PortalService {
     final body = jsonDecode(response.data);
     if (!body['success']) {
       _firebase.log('Login failed');
-      throw Exception('Login failed. Please check your credentials.');
+      final String? errorMsg = body['errorMsg'];
+      final bool resetPwd = body['resetPwd'] ?? false;
+      throw switch (errorMsg) {
+        final msg? when msg.contains('密碼錯誤') =>
+          const WrongCredentialsException(),
+        final msg? when msg.contains('已被鎖住') => const AccountLockedException(),
+        final msg? when msg.contains('密碼已過期') && resetPwd =>
+          const PasswordExpiredException(),
+        final msg? when msg.contains('驗證手機') =>
+          const MobileVerificationRequiredException(),
+        _ => UnknownLoginException(errorMsg),
+      };
     }
 
     _firebase.log('Login successful');
