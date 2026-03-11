@@ -242,11 +242,11 @@ class AuthRepository {
 
   /// Establishes SSO sessions for services not yet cached.
   Future<void> _ensureSso(List<PortalServiceCode> services) async {
-    final uncachedServices = services.where((s) => !_ssoCache.contains(s));
-    for (final service in uncachedServices) {
-      await _portalService.sso(service);
-      _ssoCache.add(service);
-    }
+    final uncached = services.where((s) => !_ssoCache.contains(s)).toList();
+    await uncached.map((s) async {
+      await _portalService.sso(s);
+      _ssoCache.add(s);
+    }).wait;
   }
 
   /// Gets the current user with automatic cache refresh.
