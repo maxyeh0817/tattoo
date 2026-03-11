@@ -369,10 +369,11 @@ class CourseRepository {
     }
 
     // Compute spans: for each slot, look ahead at consecutive periods on the
-    // same day. Matching courses get marked span=0 (consumed), and the starting
-    // slot gets the total span. Consumed slots are removed at the end.
-    for (final entry in data.entries.toList()) {
-      if (entry.value.span == 0) continue;
+    // same day. Matching offerings are tracked in a consumed set, and the
+    // starting slot gets the total span. Consumed slots are removed at the end.
+    final consumed = <({DayOfWeek day, Period period})>{};
+    for (final entry in data.entries) {
+      if (consumed.contains(entry.key)) continue;
       var span = 1;
       while (true) {
         final nextPeriodIndex = entry.key.period.index + span;
@@ -381,17 +382,8 @@ class CourseRepository {
           day: entry.key.day,
           period: Period.values[nextPeriodIndex],
         );
-        if (data[nextKey] case final next?
-            when next.number == entry.value.number) {
-          data[nextKey] = (
-            id: next.id,
-            number: next.number,
-            span: 0,
-            courseName: next.courseName,
-            classroomName: next.classroomName,
-            credits: next.credits,
-            hours: next.hours,
-          );
+        if (data[nextKey] case final next? when next.id == entry.value.id) {
+          consumed.add(nextKey);
           span++;
         } else {
           break;
@@ -409,9 +401,7 @@ class CourseRepository {
         );
       }
     }
-
-    // Remove consumed slots (span == 0)
-    data.removeWhere((_, cell) => cell.span == 0);
+    data.removeWhere((key, _) => consumed.contains(key));
 
     return data;
   }
