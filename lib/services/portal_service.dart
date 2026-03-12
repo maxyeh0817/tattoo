@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:typed_data';
+import 'package:intl/intl.dart';
 
 import 'package:dio_redirect_interceptor/dio_redirect_interceptor.dart';
 import 'package:html/parser.dart';
@@ -26,6 +27,39 @@ typedef UserDto = ({
   /// The value corresponds to the `passwordExpiredRemind` field from the login API.
   /// Null if there is no expiration warning.
   int? passwordExpiresInDays,
+});
+
+/// Represents a calendar event from the NTUT Portal.
+///
+/// Weekend markers (isHoliday with empty title) are filtered out by
+/// [PortalService.getCalendar].
+typedef CalendarEventDto = ({
+  /// Event ID.
+  int? id,
+
+  /// Event start time.
+  DateTime? start,
+
+  /// Event end time.
+  DateTime? end,
+
+  /// Whether this is an all-day event.
+  bool allDay,
+
+  /// Event title / description.
+  String? title,
+
+  /// Event location.
+  String? place,
+
+  /// Event content / details.
+  String? content,
+
+  /// Owner name (e.g., "學校行事曆").
+  String? ownerName,
+
+  /// Creator name (e.g., "教務處").
+  String? creatorName,
 });
 
 // dart format off
@@ -310,5 +344,51 @@ class PortalService {
     };
 
     return (actionUrl, formData);
+  }
+
+  /// Fetches academic calendar events within a date range.
+  ///
+  /// Returns a list of calendar events (e.g., holidays, exam periods,
+  /// registration deadlines) between [startDate] and [endDate] inclusive.
+  ///
+  /// Requires an active portal session (call [login] first).
+  Future<List<CalendarEventDto>> getCalendar(
+    DateTime startDate,
+    DateTime endDate,
+  ) async {
+    final formatter = DateFormat('yyyy/MM/dd');
+    final response = await _portalDio.get(
+      'calModeApp.do',
+      queryParameters: {
+        'startDate': formatter.format(startDate),
+        'endDate': formatter.format(endDate),
+      },
+    );
+
+    final List<dynamic> events = jsonDecode(response.data);
+    String? normalizeEmpty(String? value) =>
+        value?.isNotEmpty == true ? value : null;
+    DateTime? fromEpoch(int? ms) =>
+        ms != null ? DateTime.fromMillisecondsSinceEpoch(ms) : null;
+
+    return events
+        .where(
+          // Filter out weekend markers
+          (e) => e['isHoliday'] != '1',
+        )
+        .map<CalendarEventDto>(
+          (e) => (
+            id: e['id'],
+            start: fromEpoch(e['calStart']),
+            end: fromEpoch(e['calEnd']),
+            allDay: e['allDay'] == '1',
+            title: normalizeEmpty(e['calTitle']),
+            place: normalizeEmpty(e['calPlace']),
+            content: normalizeEmpty(e['calContent']),
+            ownerName: normalizeEmpty(e['ownerName']),
+            creatorName: normalizeEmpty(e['creatorName']),
+          ),
+        )
+        .toList();
   }
 }
