@@ -92,6 +92,7 @@ MVVM pattern with Riverpod for DI and reactive state (manual providers, no codeg
 
 **Services:**
 
+- **Architecture:** NTUT services (Portal, Course, ISchoolPlus, StudentQuery) use `abstract interface class` with concrete implementations (e.g., `NtutPortalService`) to enable mocking and demo modes. Files are grouped by subdirectory (e.g., `lib/services/portal/`). Interfaces, DTOs, and providers live in the interface file, while logic lives in the implementation file. Consumers only import the interface file.
 - PortalService - Portal auth, SSO (auth+SSO, getSsoUrl, changePassword, getAvatar, uploadAvatar)
 - CourseService - 課程系統 (`aa_0010-oauth`) — HTML parsing
 - ISchoolPlusService - 北科i學園PLUS (`ischool_plus_oauth`) — getStudents, getMaterials, getMaterial
@@ -100,7 +101,7 @@ MVVM pattern with Riverpod for DI and reactive state (manual providers, no codeg
 - FirebaseService - Unified wrapper for Firebase Analytics and Crashlytics. Gated by compile-time `USE_FIREBASE` flag (`--dart-define=USE_FIREBASE=true`), defaults to `false` to avoid package name mismatch in debug builds. Callers use null-aware access (`firebase.analytics?.logAppOpen()`)
 - NTUT services share single cookie jar (NTUT session state)
 - NTUT services return DTOs as records (UserDto, SemesterDto, ScheduleDto, etc.) - no database writes
-- DTOs are typedef'd records co-located with service implementation
+- DTOs are typedef'd records co-located with service interfaces
 - **Integration tests:** copy `test/test_config.json.example` to `test/test_config.json`, then run `flutter test --dart-define-from-file=test/test_config.json -r failures-only`
 
 **Repositories:**
