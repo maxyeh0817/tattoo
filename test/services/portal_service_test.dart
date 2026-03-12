@@ -1,6 +1,7 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:tattoo/services/firebase_service.dart';
-import 'package:tattoo/services/portal_service.dart';
+import 'package:tattoo/services/portal/portal_service.dart';
+import 'package:tattoo/services/portal/ntut_portal_service.dart';
 import 'package:tattoo/utils/http.dart';
 
 import '../test_helpers.dart';
@@ -14,7 +15,7 @@ void main() {
     });
 
     setUp(() async {
-      portalService = PortalService(FirebaseService());
+      portalService = NtutPortalService(FirebaseService());
       await respectfulDelay();
     });
 
