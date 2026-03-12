@@ -1,69 +1,20 @@
 import 'dart:convert';
 import 'dart:typed_data';
+import 'package:intl/intl.dart';
 
 import 'package:dio_redirect_interceptor/dio_redirect_interceptor.dart';
 import 'package:html/parser.dart';
 import 'package:http_parser/http_parser.dart';
-import 'package:riverpod/riverpod.dart';
 import 'package:tattoo/models/login_exception.dart';
 import 'package:tattoo/services/firebase_service.dart';
+import 'package:tattoo/services/portal/portal_service.dart';
 import 'package:tattoo/utils/http.dart';
 
-/// Represents a logged-in NTUT Portal user.
-typedef UserDto = ({
-  /// User's display name from NTUT Portal (givenName).
-  String? name,
-
-  /// Filename of the user's profile photo (e.g., "111360109_temp1714460935341.jpeg").
-  String? avatarFilename,
-
-  /// User's NTUT email address (e.g., "t111360109@ntut.edu.tw").
-  String? email,
-
-  /// Number of days until the password expires.
-  ///
-  /// When non-null, indicates the user should change their password soon.
-  /// The value corresponds to the `passwordExpiredRemind` field from the login API.
-  /// Null if there is no expiration warning.
-  int? passwordExpiresInDays,
-});
-
-// dart format off
-/// Identification codes for NTUT services used in SSO authentication.
-///
-/// These codes are passed to [PortalService.sso] to authenticate with
-/// different NTUT web services.
-enum PortalServiceCode {
-  studentQueryService('sa_003_oauth'),
-  courseService('aa_0010-oauth'),
-  iSchoolPlusService('ischool_plus_oauth');
-
-  final String code;
-  const PortalServiceCode(this.code);
-}
-// dart format on
-
-/// Provides the singleton [PortalService] instance.
-final portalServiceProvider = Provider<PortalService>((ref) {
-  return PortalService(ref.read(firebaseServiceProvider));
-});
-
-/// Service for authenticating with NTUT Portal and performing SSO.
-///
-/// This service handles:
-/// - User authentication (login/logout)
-/// - Session management
-/// - Single sign-on (SSO) to other NTUT services
-/// - User profile and avatar retrieval
-///
-/// All HTTP clients in the application share a single cookie jar, so logging in
-/// through this service provides authentication for all other services after
-/// calling [sso] for each required service.
-class PortalService {
+class NtutPortalService implements PortalService {
   late final Dio _portalDio;
   final FirebaseService _firebase;
 
-  PortalService(this._firebase) {
+  NtutPortalService(this._firebase) {
     // Emulate the NTUT iOS app's HTTP client
     _portalDio = createDio()
       ..options.baseUrl = 'https://app.ntut.edu.tw/'
@@ -75,16 +26,7 @@ class PortalService {
       };
   }
 
-  /// Authenticates a user with NTUT Portal credentials.
-  ///
-  /// Sets the JSESSIONID cookie in the app.ntut.edu.tw domain for subsequent
-  /// authenticated requests. This session cookie is shared across all services.
-  ///
-  /// Returns user profile information including name, email, and avatar filename.
-  ///
-  /// Throws a [LoginException] subtype on failure — see [WrongCredentialsException],
-  /// [AccountLockedException], [PasswordExpiredException],
-  /// [MobileVerificationRequiredException], [UnknownLoginException].
+  @override
   Future<UserDto> login(String username, String password) async {
     _firebase.log('Attempting login');
     final response = await _portalDio.post(
@@ -127,12 +69,7 @@ class PortalService {
     );
   }
 
-  /// Changes the user's NTUT Portal password.
-  ///
-  /// Requires an active session (call [login] first).
-  ///
-  /// Throws an [Exception] if the password change fails (e.g., incorrect
-  /// current password or the new password doesn't meet requirements).
+  @override
   Future<void> changePassword(
     String currentPassword,
     String newPassword,
@@ -156,12 +93,7 @@ class PortalService {
     }
   }
 
-  /// Downloads a user's avatar from NTUT Portal.
-  ///
-  /// If [filename] is omitted or empty, the server returns a dynamically
-  /// generated placeholder avatar (a colored square with the user's name).
-  ///
-  /// Returns the avatar image as raw bytes.
+  @override
   Future<Uint8List> getAvatar([String? filename]) async {
     final response = await _portalDio.get(
       'photoView.do',
@@ -180,12 +112,7 @@ class PortalService {
     return response.data;
   }
 
-  /// Uploads a new profile photo to NTUT Portal, replacing the current one.
-  ///
-  /// [oldFilename] should be the current avatar filename
-  /// (from [UserDto.avatarFilename], or empty string if none).
-  ///
-  /// Returns the new avatar filename assigned by the server.
+  @override
   Future<String> uploadAvatar(Uint8List imageBytes, String? oldFilename) async {
     final response = await _portalDio.post(
       'photoUpload.do',
@@ -207,20 +134,7 @@ class PortalService {
     return body['ldapPhoto'];
   }
 
-  /// Performs single sign-on (SSO) to authenticate with a target NTUT service.
-  ///
-  /// This method must be called after [login] to obtain session cookies for
-  /// other NTUT services (Course Service, Score Service, or I-School Plus).
-  ///
-  /// The SSO process:
-  /// 1. Fetches an SSO form from Portal with the service code
-  /// 2. Submits the form to the target service
-  /// 3. Sets the necessary authentication cookies for that service
-  ///
-  /// All services share the same cookie jar, so SSO only needs to be called once
-  /// per service during a session.
-  ///
-  /// Throws an [Exception] if the SSO form is not found (user may not be logged in).
+  @override
   Future<void> sso(PortalServiceCode serviceCode) async {
     final (actionUrl, formData) = await _fetchSsoForm(serviceCode.code);
 
@@ -239,19 +153,7 @@ class PortalService {
     );
   }
 
-  /// Returns a URL that authenticates the user with a target NTUT service
-  /// via OAuth2 authorization code.
-  ///
-  /// The returned URL contains an authorization code. Opening it
-  /// in any HTTP client (including a system browser) will establish a session
-  /// for that service — no cookies from this app are needed.
-  ///
-  /// This enables "open in browser" functionality: the app performs login and
-  /// SSO negotiation, then hands off the resulting URL to the system browser.
-  ///
-  /// Requires an active portal session (call [login] first).
-  ///
-  /// Throws an [Exception] if the SSO form is not found (user may not be logged in).
+  @override
   Future<Uri> getSsoUrl(PortalServiceCode serviceCode) async {
     final apOu = serviceCode.code;
     final (actionUrl, formData) = await _fetchSsoForm(apOu);
@@ -310,5 +212,46 @@ class PortalService {
     };
 
     return (actionUrl, formData);
+  }
+
+  @override
+  Future<List<CalendarEventDto>> getCalendar(
+    DateTime startDate,
+    DateTime endDate,
+  ) async {
+    final formatter = DateFormat('yyyy/MM/dd');
+    final response = await _portalDio.get(
+      'calModeApp.do',
+      queryParameters: {
+        'startDate': formatter.format(startDate),
+        'endDate': formatter.format(endDate),
+      },
+    );
+
+    final List<dynamic> events = jsonDecode(response.data);
+    String? normalizeEmpty(String? value) =>
+        value?.isNotEmpty == true ? value : null;
+    DateTime? fromEpoch(int? ms) =>
+        ms != null ? DateTime.fromMillisecondsSinceEpoch(ms) : null;
+
+    return events
+        .where(
+          // Filter out weekend markers
+          (e) => e['isHoliday'] != '1',
+        )
+        .map<CalendarEventDto>(
+          (e) => (
+            id: e['id'],
+            start: fromEpoch(e['calStart']),
+            end: fromEpoch(e['calEnd']),
+            allDay: e['allDay'] == '1',
+            title: normalizeEmpty(e['calTitle']),
+            place: normalizeEmpty(e['calPlace']),
+            content: normalizeEmpty(e['calContent']),
+            ownerName: normalizeEmpty(e['ownerName']),
+            creatorName: normalizeEmpty(e['creatorName']),
+          ),
+        )
+        .toList();
   }
 }

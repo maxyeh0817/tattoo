@@ -4,7 +4,7 @@ import 'package:riverpod/riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:tattoo/database/database.dart';
 import 'package:tattoo/repositories/auth_repository.dart';
-import 'package:tattoo/services/portal_service.dart';
+import 'package:tattoo/services/portal/portal_service.dart';
 import 'package:tattoo/utils/avatar_payload.dart';
 import 'package:tattoo/utils/shared_preferences.dart';
 

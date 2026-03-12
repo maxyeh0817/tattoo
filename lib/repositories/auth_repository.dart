@@ -9,8 +9,8 @@ import 'package:riverpod/riverpod.dart';
 import 'package:tattoo/database/database.dart';
 import 'package:tattoo/models/login_exception.dart';
 import 'package:tattoo/models/user.dart';
-import 'package:tattoo/services/portal_service.dart';
-import 'package:tattoo/services/student_query_service.dart';
+import 'package:tattoo/services/portal/portal_service.dart';
+import 'package:tattoo/services/student_query/student_query_service.dart';
 import 'package:tattoo/utils/fetch_with_ttl.dart';
 import 'package:tattoo/utils/http.dart';
 
