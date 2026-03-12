@@ -30,13 +30,10 @@ typedef UserDto = ({
 
 /// Represents a calendar event from the NTUT Portal.
 ///
-/// Events come in two flavors:
-/// - **Named events** with [id], [calTitle], [ownerName], [creatorName]
-///   (e.g., exam periods, registration deadlines)
-/// - **Holiday markers** with [isHoliday] = "1" and an empty title
-///   (weekends and national holidays)
+/// Weekend markers (isHoliday with empty title) are filtered out by
+/// [PortalService.getCalendar].
 typedef CalendarEventDto = ({
-  /// Event ID (absent for holiday markers).
+  /// Event ID.
   int? id,
 
   /// Event start time (epoch milliseconds).
@@ -62,9 +59,6 @@ typedef CalendarEventDto = ({
 
   /// Creator name (e.g., "教務處").
   String? creatorName,
-
-  /// Whether this is a holiday ("1" = yes).
-  String? isHoliday,
 });
 
 // dart format off
@@ -361,19 +355,24 @@ class PortalService {
     String? normalizeEmpty(String? value) =>
         value?.isNotEmpty == true ? value : null;
 
-    return events.map<CalendarEventDto>((e) {
-      return (
-        id: e['id'] as int?,
-        calStart: e['calStart'] as int?,
-        calEnd: e['calEnd'] as int?,
-        allDay: normalizeEmpty(e['allDay'] as String?),
-        calTitle: normalizeEmpty(e['calTitle'] as String?),
-        calPlace: normalizeEmpty(e['calPlace'] as String?),
-        calContent: normalizeEmpty(e['calContent'] as String?),
-        ownerName: normalizeEmpty(e['ownerName'] as String?),
-        creatorName: normalizeEmpty(e['creatorName'] as String?),
-        isHoliday: normalizeEmpty(e['isHoliday'] as String?),
-      );
-    }).toList();
+    return events
+        .where(
+          // Filter out weekend markers
+          (e) => e['isHoliday'] != '1',
+        )
+        .map<CalendarEventDto>(
+          (e) => (
+            id: e['id'],
+            calStart: e['calStart'],
+            calEnd: e['calEnd'],
+            allDay: normalizeEmpty(e['allDay']),
+            calTitle: normalizeEmpty(e['calTitle']),
+            calPlace: normalizeEmpty(e['calPlace']),
+            calContent: normalizeEmpty(e['calContent']),
+            ownerName: normalizeEmpty(e['ownerName']),
+            creatorName: normalizeEmpty(e['creatorName']),
+          ),
+        )
+        .toList();
   }
 }
