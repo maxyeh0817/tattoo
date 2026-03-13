@@ -148,11 +148,9 @@ class CourseRepository {
   /// bypass TTL (pull-to-refresh).
   Future<List<Semester>> getSemesters({bool refresh = false}) async {
     final user = await _database.select(_database.users).getSingleOrNull();
-    final hasOfferings = _database.select(_database.courseOfferings)
-      ..where((co) => co.semester.equalsExp(_database.semesters.id));
     final cached =
         await (_database.select(_database.semesters)
-              ..where((_) => existsQuery(hasOfferings))
+              ..where((s) => s.inCourseSemesterList.equals(true))
               ..orderBy([
                 (s) => OrderingTerm.desc(s.year),
                 (s) => OrderingTerm.desc(s.term),
@@ -173,16 +171,23 @@ class CourseRepository {
       sso: [.courseService],
     );
 
-    final semesters = await dtos.map((dto) async {
-      if (dto case (year: final year?, term: final term?)) {
-        final id = await _database.getOrCreateSemester(year, term);
-        return Semester(id: id, year: year, term: term);
-      }
-    }).wait;
+    final semesters = await _database.transaction(() async {
+      final results = await dtos.map((dto) async {
+        if (dto case (year: final year?, term: final term?)) {
+          return _database.getOrCreateSemester(
+            year,
+            term,
+            inCourseSemesterList: true,
+          );
+        }
+      }).wait;
 
-    await (_database.update(_database.users)).write(
-      UsersCompanion(semestersFetchedAt: Value(DateTime.now())),
-    );
+      await (_database.update(_database.users)).write(
+        UsersCompanion(semestersFetchedAt: Value(DateTime.now())),
+      );
+
+      return results;
+    });
 
     return semesters.nonNulls.toList();
   }

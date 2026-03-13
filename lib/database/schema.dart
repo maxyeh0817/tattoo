@@ -119,6 +119,12 @@ class Semesters extends Table with AutoIncrementId {
   /// Term number within the year (0=Pre-study, 1=Fall, 2=Spring, 3=Summer).
   late final term = integer()();
 
+  /// Whether this semester appeared in the course semester list API response.
+  ///
+  /// Distinguishes semesters fetched by [CourseRepository.getSemesters] from
+  /// those created as side effects by other flows (e.g., auth, scores).
+  late final inCourseSemesterList = boolean().withDefault(Constant(false))();
+
   /// When the course table was last fetched from the server for this semester.
   late final courseTableFetchedAt = dateTime().nullable()();
 

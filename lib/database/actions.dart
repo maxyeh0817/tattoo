@@ -15,15 +15,28 @@ extension DatabaseActions on AppDatabase {
     });
   }
 
-  /// Returns the ID of an existing semester row, or creates one if missing.
-  Future<int> getOrCreateSemester(int year, int term) async {
-    return (await into(semesters).insertReturning(
-      SemestersCompanion.insert(year: year, term: term),
+  /// Returns an existing semester row, or creates one if missing.
+  ///
+  /// When [inCourseSemesterList] is `true`, marks the semester as having
+  /// appeared in the course semester list API response.
+  Future<Semester> getOrCreateSemester(
+    int year,
+    int term, {
+    bool? inCourseSemesterList,
+  }) async {
+    final companion = SemestersCompanion.insert(
+      year: year,
+      term: term,
+      inCourseSemesterList: Value.absentIfNull(inCourseSemesterList),
+    );
+
+    return into(semesters).insertReturning(
+      companion,
       onConflict: DoUpdate(
-        (old) => SemestersCompanion(year: Value(year), term: Value(term)),
+        (old) => companion,
         target: [semesters.year, semesters.term],
       ),
-    )).id;
+    );
   }
 
   /// Returns the ID of an existing course row, or creates/updates one.
