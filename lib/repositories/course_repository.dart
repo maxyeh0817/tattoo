@@ -204,10 +204,13 @@ class CourseRepository {
     bool refresh = false,
   }) async {
     final cached = await _buildCourseTableData(semester.id);
+    final semesterRow = await (_database.select(
+      _database.semesters,
+    )..where((s) => s.id.equals(semester.id))).getSingle();
 
     return fetchWithTtl(
       cached: cached.isEmpty ? null : cached,
-      getFetchedAt: (_) => semester.courseTableFetchedAt,
+      getFetchedAt: (_) => semesterRow.courseTableFetchedAt,
       fetchFromNetwork: () => _fetchCourseTableFromNetwork(user, semester),
       refresh: refresh,
     );
