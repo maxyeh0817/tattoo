@@ -105,70 +105,78 @@ class CourseTableScreen extends StatelessWidget {
             ),
           ],
 
-          body: switch (semestersAsync) {
-            // ERROR state: show error message
-            AsyncError(:final error) => Center(
-              child: Center(child: Text('Error: $error')),
-            ),
-          
-            // EMPTY state: show not found message
-            AsyncData(value: final semesters) when semesters.isEmpty => Center(
-              child: Center(
-                child: Text(
-                  profileAsync.asData?.value == null
-                      ? t.general.notLoggedIn
-                      : t.courseTable.notFound,
-                ),
-              ),
-            ),
+          body: Column(
+            children: [
+              // main content area with course table
+              Expanded(
+                child: switch (semestersAsync) {
+                  // ERROR state: show error message
+                  AsyncError(:final error) => Center(
+                    child: Center(child: Text('Error: $error')),
+                  ),
 
-            // LOADED state: show course table with tabs
-            AsyncData(value: final semesters) => TabBarView(
-              children: [
-                for (final semester in semesters)
-                  Consumer(
-                    builder: (context, ref, child) {
-                      final courseTableAsync = ref.watch(
-                        courseTableProvider(semester),
-                      );
-          
-                      return switch (courseTableAsync) {
-                        AsyncError(:final error) => Center(
-                          child: Center(child: Text('Error: $error')),
+                  // EMPTY state: show not found message
+                  AsyncData(value: final semesters) when semesters.isEmpty =>
+                    Center(
+                      child: Center(
+                        child: Text(
+                          profileAsync.asData?.value == null
+                              ? t.general.notLoggedIn
+                              : t.courseTable.notFound,
                         ),
-                        _ => LayoutBuilder(
-                          builder: (context, constraints) {
-                            return CourseTableGrid(
-                              key: ValueKey(_semesterLabel(semester)),
-                              courseTableData:
-                                  courseTableAsync.asData?.value ??
-                                  CourseTableData(),
-                              loading:
-                                  courseTableAsync.isLoading &&
-                                  !courseTableAsync.hasValue,
-                              viewportWidth: constraints.maxWidth,
-                              viewportHeight: constraints.maxHeight,
+                      ),
+                    ),
+
+                  // LOADED state: show course table with tabs
+                  AsyncData(value: final semesters) => TabBarView(
+                    children: [
+                      for (final semester in semesters)
+                        Consumer(
+                          builder: (context, ref, child) {
+                            final courseTableAsync = ref.watch(
+                              courseTableProvider(semester),
                             );
+
+                            return switch (courseTableAsync) {
+                              AsyncError(:final error) => Center(
+                                child: Center(child: Text('Error: $error')),
+                              ),
+                              _ => LayoutBuilder(
+                                builder: (context, constraints) {
+                                  return CourseTableGrid(
+                                    key: ValueKey(_semesterLabel(semester)),
+                                    courseTableData:
+                                        courseTableAsync.asData?.value ??
+                                        CourseTableData(),
+                                    loading:
+                                        courseTableAsync.isLoading &&
+                                        !courseTableAsync.hasValue,
+                                    viewportWidth: constraints.maxWidth,
+                                    viewportHeight: constraints.maxHeight,
+                                  );
+                                },
+                              ),
+                            };
                           },
                         ),
-                      };
+                    ],
+                  ),
+
+                  // LOADING state: show loading skeleton
+                  _ => LayoutBuilder(
+                    builder: (context, constraints) {
+                      return CourseTableGrid(
+                        courseTableData: CourseTableData(),
+                        loading: true,
+                        viewportWidth: constraints.maxWidth,
+                        viewportHeight: constraints.maxHeight,
+                      );
                     },
                   ),
-              ],
-            ),
-          
-            // LOADING state: show loading skeleton
-            _ => LayoutBuilder(
-              builder: (context, constraints) {
-                return CourseTableGrid(
-                  courseTableData: CourseTableData(),
-                  loading: true,
-                  viewportWidth: constraints.maxWidth,
-                  viewportHeight: constraints.maxHeight,
-                );
-              },
-            ),
-          },
+                },
+              ),
+            ],
+          ),
         ),
       ),
     );
