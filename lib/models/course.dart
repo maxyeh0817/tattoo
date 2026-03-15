@@ -12,6 +12,7 @@ enum DayOfWeek {
 
   final String label;
   const DayOfWeek(this.label);
+  bool get isWeekday => this != sunday && this != saturday;
 }
 // dart format on
 
