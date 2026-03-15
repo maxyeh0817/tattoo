@@ -14,7 +14,7 @@ Follow @CONTRIBUTING.md for git operation guidelines.
 - Service integration tests (copy `test/test_config.json.example` to `test/test_config.json`, then run `flutter test --dart-define-from-file=test/test_config.json -r failures-only`)
 - Drift database schema with all tables
 - Service DTOs migrated to Dart 3 records
-- AuthRepository implementation (login, logout, lazy auth via `withAuth<T>()`, session persistence via flutter_secure_storage), PreferencesRepository, CourseRepository (stubs)
+- AuthRepository implementation (login, logout, lazy auth via `withAuth<T>()`, session persistence via flutter_secure_storage), PreferencesRepository, CourseRepository: getSemesters, getCourseTable (with TTL caching)
 - Riverpod setup (manual providers, no codegen — riverpod_generator incompatible with Drift-generated types)
 - go_router navigation setup
 - UI: intro screen, login screen, home screen with bottom navigation bar and three tabs (table, score, profile), about, easter egg, ShowcaseShell. Home uses `StatefulShellRoute` with `AnimatedShellContainer` for tab state preservation and cross-fade transitions. Each tab owns its own `Scaffold`.
@@ -24,7 +24,7 @@ Follow @CONTRIBUTING.md for git operation guidelines.
 
 - ISchoolPlusService: getCourseAnnouncement, getCourseAnnouncementDetail, courseSubscribe, getCourseSubscribe, getSubscribeNotice
 - CourseService: getDepartmentMap, getCourseCategory
-- CourseService (English): Parse English Course System (`/course/en/`) for English names (courses, teachers, syllabus)
+- CourseService (English): Parse English Course System (`/course/en/`) for English names (syllabus, teacher profiles)
 - StudentQueryService (sa_003_oauth - 學生查詢專區):
   - getGPA (學期及歷年GPA查詢)
   - getMidtermWarnings (期中預警查詢)
@@ -39,7 +39,7 @@ Follow @CONTRIBUTING.md for git operation guidelines.
 
 **Todo - Repository Layer:**
 
-- Implement CourseRepository methods (schedules, materials, rosters, caching)
+- Implement remaining CourseRepository methods (materials, rosters, announcements)
 - StudentRepository stub and implementation (grades, GPA, rankings)
 
 **Todo - App:**
@@ -110,7 +110,7 @@ MVVM pattern with Riverpod for DI and reactive state (manual providers, no codeg
 
 - AuthRepository - User identity, session, profile. Implemented: login, logout, lazy auth via `withAuth<T>()`, session persistence via flutter_secure_storage
 - PreferencesRepository - Typed `PrefKey<T>` enum with SharedPreferencesAsync
-- CourseRepository - Course schedules, catalog, materials, rosters, announcements (stubs only)
+- CourseRepository - Implemented: getSemesters, getCourseTable (with TTL caching, DB persistence, bilingual names). Stubs: getCourseOffering, getCourseDetails, getMaterials, getStudents
 - StudentRepository (TODO) - Grades, GPA, rankings, warnings, graduation status
 - Transform DTOs into relational DB tables
 - Return DTOs or domain models to UI

@@ -344,7 +344,7 @@ class AuthRepository {
         if (record.semester.year == null || record.semester.term == null) {
           continue;
         }
-        final semesterId = await _database.getOrCreateSemester(
+        final semester = await _database.getOrCreateSemester(
           record.semester.year!,
           record.semester.term!,
         );
@@ -353,7 +353,7 @@ class AuthRepository {
             .insert(
               UserSemesterSummariesCompanion.insert(
                 user: user.id,
-                semester: semesterId,
+                semester: semester.id,
                 className: Value(record.className),
                 enrollmentStatus: Value(record.enrollmentStatus),
                 registered: Value(record.registered),
