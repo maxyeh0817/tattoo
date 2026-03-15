@@ -240,6 +240,10 @@ class CourseRepository {
 
     final freshNumbers = dtos.map((d) => d.number).nonNulls.toSet();
 
+    // Deduplicate Crashlytics reports for unknown classroom prefixes,
+    // since the same classroom can appear in multiple schedule slots.
+    final reportedUnknownClassrooms = <String>{};
+
     // Persist to database
     await _database.transaction(() async {
       // Remove offerings no longer in the response (e.g. dropped courses).
@@ -334,7 +338,7 @@ class CourseRepository {
             int? classroomId;
             if (slot.classroom case (id: final id?, name: final name?)) {
               final nameEn = translateClassroomName(name);
-              if (nameEn == null) {
+              if (nameEn == null && reportedUnknownClassrooms.add(id)) {
                 _firebaseService.crashlytics?.recordError(
                   Exception('Unknown classroom prefix: $name (code: $id)'),
                   StackTrace.current,
