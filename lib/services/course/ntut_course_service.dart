@@ -183,9 +183,16 @@ class NtutCourseService implements CourseService {
             : cells[colIndex].text.trim();
         if (courseName.isEmpty) continue;
 
-        final classroomRef = anchors.length >= 3
+        var classroomRef = anchors.length >= 3
             ? _parseAnchorRef(anchors[2])
             : null;
+        // Strip e化教室 marker "(e)" from classroom names
+        if (classroomRef?.name case final name?) {
+          classroomRef = (
+            id: classroomRef!.id,
+            name: name.replaceFirst(RegExp(r'\s*\(e\)$'), ''),
+          );
+        }
 
         scheduleMap.putIfAbsent(courseName, () => []);
         scheduleMap[courseName]!.add((
