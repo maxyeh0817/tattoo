@@ -391,7 +391,10 @@ class CourseRepository {
         span: 1,
         crossesNoon: false,
         courseName: localized(row.nameZh, row.nameEn),
-        classroomName: localized(row.classroomNameZh, row.classroomNameEn),
+        classroomName: switch ((row.classroomNameZh, row.classroomNameEn)) {
+          (final zh?, final en) => localized(zh, en),
+          _ => null,
+        },
         credits: row.credits,
         hours: row.hours,
       );
