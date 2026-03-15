@@ -5,11 +5,13 @@ import 'dart:math';
 import 'package:drift/drift.dart';
 import 'package:riverpod/riverpod.dart';
 import 'package:tattoo/database/database.dart';
+import 'package:tattoo/models/classroom.dart';
 import 'package:tattoo/models/course.dart';
 import 'package:tattoo/services/course/course_service.dart';
 import 'package:tattoo/services/i_school_plus/i_school_plus_service.dart';
 import 'package:tattoo/services/portal/portal_service.dart';
 import 'package:tattoo/repositories/auth_repository.dart';
+import 'package:tattoo/services/firebase_service.dart';
 import 'package:tattoo/utils/fetch_with_ttl.dart';
 import 'package:tattoo/utils/localized.dart';
 
@@ -107,6 +109,7 @@ final courseRepositoryProvider = Provider<CourseRepository>((ref) {
     iSchoolPlusService: ref.watch(iSchoolPlusServiceProvider),
     database: ref.watch(databaseProvider),
     authRepository: ref.watch(authRepositoryProvider),
+    firebaseService: ref.watch(firebaseServiceProvider),
   );
 });
 
@@ -133,6 +136,7 @@ class CourseRepository {
   final ISchoolPlusService _iSchoolPlusService;
   final AppDatabase _database;
   final AuthRepository _authRepository;
+  final FirebaseService _firebaseService;
 
   CourseRepository({
     required PortalService portalService,
@@ -140,11 +144,13 @@ class CourseRepository {
     required ISchoolPlusService iSchoolPlusService,
     required AppDatabase database,
     required AuthRepository authRepository,
+    required FirebaseService firebaseService,
   }) : _portalService = portalService,
        _courseService = courseService,
        _iSchoolPlusService = iSchoolPlusService,
        _database = database,
-       _authRepository = authRepository;
+       _authRepository = authRepository,
+       _firebaseService = firebaseService;
 
   /// Gets available semesters for the authenticated student.
   ///
@@ -327,9 +333,18 @@ class CourseRepository {
           for (final slot in slots) {
             int? classroomId;
             if (slot.classroom case (id: final id?, name: final name?)) {
+              final nameEn = translateClassroomName(name);
+              if (nameEn == null) {
+                _firebaseService.crashlytics?.recordError(
+                  Exception('Unknown classroom prefix: $name (code: $id)'),
+                  StackTrace.current,
+                  fatal: false,
+                );
+              }
               classroomId = await _database.upsertClassroom(
                 code: id,
                 nameZh: name,
+                nameEn: nameEn,
               );
             }
             await _database
@@ -376,7 +391,7 @@ class CourseRepository {
         span: 1,
         crossesNoon: false,
         courseName: localized(row.nameZh, row.nameEn),
-        classroomName: row.classroomNameZh,
+        classroomName: localized(row.classroomNameZh, row.classroomNameEn),
         credits: row.credits,
         hours: row.hours,
       );
