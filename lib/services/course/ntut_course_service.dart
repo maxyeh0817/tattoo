@@ -153,6 +153,7 @@ class NtutCourseService implements CourseService {
 
     // Build schedule map keyed by course name from the grid
     final periodRegex = RegExp(r'第 (\S) 節');
+    final eClassroomRegex = RegExp(r'\s*\(e\)$');
     final scheduleMap =
         <
           String,
@@ -190,7 +191,7 @@ class NtutCourseService implements CourseService {
         if (classroomRef?.name case final name?) {
           classroomRef = (
             id: classroomRef!.id,
-            name: name.replaceFirst(RegExp(r'\s*\(e\)$'), ''),
+            name: name.replaceFirst(eClassroomRegex, ''),
           );
         }
 
