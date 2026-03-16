@@ -438,6 +438,52 @@ class CourseRepository {
     throw UnimplementedError();
   }
 
+  /// Gets course catalog information by code.
+  ///
+  /// Returns cached data if fresh (within TTL). Set [refresh] to `true` to
+  /// bypass TTL (pull-to-refresh).
+  Future<Course> getCourse(String code, {bool refresh = false}) async {
+    final cached = await (_database.select(
+      _database.courses,
+    )..where((c) => c.code.equals(code))).getSingleOrNull();
+
+    return fetchWithTtl(
+      cached: cached,
+      getFetchedAt: (c) => c.fetchedAt,
+      fetchFromNetwork: () => _fetchCourseFromNetwork(code),
+      refresh: refresh,
+    );
+  }
+
+  Future<Course> _fetchCourseFromNetwork(String code) async {
+    final dto = await _authRepository.withAuth(
+      () => _courseService.getCourse(code),
+      sso: [.courseService],
+    );
+
+    final courseId = await _database.upsertCourse(
+      code: code,
+      credits: dto.credits ?? 0,
+      hours: dto.hours ?? 0,
+      nameZh: dto.nameZh ?? code,
+      nameEn: dto.nameEn,
+    );
+
+    await (_database.update(
+      _database.courses,
+    )..where((c) => c.id.equals(courseId))).write(
+      CoursesCompanion(
+        descriptionZh: Value(dto.descriptionZh),
+        descriptionEn: Value(dto.descriptionEn),
+        fetchedAt: Value(DateTime.now()),
+      ),
+    );
+
+    return (_database.select(
+      _database.courses,
+    )..where((c) => c.id.equals(courseId))).getSingle();
+  }
+
   /// Gets detailed course catalog information.
   ///
   /// Throws [Exception] on network failure.
