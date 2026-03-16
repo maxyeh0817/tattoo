@@ -164,6 +164,56 @@ class NtutStudentQueryService implements StudentQueryService {
   }
 
   @override
+  Future<List<GpaDto>> getGpa() async {
+    final response = await _studentQueryDio.get('QryGPA.jsp');
+    final document = parse(response.data);
+
+    final semesterPattern = RegExp(r'(\d{2,4})\s*[-－–—]\s*([12])');
+    final gpaPattern = RegExp(r'\d+(?:\.\d+)?');
+
+    final results = <GpaDto>[];
+    final seen = <String>{};
+
+    for (final row in document.querySelectorAll('tr').skip(1)) {
+      final cells = row.querySelectorAll('td');
+      if (cells.length < 2) continue;
+
+      final semesterContainer = cells[0].querySelector('div') ?? cells[0];
+      final semesterText = semesterContainer.nodes
+          .where((node) => node.nodeType == Node.TEXT_NODE)
+          .map((node) => node.text?.trim() ?? '')
+          .firstWhere((text) => text.isNotEmpty, orElse: () => '');
+      final semesterMatch = semesterPattern.firstMatch(semesterText);
+      if (semesterMatch == null) continue;
+
+      final year = int.parse(semesterMatch.group(1)!);
+      final term = int.parse(semesterMatch.group(2)!);
+
+      final gpaText = cells[1].text.trim();
+      final gpaMatch = gpaPattern.firstMatch(gpaText);
+      final grandTotalGpa = gpaMatch != null
+          ? double.tryParse(gpaMatch.group(0)!)
+          : null;
+      if (grandTotalGpa == null) continue;
+
+      final key = '$year-$term';
+      if (!seen.add(key)) continue;
+
+      results.add((
+        semester: (year: year, term: term),
+        grandTotalGpa: grandTotalGpa,
+      ));
+    }
+
+    results.sort((a, b) {
+      final yearCompare = b.semester.year!.compareTo(a.semester.year!);
+      if (yearCompare != 0) return yearCompare;
+      return b.semester.term!.compareTo(a.semester.term!);
+    });
+    return results;
+  }
+
+  @override
   Future<List<GradeRankingDto>> getGradeRanking() async {
     final response = await _studentQueryDio.get('QryRank.jsp');
     final document = parse(response.data);

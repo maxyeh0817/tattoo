@@ -505,6 +505,7 @@ class Scores extends Table with AutoIncrementId {
 ///
 /// Data sources:
 /// - StudentQueryService.getAcademicPerformance() — scores and averages
+/// - StudentQueryService.getGpa() — cumulative GPA
 /// - StudentQueryService.getRegistrationRecords() — registration status
 /// - StudentQueryService.getGradeRanking() — rankings (via [UserSemesterRankings])
 @TableIndex(name: 'user_semester_summary_user', columns: {#user})
@@ -533,6 +534,9 @@ class UserSemesterSummaries extends Table with AutoIncrementId {
 
   /// Additional note.
   late final note = text().nullable()();
+
+  /// Historical cumulative GPA (歷年 GPA).
+  late final gpa = real().nullable()();
 
   /// Student's assigned class name (e.g., "電子四甲").
   /// Plain text — no class code available from this page.
