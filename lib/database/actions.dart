@@ -78,6 +78,7 @@ extension DatabaseActions on AppDatabase {
     String? title,
     double? teachingHours,
     String? officeHoursNote,
+    DateTime? fetchedAt,
   }) async {
     return transaction(() async {
       final teacher = await into(teachers).insertReturning(
@@ -85,11 +86,13 @@ extension DatabaseActions on AppDatabase {
           code: code,
           nameZh: nameZh,
           nameEn: Value(nameEn),
+          fetchedAt: Value.absentIfNull(fetchedAt),
         ),
         onConflict: DoUpdate(
           (old) => TeachersCompanion(
             nameZh: Value(nameZh),
             nameEn: Value.absentIfNull(nameEn),
+            fetchedAt: Value.absentIfNull(fetchedAt),
           ),
           target: [teachers.code],
         ),
@@ -104,6 +107,7 @@ extension DatabaseActions on AppDatabase {
           title: Value(title),
           teachingHours: Value(teachingHours),
           officeHoursNote: Value(officeHoursNote),
+          fetchedAt: Value.absentIfNull(fetchedAt),
         ),
         onConflict: DoUpdate(
           (old) => TeacherSemestersCompanion(
@@ -112,6 +116,7 @@ extension DatabaseActions on AppDatabase {
             title: Value.absentIfNull(title),
             teachingHours: Value.absentIfNull(teachingHours),
             officeHoursNote: Value.absentIfNull(officeHoursNote),
+            fetchedAt: Value.absentIfNull(fetchedAt),
           ),
           target: [teacherSemesters.teacher, teacherSemesters.semester],
         ),
