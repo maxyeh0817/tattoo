@@ -193,8 +193,8 @@ class Teachers extends Table with AutoIncrementId, Fetchable {
 ///
 /// Each row represents a teacher's profile snapshot for a specific semester.
 /// The same teacher will have multiple rows across different semesters.
-@TableIndex(name: 'teacher_profile_semester', columns: {#semester})
-class TeacherProfiles extends Table with AutoIncrementId, Fetchable {
+@TableIndex(name: 'teacher_semester_semester', columns: {#semester})
+class TeacherSemesters extends Table with AutoIncrementId, Fetchable {
   /// Reference to the teacher.
   late final teacher = integer().references(Teachers, #id)();
 
@@ -228,10 +228,10 @@ class TeacherProfiles extends Table with AutoIncrementId, Fetchable {
 ///
 /// Each row represents one office hour time slot for a teacher.
 /// A teacher may have multiple office hour slots per week.
-@TableIndex(name: 'teacher_office_hour_profile', columns: {#teacherProfile})
+@TableIndex(name: 'teacher_office_hour_semester', columns: {#teacherSemester})
 class TeacherOfficeHours extends Table with AutoIncrementId {
   /// Reference to the teacher profile (semester-specific).
-  late final teacherProfile = integer().references(TeacherProfiles, #id)();
+  late final teacherSemester = integer().references(TeacherSemesters, #id)();
 
   /// Day of the week for this office hour slot.
   late final dayOfWeek = intEnum<DayOfWeek>()();
@@ -250,7 +250,7 @@ class TeacherOfficeHours extends Table with AutoIncrementId {
 
   @override
   List<Set<Column>> get uniqueKeys => [
-    {teacherProfile, dayOfWeek, startHour, startMinute},
+    {teacherSemester, dayOfWeek, startHour, startMinute},
   ];
 }
 
@@ -397,10 +397,10 @@ class CourseOfferingTeachers extends Table {
   )();
 
   /// Reference to the teacher profile.
-  late final teacherProfile = integer().references(TeacherProfiles, #id)();
+  late final teacherSemester = integer().references(TeacherSemesters, #id)();
 
   @override
-  Set<Column> get primaryKey => {courseOffering, teacherProfile};
+  Set<Column> get primaryKey => {courseOffering, teacherSemester};
 }
 
 /// Junction table linking course offerings to the classes they're intended for.
@@ -581,10 +581,10 @@ class UserSemesterSummaryTutors extends Table {
   )();
 
   /// Reference to the teacher profile serving as tutor.
-  late final teacherProfile = integer().references(TeacherProfiles, #id)();
+  late final teacherSemester = integer().references(TeacherSemesters, #id)();
 
   @override
-  Set<Column> get primaryKey => {summary, teacherProfile};
+  Set<Column> get primaryKey => {summary, teacherSemester};
 }
 
 /// Class cadre roles held by the user in a semester.

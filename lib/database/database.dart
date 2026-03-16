@@ -28,7 +28,6 @@ final databaseProvider = Provider<AppDatabase>((ref) {
     Courses,
     Departments,
     Teachers,
-    TeacherProfiles,
     Classes,
     Classrooms,
     // Tables with foreign keys to base tables
@@ -39,6 +38,7 @@ final databaseProvider = Provider<AppDatabase>((ref) {
     CourseOfferingStudents,
     Schedules,
     Materials,
+    TeacherSemesters,
     TeacherOfficeHours,
     Scores,
     UserSemesterSummaries,

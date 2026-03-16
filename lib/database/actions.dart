@@ -67,8 +67,8 @@ extension DatabaseActions on AppDatabase {
     )).id;
   }
 
-  /// Returns the ID of an existing teacher profile, or creates/updates one.
-  Future<int> upsertTeacherProfile({
+  /// Returns the ID of an existing teacher semester, or creates/updates one.
+  Future<int> upsertTeacherSemester({
     required String code,
     required int semesterId,
     required String nameZh,
@@ -95,8 +95,8 @@ extension DatabaseActions on AppDatabase {
         ),
       );
 
-      final profile = await into(teacherProfiles).insertReturning(
-        TeacherProfilesCompanion.insert(
+      final semesterProfile = await into(teacherSemesters).insertReturning(
+        TeacherSemestersCompanion.insert(
           teacher: teacher.id,
           semester: semesterId,
           email: Value(email),
@@ -106,18 +106,18 @@ extension DatabaseActions on AppDatabase {
           officeHoursNote: Value(officeHoursNote),
         ),
         onConflict: DoUpdate(
-          (old) => TeacherProfilesCompanion(
+          (old) => TeacherSemestersCompanion(
             email: Value.absentIfNull(email),
             department: Value.absentIfNull(departmentId),
             title: Value.absentIfNull(title),
             teachingHours: Value.absentIfNull(teachingHours),
             officeHoursNote: Value.absentIfNull(officeHoursNote),
           ),
-          target: [teacherProfiles.teacher, teacherProfiles.semester],
+          target: [teacherSemesters.teacher, teacherSemesters.semester],
         ),
       );
 
-      return profile.id;
+      return semesterProfile.id;
     });
   }
 
