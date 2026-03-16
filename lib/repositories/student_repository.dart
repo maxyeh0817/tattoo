@@ -243,9 +243,9 @@ class StudentRepository {
               .get();
 
       final rankingRows =
-          await (_database.select(_database.userSemesterRankings)..where(
-                (r) => r.summary.equals(summary.id),
-              ))
+          await (_database.select(_database.userSemesterRankings)
+                ..where((r) => r.summary.equals(summary.id))
+                ..orderBy([(r) => OrderingTerm.asc(r.rankingType)]))
               .get();
 
       records.add((
