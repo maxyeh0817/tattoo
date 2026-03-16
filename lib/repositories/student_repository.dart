@@ -196,6 +196,20 @@ class StudentRepository {
         }
       }
 
+      // Remove scores for semesters no longer in the response
+      if (fetchedSemesterIds.isEmpty) {
+        await (_database.delete(
+          _database.scores,
+        )..where((t) => t.user.equals(userId))).go();
+      } else {
+        await (_database.delete(_database.scores)..where(
+              (t) =>
+                  t.user.equals(userId) &
+                  t.semester.isNotIn(fetchedSemesterIds.toList()),
+            ))
+            .go();
+      }
+
       await (_database.update(_database.users)
             ..where((u) => u.id.equals(userId)))
           .write(UsersCompanion(scoreDataFetchedAt: Value(DateTime.now())));
