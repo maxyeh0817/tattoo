@@ -10,6 +10,7 @@ import 'package:tattoo/services/course/course_service.dart';
 import 'package:tattoo/services/i_school_plus/i_school_plus_service.dart';
 import 'package:tattoo/services/portal/portal_service.dart';
 import 'package:tattoo/repositories/auth_repository.dart';
+import 'package:tattoo/services/firebase_service.dart';
 import 'package:tattoo/utils/fetch_with_ttl.dart';
 import 'package:tattoo/utils/localized.dart';
 
@@ -107,6 +108,7 @@ final courseRepositoryProvider = Provider<CourseRepository>((ref) {
     iSchoolPlusService: ref.watch(iSchoolPlusServiceProvider),
     database: ref.watch(databaseProvider),
     authRepository: ref.watch(authRepositoryProvider),
+    firebaseService: ref.watch(firebaseServiceProvider),
   );
 });
 
@@ -133,6 +135,7 @@ class CourseRepository {
   final ISchoolPlusService _iSchoolPlusService;
   final AppDatabase _database;
   final AuthRepository _authRepository;
+  final FirebaseService _firebaseService;
 
   CourseRepository({
     required PortalService portalService,
@@ -140,11 +143,13 @@ class CourseRepository {
     required ISchoolPlusService iSchoolPlusService,
     required AppDatabase database,
     required AuthRepository authRepository,
+    required FirebaseService firebaseService,
   }) : _portalService = portalService,
        _courseService = courseService,
        _iSchoolPlusService = iSchoolPlusService,
        _database = database,
-       _authRepository = authRepository;
+       _authRepository = authRepository,
+       _firebaseService = firebaseService;
 
   /// Gets available semesters for the authenticated student.
   ///
@@ -248,7 +253,29 @@ class CourseRepository {
         if (dto.number == null) continue;
         final courseId = dto.course?.id;
         final courseNameZh = dto.course?.nameZh;
-        if (courseId == null || courseNameZh == null) continue;
+        if (courseId == null || courseNameZh == null) {
+          _firebaseService.crashlytics?.recordError(
+            Exception(
+              'Skipped offering with incomplete course data: '
+              'number=${dto.number}, courseId=$courseId, '
+              'courseNameZh=$courseNameZh',
+            ),
+            StackTrace.current,
+            fatal: false,
+          );
+          continue;
+        }
+
+        if (dto.credits == null || dto.hours == null) {
+          _firebaseService.crashlytics?.recordError(
+            Exception(
+              'Course $courseId missing credits/hours: '
+              'credits=${dto.credits}, hours=${dto.hours}',
+            ),
+            StackTrace.current,
+            fatal: false,
+          );
+        }
 
         final dbCourseId = await _database.upsertCourse(
           code: courseId,
@@ -460,6 +487,17 @@ class CourseRepository {
       () => _courseService.getCourse(code),
       sso: [.courseService],
     );
+
+    if (dto.nameZh == null || dto.credits == null || dto.hours == null) {
+      _firebaseService.crashlytics?.recordError(
+        Exception(
+          'Incomplete course data for $code: '
+          'nameZh=${dto.nameZh}, credits=${dto.credits}, hours=${dto.hours}',
+        ),
+        StackTrace.current,
+        fatal: false,
+      );
+    }
 
     final courseId = await _database.upsertCourse(
       code: code,
