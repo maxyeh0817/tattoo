@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io';
 import 'dart:ui';
 
@@ -105,6 +106,7 @@ class AuthRepository {
   final void Function(AuthStatus) _onAuthStatusChanged;
 
   final _ssoCache = <PortalServiceCode>{};
+  final _ssoInFlight = <PortalServiceCode, Completer<void>>{};
 
   static const _usernameKey = 'username';
   static const _passwordKey = 'password';
@@ -157,6 +159,7 @@ class AuthRepository {
     await _clearCredentials();
     await _clearAvatarCache();
     _ssoCache.clear();
+    _ssoInFlight.clear();
   }
 
   /// Re-authenticates with stored credentials to refresh the session and
@@ -230,6 +233,7 @@ class AuthRepository {
       }
 
       _ssoCache.clear();
+      _ssoInFlight.clear();
       try {
         await _ensureSso(sso);
         final result = await call();
@@ -243,11 +247,26 @@ class AuthRepository {
   }
 
   /// Establishes SSO sessions for services not yet cached.
+  ///
+  /// Concurrent calls for the same target coalesce — only the first caller
+  /// triggers the actual SSO request; subsequent callers await the same
+  /// [Completer].
   Future<void> _ensureSso(List<PortalServiceCode> services) async {
-    final uncached = services.where((s) => !_ssoCache.contains(s)).toList();
-    await uncached.map((s) async {
-      await _portalService.sso(s);
-      _ssoCache.add(s);
+    await services.where((s) => !_ssoCache.contains(s)).map((s) async {
+      if (_ssoInFlight[s] case final existing?) return existing.future;
+
+      final completer = Completer<void>();
+      _ssoInFlight[s] = completer;
+      try {
+        await _portalService.sso(s);
+        _ssoCache.add(s);
+        completer.complete();
+      } catch (e, st) {
+        completer.completeError(e, st);
+      } finally {
+        _ssoInFlight.remove(s);
+      }
+      return completer.future;
     }).wait;
   }
 

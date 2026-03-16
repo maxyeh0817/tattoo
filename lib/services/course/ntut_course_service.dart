@@ -17,7 +17,8 @@ class NtutCourseService implements CourseService {
 
   NtutCourseService() {
     _courseDio = createDio()
-      ..options.baseUrl = 'https://aps.ntut.edu.tw/course/';
+      ..options.baseUrl = 'https://aps.ntut.edu.tw/course/'
+      ..interceptors.add(_SessionCheckInterceptor());
   }
 
   @override
@@ -579,5 +580,24 @@ class NtutCourseService implements CourseService {
 
     final refs = anchors.map(toReference).toList();
     return refs.isNotEmpty ? refs : null;
+  }
+}
+
+/// Detects expired sessions in CourseService responses.
+///
+/// NTUT returns HTTP 200 with a short error message instead of a proper 401
+/// when the SSO session has expired.
+class _SessionCheckInterceptor extends Interceptor {
+  static const _markers = ['尚未登錄入口網站', '應用系統連線已逾時'];
+
+  @override
+  void onResponse(Response response, ResponseInterceptorHandler handler) {
+    final data = response.data;
+    if (data is String && _markers.any(data.contains)) {
+      throw const SessionExpiredException(
+        'CourseService session expired',
+      );
+    }
+    handler.next(response);
   }
 }

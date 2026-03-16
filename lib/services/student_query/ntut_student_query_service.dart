@@ -12,7 +12,8 @@ class NtutStudentQueryService implements StudentQueryService {
 
   NtutStudentQueryService() {
     _studentQueryDio = createDio()
-      ..options.baseUrl = 'https://aps-stu.ntut.edu.tw/StuQuery/';
+      ..options.baseUrl = 'https://aps-stu.ntut.edu.tw/StuQuery/'
+      ..interceptors.add(_SessionCheckInterceptor());
   }
 
   @override
@@ -347,5 +348,24 @@ class NtutStudentQueryService implements StudentQueryService {
     };
 
     return (null, status);
+  }
+}
+
+/// Detects expired sessions in StudentQuery responses.
+///
+/// NTUT returns HTTP 200 with a short error message instead of a proper 401
+/// when the SSO session has expired.
+class _SessionCheckInterceptor extends Interceptor {
+  static const _marker = '應用系統已中斷連線';
+
+  @override
+  void onResponse(Response response, ResponseInterceptorHandler handler) {
+    final data = response.data;
+    if (data is String && data.contains(_marker)) {
+      throw const SessionExpiredException(
+        'StudentQuery session expired',
+      );
+    }
+    handler.next(response);
   }
 }
