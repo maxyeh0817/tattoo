@@ -50,6 +50,18 @@ typedef CourseTableCell = ({
 typedef CourseTableData =
     Map<({DayOfWeek day, Period period}), CourseTableCell>;
 
+/// A single key–value pair from [CourseTableData].
+typedef CourseTableEntry =
+    MapEntry<({DayOfWeek day, Period period}), CourseTableCell>;
+
+extension on CourseTableEntry {
+  /// All [Period]s this entry occupies, accounting for [CourseTableCell.span].
+  Iterable<Period> get periods => List.generate(
+    value.span,
+    (i) => Period.values[key.period.index + i],
+  );
+}
+
 /// Derived layout metadata computed from [CourseTableData] keys.
 ///
 /// Used by the course table UI to decide which rows/columns to show.
@@ -64,16 +76,18 @@ extension CourseTableMeta on CourseTableData {
   bool get hasSundayCourse => keys.any((s) => s.day == DayOfWeek.sunday);
 
   /// Whether any course falls in the morning period (1-4).
-  bool get hasAMCourse => keys.any((s) => s.period.isAM);
+  bool get hasAMCourse => entries.any((e) => e.periods.any((p) => p.isAM));
 
   /// Whether any course falls in the afternoon period (5-9).
-  bool get hasPMCourse => keys.any((s) => s.period.isPM);
+  bool get hasPMCourse => entries.any((e) => e.periods.any((p) => p.isPM));
 
   /// Whether any course falls in the noon period (N).
-  bool get hasNoonCourse => keys.any((s) => s.period == Period.nPeriod);
+  bool get hasNoonCourse =>
+      entries.any((e) => e.periods.any((p) => p == Period.nPeriod));
 
   /// Whether any course falls in the evening period (A-D).
-  bool get hasEveningCourse => keys.any((s) => s.period.isEvening);
+  bool get hasEveningCourse =>
+      entries.any((e) => e.periods.any((p) => p.isEvening));
 
   /// Earliest period that has a course, or null if empty.
   Period? get earliestPeriod => isEmpty
