@@ -371,17 +371,59 @@ class CourseTableGrid extends StatelessWidget {
     List<DayOfWeek> visibleDaysOfWeek,
     List<Period> visiblePeriods,
   ) {
-    final columnWidth = _dayColumnWidth;
-    final random = Random();
-    const cellColors = <Color>[
+
+    const List<Color> cellColors = [
+      Colors.red,
       Colors.blue,
       Colors.green,
       Colors.orange,
-      Colors.pink,
+      Colors.purple,
       Colors.teal,
+      Colors.pink,
       Colors.indigo,
-      Colors.red,
+      Colors.amber,
+      Colors.cyan,
+      Colors.deepOrange,
+      Colors.lightGreen,
+      Colors.deepPurple,
+      Colors.lightBlue,
+      Colors.lime,
+      Colors.brown,
+      Colors.blueGrey,
+      Colors.redAccent,
+      Colors.blueAccent,
+      Colors.greenAccent,
+      Colors.orangeAccent,
+      Colors.purpleAccent,
+      Colors.tealAccent,
+      Colors.pinkAccent,
+      Colors.indigoAccent,
+      Colors.amberAccent,
+      Colors.cyanAccent,
+      Colors.deepOrangeAccent,
+      Colors.lightGreenAccent,
+      Colors.deepPurpleAccent,
+      Colors.lightBlueAccent,
+      Colors.limeAccent,
+      Colors.yellow,
+      Colors.grey,
+      Colors.yellowAccent,
     ];
+
+    final columnWidth = _dayColumnWidth;
+    final random = Random();
+    final availableColors = cellColors.reversed.toList(growable: true);
+    final colorByCourseNumber = <String, Color>{};
+
+    Color resolveCellColor(String courseNumber) {
+      return colorByCourseNumber.putIfAbsent(courseNumber, () {
+        if (availableColors.isEmpty) {
+          availableColors.addAll(cellColors.reversed);
+        }
+
+        return availableColors.removeLast();
+      });
+    }
 
     final sortedEntries = courseTableData.entries.toList()
       ..sort((a, b) {
@@ -439,10 +481,7 @@ class CourseTableGrid extends StatelessWidget {
                 },
                 child: CourseTableCell(
                   courseTableCellData: cell,
-                  cellColor:
-                      // TODO: better random color algorithm
-                      cellColors[cell.number.hashCode.abs() %
-                          cellColors.length],
+                  cellColor: resolveCellColor(cell.number),
                 ),
               ),
             ),
