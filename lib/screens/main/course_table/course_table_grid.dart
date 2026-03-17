@@ -8,33 +8,13 @@ import 'package:tattoo/models/course.dart';
 import 'package:tattoo/repositories/course_repository.dart';
 import 'package:tattoo/screens/main/course_table/course_table_cell.dart';
 
-List<DayOfWeek> _weekDays = [
-  DayOfWeek.monday,
-  DayOfWeek.tuesday,
-  DayOfWeek.wednesday,
-  DayOfWeek.thursday,
-  DayOfWeek.friday,
-];
-
-List<Period> _periods = [
-  Period.first,
-  Period.second,
-  Period.third,
-  Period.fourth,
-  Period.nPeriod,
-  Period.fifth,
-  Period.sixth,
-  Period.seventh,
-  Period.eighth,
-  Period.ninth,
-  Period.aPeriod,
-  Period.bPeriod,
-  Period.cPeriod,
-  Period.dPeriod,
-];
+typedef GridRange = ({
+  List<DayOfWeek> visibleDaysOfWeek,
+  List<Period> visiblePeriods,
+});
 
 class CourseTableGrid extends StatelessWidget {
-  const CourseTableGrid({
+  CourseTableGrid({
     super.key,
     required this.courseTableData,
     this.loading = false,
@@ -54,9 +34,17 @@ class CourseTableGrid extends StatelessWidget {
   static const double _tableHeaderHeight = 25;
   static const double _stubWidth = 20;
 
-  // TODO: dynamic row height based on viewport height
-  static const double _periodRowHeight = 64;
-  static const double _periodNoonHeight = _periodRowHeight;
+  late final GridRange _gridRange = _visibleGridRange();
+  List<DayOfWeek> get _visibleDaysOfWeek => _gridRange.visibleDaysOfWeek;
+  List<Period> get _visiblePeriods => _gridRange.visiblePeriods;
+
+  double get _periodRowHeight =>
+      max((viewportHeight ?? 0) / 9, 64.0).toDouble();
+  double get _periodNoonHeight => _periodRowHeight;
+  double get _dayColumnWidth => min(
+    (((viewportWidth ?? 0) - _stubWidth) / _visibleDaysOfWeek.length),
+    120,
+  ).toDouble();
 
   @override
   Widget build(BuildContext context) {
@@ -73,15 +61,17 @@ class CourseTableGrid extends StatelessWidget {
           scrolledUnderElevation: 0,
           elevation: 0,
           titleSpacing: 0,
-          title: _buildHeader(),
+          title: _buildHeader(_visibleDaysOfWeek),
         ),
 
         // table body with period labels and course cells
         SliverToBoxAdapter(
           child: Stack(
             children: [
-              _buildPeriodRows(),
-              ...(loading ? _buildSkeleton() : _buildCourseCells()),
+              _buildPeriodRows(_visiblePeriods),
+              ...(loading
+                  ? _buildSkeleton(_visibleDaysOfWeek, _visiblePeriods)
+                  : _buildCourseCells(_visibleDaysOfWeek, _visiblePeriods)),
             ],
           ),
         ),
@@ -89,13 +79,119 @@ class CourseTableGrid extends StatelessWidget {
     );
   }
 
-  Widget _buildHeader() {
+  GridRange _visibleGridRange() {
+    final weekdays = DayOfWeek.values
+        .where((day) => day.isWeekday)
+        .toList(growable: false);
+    final defaultPeriods = Period.values
+        .where(
+          (period) => period.isAM || period == Period.nPeriod || period.isPM,
+        )
+        .toList(growable: false);
+
+    if (courseTableData.isEmpty) {
+      return (visibleDaysOfWeek: weekdays, visiblePeriods: defaultPeriods);
+    }
+
+    final visibleDays = switch ((
+      courseTableData.hasWeekdayCourse,
+      courseTableData.hasSaturdayCourse,
+      courseTableData.hasSundayCourse,
+    )) {
+      (true, true, true) => [...weekdays, DayOfWeek.saturday, DayOfWeek.sunday],
+      (true, true, false) => [...weekdays, DayOfWeek.saturday],
+      (true, false, true) => [...weekdays, DayOfWeek.sunday],
+      (true, false, false) => [...weekdays],
+      (false, true, true) => [DayOfWeek.saturday, DayOfWeek.sunday],
+      (false, true, false) => [DayOfWeek.saturday],
+      (false, false, true) => [DayOfWeek.sunday],
+      (false, false, false) => <DayOfWeek>[],
+    };
+    final visiblePeriods = <Period>[];
+
+    void addPeriod(Period period) {
+      if (!visiblePeriods.contains(period)) {
+        visiblePeriods.add(period);
+      }
+    }
+
+    void addPeriods(Iterable<Period> periods) {
+      for (final period in periods) {
+        addPeriod(period);
+      }
+    }
+
+    switch ((
+      courseTableData.hasAMCourse,
+      courseTableData.hasNoonCourse,
+      courseTableData.hasPMCourse,
+    )) {
+      case (false, false, false):
+        break;
+      case (true, false, false):
+        addPeriods(Period.values.where((period) => period.isAM));
+        break;
+      case (false, true, false):
+        addPeriod(Period.nPeriod);
+        break;
+      case (false, false, true):
+        addPeriods(Period.values.where((period) => period.isPM));
+        break;
+      case (true, true, false):
+        addPeriods(Period.values.where((period) => period.isAM));
+        addPeriod(Period.nPeriod);
+        break;
+      case (false, true, true):
+        addPeriod(Period.nPeriod);
+        addPeriods(Period.values.where((period) => period.isPM));
+        break;
+      case (true, false, true):
+      case (true, true, true):
+        addPeriods(Period.values.where((period) => period.isAM));
+        addPeriod(Period.nPeriod);
+        addPeriods(Period.values.where((period) => period.isPM));
+        break;
+    }
+
+    final isEveningOnly =
+        !courseTableData.hasAMCourse &&
+        !courseTableData.hasPMCourse &&
+        courseTableData.hasEveningCourse;
+
+    switch ((
+      courseTableData.hasEveningCourse,
+      isEveningOnly,
+      courseTableData.latestPeriod,
+    )) {
+      case (false, _, _):
+        break;
+      case (true, true, _):
+        addPeriods(Period.values.where((period) => period.isEvening));
+        break;
+      case (true, false, Period lastPeriod):
+        addPeriods(
+          Period.values
+              .skip(visiblePeriods.last.index + 1)
+              .take(lastPeriod.index - visiblePeriods.last.index),
+        );
+        break;
+      case (true, false, null):
+        break;
+    }
+
+    return (
+      visibleDaysOfWeek: visibleDays.isEmpty ? weekdays : visibleDays,
+      visiblePeriods: visiblePeriods.isEmpty ? defaultPeriods : visiblePeriods,
+    );
+  }
+
+  Widget _buildHeader(List<DayOfWeek> visibleDaysOfWeek) {
     return Row(
       children: [
         SizedBox(width: _stubWidth),
-        for (var day in _weekDays)
+        for (var day in visibleDaysOfWeek)
           SizedBox(
-            width: (viewportWidth! - _stubWidth) / _weekDays.length,
+            width: _dayColumnWidth,
             child: AutoSizeText(
               day.label,
               textAlign: .center,
@@ -107,11 +203,11 @@ class CourseTableGrid extends StatelessWidget {
     );
   }
 
-  Widget _buildPeriodRows() {
+  Widget _buildPeriodRows(List<Period> visiblePeriods) {
     return Column(
       crossAxisAlignment: .start,
       children: [
-        for (var period in _periods)
+        for (var period in visiblePeriods)
           Row(
             children: [
               SizedBox(
@@ -144,18 +240,21 @@ class CourseTableGrid extends StatelessWidget {
     );
   }
 
-  List<Widget> _buildSkeleton() {
-    final columnWidth = (viewportWidth! - _stubWidth) / _weekDays.length;
+  List<Widget> _buildSkeleton(
+    List<DayOfWeek> visibleDaysOfWeek,
+    List<Period> visiblePeriods,
+  ) {
+    final columnWidth = _dayColumnWidth;
     final random = Random();
 
     // Track occupied slots per day to avoid overlaps
-    final occupied = List.generate(_weekDays.length, (_) => <int>{});
+    final occupied = List.generate(visibleDaysOfWeek.length, (_) => <int>{});
     final cells = <Widget>[];
 
     for (var i = 0; i < 16; i++) {
-      final dayIndex = random.nextInt(_weekDays.length);
+      final dayIndex = random.nextInt(visibleDaysOfWeek.length);
       final spanLength = 2 + random.nextInt(2); // 2-3 periods
-      final maxStart = _periods.length - spanLength;
+      final maxStart = visiblePeriods.length - spanLength;
 
       // Find a non-overlapping start index
       int? startIndex;
@@ -212,8 +311,11 @@ class CourseTableGrid extends StatelessWidget {
     return cells;
   }
 
-  List<Widget> _buildCourseCells() {
-    final columnWidth = (viewportWidth! - _stubWidth) / _weekDays.length;
+  List<Widget> _buildCourseCells(
+    List<DayOfWeek> visibleDaysOfWeek,
+    List<Period> visiblePeriods,
+  ) {
+    final columnWidth = _dayColumnWidth;
     final random = Random();
     const cellColors = <Color>[
       Colors.blue,
@@ -227,22 +329,22 @@ class CourseTableGrid extends StatelessWidget {
 
     final sortedEntries = courseTableData.entries.toList()
       ..sort((a, b) {
-        final dayComparison = _weekDays
+        final dayComparison = visibleDaysOfWeek
             .indexOf(a.key.day)
-            .compareTo(_weekDays.indexOf(b.key.day));
+            .compareTo(visibleDaysOfWeek.indexOf(b.key.day));
         if (dayComparison != 0) return dayComparison;
 
-        return _periods
+        return visiblePeriods
             .indexOf(a.key.period)
-            .compareTo(_periods.indexOf(b.key.period));
+            .compareTo(visiblePeriods.indexOf(b.key.period));
       });
 
     final cells = <Widget>[];
     for (var i = 0; i < sortedEntries.length; i++) {
       final entry = sortedEntries[i];
       final cell = entry.value;
-      final dayIndex = _weekDays.indexOf(entry.key.day);
-      final startIndex = _periods.indexOf(entry.key.period);
+      final dayIndex = visibleDaysOfWeek.indexOf(entry.key.day);
+      final startIndex = visiblePeriods.indexOf(entry.key.period);
 
       if (dayIndex == -1 || startIndex == -1) {
         continue;
