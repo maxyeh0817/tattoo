@@ -2439,17 +2439,6 @@ class $TeachersTable extends Teachers with TableInfo<$TeachersTable, Teacher> {
       'PRIMARY KEY AUTOINCREMENT',
     ),
   );
-  static const VerificationMeta _fetchedAtMeta = const VerificationMeta(
-    'fetchedAt',
-  );
-  @override
-  late final GeneratedColumn<DateTime> fetchedAt = GeneratedColumn<DateTime>(
-    'fetched_at',
-    aliasedName,
-    true,
-    type: DriftSqlType.dateTime,
-    requiredDuringInsert: false,
-  );
   static const VerificationMeta _codeMeta = const VerificationMeta('code');
   @override
   late final GeneratedColumn<String> code = GeneratedColumn<String>(
@@ -2479,7 +2468,7 @@ class $TeachersTable extends Teachers with TableInfo<$TeachersTable, Teacher> {
     requiredDuringInsert: false,
   );
   @override
-  List<GeneratedColumn> get $columns => [id, fetchedAt, code, nameZh, nameEn];
+  List<GeneratedColumn> get $columns => [id, code, nameZh, nameEn];
   @override
   String get aliasedName => _alias ?? actualTableName;
   @override
@@ -2494,12 +2483,6 @@ class $TeachersTable extends Teachers with TableInfo<$TeachersTable, Teacher> {
     final data = instance.toColumns(true);
     if (data.containsKey('id')) {
       context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
-    }
-    if (data.containsKey('fetched_at')) {
-      context.handle(
-        _fetchedAtMeta,
-        fetchedAt.isAcceptableOrUnknown(data['fetched_at']!, _fetchedAtMeta),
-      );
     }
     if (data.containsKey('code')) {
       context.handle(
@@ -2536,10 +2519,6 @@ class $TeachersTable extends Teachers with TableInfo<$TeachersTable, Teacher> {
         DriftSqlType.int,
         data['${effectivePrefix}id'],
       )!,
-      fetchedAt: attachedDatabase.typeMapping.read(
-        DriftSqlType.dateTime,
-        data['${effectivePrefix}fetched_at'],
-      ),
       code: attachedDatabase.typeMapping.read(
         DriftSqlType.string,
         data['${effectivePrefix}code'],
@@ -2565,16 +2544,6 @@ class Teacher extends DataClass implements Insertable<Teacher> {
   /// Auto-incrementing primary key.
   final int id;
 
-  /// Timestamp of when complete data was last fetched from the server.
-  ///
-  /// - `null`: Only partial/basic information is available (e.g., name + ID from a list page)
-  /// - `non-null`: Complete details have been fetched (e.g., full profile from detail page)
-  ///
-  /// Use this field to:
-  /// - Determine if a detail fetch is needed (null = need to fetch)
-  /// - Implement cache expiration (old timestamp = stale, re-fetch)
-  final DateTime? fetchedAt;
-
   /// Teacher code/ID in the NTUT system.
   final String code;
 
@@ -2585,7 +2554,6 @@ class Teacher extends DataClass implements Insertable<Teacher> {
   final String? nameEn;
   const Teacher({
     required this.id,
-    this.fetchedAt,
     required this.code,
     required this.nameZh,
     this.nameEn,
@@ -2594,9 +2562,6 @@ class Teacher extends DataClass implements Insertable<Teacher> {
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
     map['id'] = Variable<int>(id);
-    if (!nullToAbsent || fetchedAt != null) {
-      map['fetched_at'] = Variable<DateTime>(fetchedAt);
-    }
     map['code'] = Variable<String>(code);
     map['name_zh'] = Variable<String>(nameZh);
     if (!nullToAbsent || nameEn != null) {
@@ -2608,9 +2573,6 @@ class Teacher extends DataClass implements Insertable<Teacher> {
   TeachersCompanion toCompanion(bool nullToAbsent) {
     return TeachersCompanion(
       id: Value(id),
-      fetchedAt: fetchedAt == null && nullToAbsent
-          ? const Value.absent()
-          : Value(fetchedAt),
       code: Value(code),
       nameZh: Value(nameZh),
       nameEn: nameEn == null && nullToAbsent
@@ -2626,7 +2588,6 @@ class Teacher extends DataClass implements Insertable<Teacher> {
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return Teacher(
       id: serializer.fromJson<int>(json['id']),
-      fetchedAt: serializer.fromJson<DateTime?>(json['fetchedAt']),
       code: serializer.fromJson<String>(json['code']),
       nameZh: serializer.fromJson<String>(json['nameZh']),
       nameEn: serializer.fromJson<String?>(json['nameEn']),
@@ -2637,7 +2598,6 @@ class Teacher extends DataClass implements Insertable<Teacher> {
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return <String, dynamic>{
       'id': serializer.toJson<int>(id),
-      'fetchedAt': serializer.toJson<DateTime?>(fetchedAt),
       'code': serializer.toJson<String>(code),
       'nameZh': serializer.toJson<String>(nameZh),
       'nameEn': serializer.toJson<String?>(nameEn),
@@ -2646,13 +2606,11 @@ class Teacher extends DataClass implements Insertable<Teacher> {
 
   Teacher copyWith({
     int? id,
-    Value<DateTime?> fetchedAt = const Value.absent(),
     String? code,
     String? nameZh,
     Value<String?> nameEn = const Value.absent(),
   }) => Teacher(
     id: id ?? this.id,
-    fetchedAt: fetchedAt.present ? fetchedAt.value : this.fetchedAt,
     code: code ?? this.code,
     nameZh: nameZh ?? this.nameZh,
     nameEn: nameEn.present ? nameEn.value : this.nameEn,
@@ -2660,7 +2618,6 @@ class Teacher extends DataClass implements Insertable<Teacher> {
   Teacher copyWithCompanion(TeachersCompanion data) {
     return Teacher(
       id: data.id.present ? data.id.value : this.id,
-      fetchedAt: data.fetchedAt.present ? data.fetchedAt.value : this.fetchedAt,
       code: data.code.present ? data.code.value : this.code,
       nameZh: data.nameZh.present ? data.nameZh.value : this.nameZh,
       nameEn: data.nameEn.present ? data.nameEn.value : this.nameEn,
@@ -2671,7 +2628,6 @@ class Teacher extends DataClass implements Insertable<Teacher> {
   String toString() {
     return (StringBuffer('Teacher(')
           ..write('id: $id, ')
-          ..write('fetchedAt: $fetchedAt, ')
           ..write('code: $code, ')
           ..write('nameZh: $nameZh, ')
           ..write('nameEn: $nameEn')
@@ -2680,13 +2636,12 @@ class Teacher extends DataClass implements Insertable<Teacher> {
   }
 
   @override
-  int get hashCode => Object.hash(id, fetchedAt, code, nameZh, nameEn);
+  int get hashCode => Object.hash(id, code, nameZh, nameEn);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
       (other is Teacher &&
           other.id == this.id &&
-          other.fetchedAt == this.fetchedAt &&
           other.code == this.code &&
           other.nameZh == this.nameZh &&
           other.nameEn == this.nameEn);
@@ -2694,20 +2649,17 @@ class Teacher extends DataClass implements Insertable<Teacher> {
 
 class TeachersCompanion extends UpdateCompanion<Teacher> {
   final Value<int> id;
-  final Value<DateTime?> fetchedAt;
   final Value<String> code;
   final Value<String> nameZh;
   final Value<String?> nameEn;
   const TeachersCompanion({
     this.id = const Value.absent(),
-    this.fetchedAt = const Value.absent(),
     this.code = const Value.absent(),
     this.nameZh = const Value.absent(),
     this.nameEn = const Value.absent(),
   });
   TeachersCompanion.insert({
     this.id = const Value.absent(),
-    this.fetchedAt = const Value.absent(),
     required String code,
     required String nameZh,
     this.nameEn = const Value.absent(),
@@ -2715,14 +2667,12 @@ class TeachersCompanion extends UpdateCompanion<Teacher> {
        nameZh = Value(nameZh);
   static Insertable<Teacher> custom({
     Expression<int>? id,
-    Expression<DateTime>? fetchedAt,
     Expression<String>? code,
     Expression<String>? nameZh,
     Expression<String>? nameEn,
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
-      if (fetchedAt != null) 'fetched_at': fetchedAt,
       if (code != null) 'code': code,
       if (nameZh != null) 'name_zh': nameZh,
       if (nameEn != null) 'name_en': nameEn,
@@ -2731,14 +2681,12 @@ class TeachersCompanion extends UpdateCompanion<Teacher> {
 
   TeachersCompanion copyWith({
     Value<int>? id,
-    Value<DateTime?>? fetchedAt,
     Value<String>? code,
     Value<String>? nameZh,
     Value<String?>? nameEn,
   }) {
     return TeachersCompanion(
       id: id ?? this.id,
-      fetchedAt: fetchedAt ?? this.fetchedAt,
       code: code ?? this.code,
       nameZh: nameZh ?? this.nameZh,
       nameEn: nameEn ?? this.nameEn,
@@ -2750,9 +2698,6 @@ class TeachersCompanion extends UpdateCompanion<Teacher> {
     final map = <String, Expression>{};
     if (id.present) {
       map['id'] = Variable<int>(id.value);
-    }
-    if (fetchedAt.present) {
-      map['fetched_at'] = Variable<DateTime>(fetchedAt.value);
     }
     if (code.present) {
       map['code'] = Variable<String>(code.value);
@@ -2770,7 +2715,6 @@ class TeachersCompanion extends UpdateCompanion<Teacher> {
   String toString() {
     return (StringBuffer('TeachersCompanion(')
           ..write('id: $id, ')
-          ..write('fetchedAt: $fetchedAt, ')
           ..write('code: $code, ')
           ..write('nameZh: $nameZh, ')
           ..write('nameEn: $nameEn')
@@ -10119,9 +10063,9 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     'teacher_semester_semester',
     'CREATE INDEX teacher_semester_semester ON teacher_semesters (semester)',
   );
-  late final Index teacherOfficeHourSemester = Index(
-    'teacher_office_hour_semester',
-    'CREATE INDEX teacher_office_hour_semester ON teacher_office_hours (teacher_semester)',
+  late final Index teacherOfficeHourTeacherSemester = Index(
+    'teacher_office_hour_teacher_semester',
+    'CREATE INDEX teacher_office_hour_teacher_semester ON teacher_office_hours (teacher_semester)',
   );
   late final Index scoreUser = Index(
     'score_user',
@@ -10165,7 +10109,7 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     scheduleCourseOffering,
     materialCourseOffering,
     teacherSemesterSemester,
-    teacherOfficeHourSemester,
+    teacherOfficeHourTeacherSemester,
     scoreUser,
     userSemesterSummaryUser,
   ];
@@ -12559,7 +12503,6 @@ typedef $$DepartmentsTableProcessedTableManager =
 typedef $$TeachersTableCreateCompanionBuilder =
     TeachersCompanion Function({
       Value<int> id,
-      Value<DateTime?> fetchedAt,
       required String code,
       required String nameZh,
       Value<String?> nameEn,
@@ -12567,7 +12510,6 @@ typedef $$TeachersTableCreateCompanionBuilder =
 typedef $$TeachersTableUpdateCompanionBuilder =
     TeachersCompanion Function({
       Value<int> id,
-      Value<DateTime?> fetchedAt,
       Value<String> code,
       Value<String> nameZh,
       Value<String?> nameEn,
@@ -12612,11 +12554,6 @@ class $$TeachersTableFilterComposer
   });
   ColumnFilters<int> get id => $composableBuilder(
     column: $table.id,
-    builder: (column) => ColumnFilters(column),
-  );
-
-  ColumnFilters<DateTime> get fetchedAt => $composableBuilder(
-    column: $table.fetchedAt,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -12675,11 +12612,6 @@ class $$TeachersTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
-  ColumnOrderings<DateTime> get fetchedAt => $composableBuilder(
-    column: $table.fetchedAt,
-    builder: (column) => ColumnOrderings(column),
-  );
-
   ColumnOrderings<String> get code => $composableBuilder(
     column: $table.code,
     builder: (column) => ColumnOrderings(column),
@@ -12707,9 +12639,6 @@ class $$TeachersTableAnnotationComposer
   });
   GeneratedColumn<int> get id =>
       $composableBuilder(column: $table.id, builder: (column) => column);
-
-  GeneratedColumn<DateTime> get fetchedAt =>
-      $composableBuilder(column: $table.fetchedAt, builder: (column) => column);
 
   GeneratedColumn<String> get code =>
       $composableBuilder(column: $table.code, builder: (column) => column);
@@ -12775,13 +12704,11 @@ class $$TeachersTableTableManager
           updateCompanionCallback:
               ({
                 Value<int> id = const Value.absent(),
-                Value<DateTime?> fetchedAt = const Value.absent(),
                 Value<String> code = const Value.absent(),
                 Value<String> nameZh = const Value.absent(),
                 Value<String?> nameEn = const Value.absent(),
               }) => TeachersCompanion(
                 id: id,
-                fetchedAt: fetchedAt,
                 code: code,
                 nameZh: nameZh,
                 nameEn: nameEn,
@@ -12789,13 +12716,11 @@ class $$TeachersTableTableManager
           createCompanionCallback:
               ({
                 Value<int> id = const Value.absent(),
-                Value<DateTime?> fetchedAt = const Value.absent(),
                 required String code,
                 required String nameZh,
                 Value<String?> nameEn = const Value.absent(),
               }) => TeachersCompanion.insert(
                 id: id,
-                fetchedAt: fetchedAt,
                 code: code,
                 nameZh: nameZh,
                 nameEn: nameEn,

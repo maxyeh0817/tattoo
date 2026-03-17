@@ -178,7 +178,7 @@ class Departments extends Table with AutoIncrementId, Fetchable {
 /// Static teacher/instructor information.
 ///
 /// Represents a teacher's identity across all semesters.
-class Teachers extends Table with AutoIncrementId, Fetchable {
+class Teachers extends Table with AutoIncrementId {
   /// Teacher code/ID in the NTUT system.
   late final code = text().unique()();
 
@@ -228,7 +228,10 @@ class TeacherSemesters extends Table with AutoIncrementId, Fetchable {
 ///
 /// Each row represents one office hour time slot for a teacher.
 /// A teacher may have multiple office hour slots per week.
-@TableIndex(name: 'teacher_office_hour_semester', columns: {#teacherSemester})
+@TableIndex(
+  name: 'teacher_office_hour_teacher_semester',
+  columns: {#teacherSemester},
+)
 class TeacherOfficeHours extends Table with AutoIncrementId {
   /// Reference to the teacher profile (semester-specific).
   late final teacherSemester = integer().references(TeacherSemesters, #id)();

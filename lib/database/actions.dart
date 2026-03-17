@@ -86,13 +86,11 @@ extension DatabaseActions on AppDatabase {
           code: code,
           nameZh: nameZh,
           nameEn: Value(nameEn),
-          fetchedAt: Value.absentIfNull(fetchedAt),
         ),
         onConflict: DoUpdate(
           (old) => TeachersCompanion(
             nameZh: Value(nameZh),
             nameEn: Value.absentIfNull(nameEn),
-            fetchedAt: Value.absentIfNull(fetchedAt),
           ),
           target: [teachers.code],
         ),
