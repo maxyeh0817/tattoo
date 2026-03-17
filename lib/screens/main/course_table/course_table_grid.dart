@@ -39,12 +39,64 @@ class CourseTableGrid extends StatelessWidget {
   List<Period> get _visiblePeriods => _gridRange.visiblePeriods;
 
   double get _periodRowHeight =>
-      max((viewportHeight ?? 0) / 9, 64.0).toDouble();
-  double get _periodNoonHeight => _periodRowHeight;
+      max(((viewportHeight ?? 0) - _tableHeaderHeight) / 9, 64.0).toDouble();
+  double get _periodNoonHeight => switch (courseTableData.hasNoonCourse) {
+    true => _periodRowHeight,
+    false => _periodRowHeight / 4,
+  };
   double get _dayColumnWidth => min(
     (((viewportWidth ?? 0) - _stubWidth) / _visibleDaysOfWeek.length),
     120,
   ).toDouble();
+
+  double _periodHeight(Period period) => switch (period) {
+    Period.nPeriod => _periodNoonHeight,
+    _ => _periodRowHeight,
+  };
+
+  double _periodTopOffset(List<Period> visiblePeriods, int periodIndex) {
+    return visiblePeriods
+        .take(periodIndex)
+        .fold(0.0, (sum, period) => sum + _periodHeight(period));
+  }
+
+  double _visiblePeriodSpanHeight(
+    List<Period> visiblePeriods,
+    int startIndex,
+    int span,
+  ) {
+    return visiblePeriods
+        .skip(startIndex)
+        .take(span)
+        .fold(0.0, (sum, period) => sum + _periodHeight(period));
+  }
+
+  double _courseCellHeight(
+    List<Period> visiblePeriods,
+    int startIndex,
+    CourseTableCellData cell,
+  ) {
+    var remainingPeriods = cell.span;
+    var includeSyntheticNoonGap =
+        cell.crossesNoon && !courseTableData.hasNoonCourse;
+    var totalHeight = 0.0;
+
+    for (final period in visiblePeriods.skip(startIndex)) {
+      if (period == Period.nPeriod && includeSyntheticNoonGap) {
+        totalHeight += _periodNoonHeight;
+        includeSyntheticNoonGap = false;
+        continue;
+      }
+
+      totalHeight += _periodHeight(period);
+      remainingPeriods--;
+      if (remainingPeriods == 0) {
+        break;
+      }
+    }
+
+    return totalHeight;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -212,7 +264,7 @@ class CourseTableGrid extends StatelessWidget {
             children: [
               SizedBox(
                 width: _stubWidth,
-                height: _periodRowHeight,
+                height: _periodHeight(period),
                 child: Container(
                   alignment: .center,
                   child: AutoSizeText(
@@ -225,7 +277,7 @@ class CourseTableGrid extends StatelessWidget {
               ),
               SizedBox(
                 width: viewportWidth! - _stubWidth,
-                height: _periodRowHeight,
+                height: _periodHeight(period),
                 child: Container(
                   decoration: BoxDecoration(
                     border: Border(
@@ -269,9 +321,13 @@ class CourseTableGrid extends StatelessWidget {
       }
       if (startIndex == null) continue;
 
-      final cellTop = startIndex * _periodRowHeight;
+      final cellTop = _periodTopOffset(visiblePeriods, startIndex);
       final cellLeft = _stubWidth + (dayIndex * columnWidth);
-      final cellHeight = spanLength * _periodRowHeight;
+      final cellHeight = _visiblePeriodSpanHeight(
+        visiblePeriods,
+        startIndex,
+        spanLength,
+      );
       final delayMs = 50 + random.nextInt(101);
       const riseDurationMs = 350;
       final totalDurationMs = riseDurationMs + delayMs;
@@ -350,11 +406,9 @@ class CourseTableGrid extends StatelessWidget {
         continue;
       }
 
-      final cellTop = startIndex * _periodRowHeight;
+      final cellTop = _periodTopOffset(visiblePeriods, startIndex);
       final cellLeft = _stubWidth + (dayIndex * columnWidth);
-      final cellHeight =
-          (cell.span * _periodRowHeight) +
-          (cell.crossesNoon ? _periodNoonHeight : 0);
+      final cellHeight = _courseCellHeight(visiblePeriods, startIndex, cell);
       final delayMs = 50 + random.nextInt(101);
       const riseDurationMs = 350;
       final totalDurationMs = riseDurationMs + delayMs;
