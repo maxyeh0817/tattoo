@@ -34,6 +34,7 @@ class CourseTableGrid extends StatelessWidget {
 
   static const double _tableHeaderHeight = 25;
   static const double _stubWidth = 20;
+  static const double _gridLineThickness = 1;
 
   late final GridRange _gridRange = _visibleGridRange();
   List<DayOfWeek> get _visibleDaysOfWeek => _gridRange.visibleDaysOfWeek;
@@ -122,6 +123,7 @@ class CourseTableGrid extends StatelessWidget {
           child: Stack(
             children: [
               _buildPeriodRows(_visiblePeriods),
+              ..._buildHorizontalGridLines(_visiblePeriods),
               ...(loading
                   ? _buildSkeleton(_visibleDaysOfWeek, _visiblePeriods)
                   : _buildCourseCells(
@@ -283,18 +285,29 @@ class CourseTableGrid extends StatelessWidget {
               SizedBox(
                 width: viewportWidth! - _stubWidth,
                 height: _periodHeight(period),
-                child: Container(
-                  decoration: BoxDecoration(
-                    border: Border(
-                      bottom: BorderSide(color: Colors.grey[200]!),
-                    ),
-                  ),
-                ),
+                child: const SizedBox.shrink(),
               ),
             ],
           ),
       ],
     );
+  }
+
+  List<Widget> _buildHorizontalGridLines(List<Period> visiblePeriods) {
+    final gridWidth = max(0.0, (viewportWidth ?? 0) - _stubWidth);
+
+    return [
+      for (var i = 1; i < visiblePeriods.length; i++)
+        Positioned(
+          top: _periodTopOffset(visiblePeriods, i) - (_gridLineThickness / 2),
+          left: _stubWidth,
+          child: Container(
+            width: gridWidth,
+            height: _gridLineThickness,
+            color: Colors.grey[200],
+          ),
+        ),
+    ];
   }
 
   List<Widget> _buildSkeleton(
