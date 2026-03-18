@@ -55,11 +55,18 @@ typedef CourseTableEntry =
     MapEntry<({DayOfWeek day, Period period}), CourseTableCell>;
 
 extension on CourseTableEntry {
-  /// All [Period]s this entry occupies, accounting for [CourseTableCell.span].
-  Iterable<Period> get periods => List.generate(
-    value.span,
-    (i) => Period.values[key.period.index + i],
-  );
+  /// All [Period]s this entry occupies, accounting for [CourseTableCell.span]
+  /// and skipping noon when [CourseTableCell.crossesNoon] is true.
+  Iterable<Period> get periods {
+    final noonIndex = Period.nPeriod.index;
+    final start = key.period.index;
+    return List.generate(value.span, (i) {
+      final raw = start + i;
+      return Period.values[raw >= noonIndex && value.crossesNoon
+          ? raw + 1
+          : raw];
+    });
+  }
 }
 
 /// Derived layout metadata computed from [CourseTableData] keys.
@@ -97,9 +104,9 @@ extension CourseTableMeta on CourseTableData {
   /// Latest period that has a course (accounting for span), or null if empty.
   Period? get latestPeriod => isEmpty
       ? null
-      : Period.values[entries
-            .map((e) => e.key.period.index + e.value.span - 1)
-            .reduce(max)];
+      : entries
+            .expand((e) => e.periods)
+            .reduce((a, b) => a.index > b.index ? a : b);
 
   /// Unique courses by number, for aggregation.
   Iterable<CourseTableCell> get _uniqueCourses {
