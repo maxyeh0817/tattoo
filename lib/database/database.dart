@@ -70,7 +70,7 @@ class AppDatabase extends _$AppDatabase {
       await customStatement('PRAGMA foreign_keys = ON');
 
       if (details.wasCreated) {
-        log('Database created with schema v$schemaVersion');
+        log('Database created with schema v$schemaVersion', name: 'DB');
         return;
       }
 
@@ -90,11 +90,15 @@ class AppDatabase extends _$AppDatabase {
 }
 
 class _LogInterceptor extends QueryInterceptor {
-  static final _tablePattern = RegExp(r'"(\w+)"');
+  static final _fromPattern = RegExp(r'FROM "(\w+)"', caseSensitive: false);
+  static final _firstQuoted = RegExp(r'"(\w+)"');
 
   static String _describeStatement(String statement) {
     final verb = statement.split(' ').first;
-    final table = _tablePattern.firstMatch(statement)?.group(1) ?? '?';
+    final table =
+        _fromPattern.firstMatch(statement)?.group(1) ??
+        _firstQuoted.firstMatch(statement)?.group(1) ??
+        '?';
     return '$verb $table';
   }
 
