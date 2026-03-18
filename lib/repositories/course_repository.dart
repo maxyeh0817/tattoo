@@ -52,7 +52,7 @@ typedef CourseTableData =
 
 /// A single key–value pair from [CourseTableData].
 typedef CourseTableEntry =
-    MapEntry<({DayOfWeek day, Period period}), CourseTableCell>;
+    MapEntry<({DayOfWeek day, Period period}), CourseTableCellData>;
 
 extension on CourseTableEntry {
   /// All [Period]s this entry occupies, accounting for [CourseTableCell.span]

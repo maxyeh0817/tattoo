@@ -371,7 +371,6 @@ class CourseTableGrid extends StatelessWidget {
     List<DayOfWeek> visibleDaysOfWeek,
     List<Period> visiblePeriods,
   ) {
-
     const List<Color> cellColors = [
       Colors.red,
       Colors.blue,
