@@ -1,4 +1,7 @@
+import 'dart:developer';
+
 import 'package:drift/drift.dart';
+import 'package:drift_dev/api/migrations_native.dart';
 import 'package:drift_flutter/drift_flutter.dart';
 import 'package:riverpod/riverpod.dart';
 import 'package:tattoo/database/schema.dart';
@@ -63,8 +66,21 @@ class AppDatabase extends _$AppDatabase {
   @override
   MigrationStrategy get migration => MigrationStrategy(
     onUpgrade: destructiveFallback.onUpgrade,
-    beforeOpen: (_) async {
+    beforeOpen: (details) async {
       await customStatement('PRAGMA foreign_keys = ON');
+
+      if (details.wasCreated) {
+        log('Database created with schema v$schemaVersion');
+        return;
+      }
+
+      try {
+        await validateDatabaseSchema();
+        log('Database schema is up to date', name: 'DB');
+      } on SchemaMismatch catch (_) {
+        log('Schema mismatch detected, recreating database', name: 'DB');
+        await destructiveFallback.onUpgrade(createMigrator(), 0, schemaVersion);
+      }
     },
   );
 
