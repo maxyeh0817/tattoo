@@ -50,6 +50,25 @@ typedef CourseTableCell = ({
 typedef CourseTableData =
     Map<({DayOfWeek day, Period period}), CourseTableCell>;
 
+/// A single key–value pair from [CourseTableData].
+typedef CourseTableEntry =
+    MapEntry<({DayOfWeek day, Period period}), CourseTableCell>;
+
+extension on CourseTableEntry {
+  /// All [Period]s this entry occupies, accounting for [CourseTableCell.span]
+  /// and skipping noon when [CourseTableCell.crossesNoon] is true.
+  Iterable<Period> get periods {
+    final noonIndex = Period.nPeriod.index;
+    final start = key.period.index;
+    return List.generate(value.span, (i) {
+      final raw = start + i;
+      return Period.values[raw >= noonIndex && value.crossesNoon
+          ? raw + 1
+          : raw];
+    });
+  }
+}
+
 /// Derived layout metadata computed from [CourseTableData] keys.
 ///
 /// Used by the course table UI to decide which rows/columns to show.
@@ -64,16 +83,18 @@ extension CourseTableMeta on CourseTableData {
   bool get hasSundayCourse => keys.any((s) => s.day == DayOfWeek.sunday);
 
   /// Whether any course falls in the morning period (1-4).
-  bool get hasAMCourse => keys.any((s) => s.period.isAM);
+  bool get hasAMCourse => entries.any((e) => e.periods.any((p) => p.isAM));
 
   /// Whether any course falls in the afternoon period (5-9).
-  bool get hasPMCourse => keys.any((s) => s.period.isPM);
+  bool get hasPMCourse => entries.any((e) => e.periods.any((p) => p.isPM));
 
   /// Whether any course falls in the noon period (N).
-  bool get hasNoonCourse => keys.any((s) => s.period == Period.nPeriod);
+  bool get hasNoonCourse =>
+      entries.any((e) => e.periods.any((p) => p == Period.nPeriod));
 
   /// Whether any course falls in the evening period (A-D).
-  bool get hasEveningCourse => keys.any((s) => s.period.isEvening);
+  bool get hasEveningCourse =>
+      entries.any((e) => e.periods.any((p) => p.isEvening));
 
   /// Earliest period that has a course, or null if empty.
   Period? get earliestPeriod => isEmpty
@@ -83,9 +104,9 @@ extension CourseTableMeta on CourseTableData {
   /// Latest period that has a course (accounting for span), or null if empty.
   Period? get latestPeriod => isEmpty
       ? null
-      : Period.values[entries
-            .map((e) => e.key.period.index + e.value.span - 1)
-            .reduce(max)];
+      : entries
+            .expand((e) => e.periods)
+            .reduce((a, b) => a.index > b.index ? a : b);
 
   /// Unique courses by number, for aggregation.
   Iterable<CourseTableCell> get _uniqueCourses {
