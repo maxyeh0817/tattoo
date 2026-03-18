@@ -8,10 +8,12 @@ import 'package:auto_size_text/auto_size_text.dart';
 class CourseTableCell extends StatelessWidget {
   final CourseTableCellData courseTableCellData;
   final Color cellColor;
+  final VoidCallback? onTap;
 
   const CourseTableCell({
     required this.courseTableCellData,
     required this.cellColor,
+    this.onTap,
     super.key,
   });
 
@@ -27,6 +29,7 @@ class CourseTableCell extends StatelessWidget {
       color: borderColor,
       width: 1,
     );
+    final borderRadius = BorderRadius.circular(8);
     final theme = Theme.of(context);
     final courseTitle = courseTableCellData.courseName.isNotEmpty
         ? courseTableCellData.courseName
@@ -35,45 +38,53 @@ class CourseTableCell extends StatelessWidget {
 
     return MediaQuery(
       data: MediaQuery.of(context).copyWith(textScaler: TextScaler.noScaling),
-      child: Container(
-        decoration: BoxDecoration(
-          color: containerColor,
-          borderRadius: BorderRadius.circular(8),
-          border: borderStyle,
-        ),
-        alignment: Alignment.center,
-        padding: const EdgeInsets.symmetric(horizontal: 2, vertical: 2),
-        child: SizedBox(
-          height: 64,
-          width: double.infinity,
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              AutoSizeText(
-                courseTitle,
-                style: theme.textTheme.bodyMedium?.copyWith(
-                  fontSize: 12,
-                  fontWeight: FontWeight.w700,
+      child: Material(
+        color: Colors.transparent,
+        child: Ink(
+          decoration: BoxDecoration(
+            color: containerColor,
+            borderRadius: borderRadius,
+            border: borderStyle,
+          ),
+          child: InkWell(
+            onTap: onTap,
+            borderRadius: borderRadius,
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 2, vertical: 2),
+              child: SizedBox(
+                height: 64,
+                width: double.infinity,
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    AutoSizeText(
+                      courseTitle,
+                      style: theme.textTheme.bodyMedium?.copyWith(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w700,
+                      ),
+                      maxLines: 2,
+                      minFontSize: 10,
+                      overflow: TextOverflow.ellipsis,
+                      textAlign: TextAlign.center,
+                    ),
+                    if (classroomName case final classroomName?
+                        when classroomName.isNotEmpty)
+                      AutoSizeText(
+                        classroomName,
+                        style: theme.textTheme.bodySmall?.copyWith(
+                          fontSize: 8,
+                          fontWeight: FontWeight.w400,
+                        ),
+                        maxLines: 1,
+                        minFontSize: 6,
+                        overflow: TextOverflow.ellipsis,
+                        textAlign: TextAlign.center,
+                      ),
+                  ],
                 ),
-                maxLines: 2,
-                minFontSize: 10,
-                overflow: TextOverflow.ellipsis,
-                textAlign: TextAlign.center,
               ),
-              if (classroomName case final classroomName?
-                  when classroomName.isNotEmpty)
-                AutoSizeText(
-                  classroomName,
-                  style: theme.textTheme.bodySmall?.copyWith(
-                    fontSize: 8,
-                    fontWeight: FontWeight.w400,
-                  ),
-                  maxLines: 1,
-                  minFontSize: 6,
-                  overflow: TextOverflow.ellipsis,
-                  textAlign: TextAlign.center,
-                ),
-            ],
+            ),
           ),
         ),
       ),

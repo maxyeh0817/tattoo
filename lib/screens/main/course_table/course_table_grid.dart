@@ -7,6 +7,7 @@ import 'package:tattoo/components/widget_preview_frame.dart';
 import 'package:tattoo/models/course.dart';
 import 'package:tattoo/repositories/course_repository.dart';
 import 'package:tattoo/screens/main/course_table/course_table_cell.dart';
+import 'package:tattoo/screens/main/course_table/course_table_detail_sheet.dart';
 
 typedef GridRange = ({
   List<DayOfWeek> visibleDaysOfWeek,
@@ -123,7 +124,11 @@ class CourseTableGrid extends StatelessWidget {
               _buildPeriodRows(_visiblePeriods),
               ...(loading
                   ? _buildSkeleton(_visibleDaysOfWeek, _visiblePeriods)
-                  : _buildCourseCells(_visibleDaysOfWeek, _visiblePeriods)),
+                  : _buildCourseCells(
+                      context,
+                      _visibleDaysOfWeek,
+                      _visiblePeriods,
+                    )),
             ],
           ),
         ),
@@ -368,6 +373,7 @@ class CourseTableGrid extends StatelessWidget {
   }
 
   List<Widget> _buildCourseCells(
+    BuildContext context,
     List<DayOfWeek> visibleDaysOfWeek,
     List<Period> visiblePeriods,
   ) {
@@ -481,6 +487,9 @@ class CourseTableGrid extends StatelessWidget {
                 child: CourseTableCell(
                   courseTableCellData: cell,
                   cellColor: resolveCellColor(cell.number),
+                  onTap: () {
+                    showCourseTableDetailSheet(context, cell: cell);
+                  },
                 ),
               ),
             ),
