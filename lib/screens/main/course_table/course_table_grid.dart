@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/widget_previews.dart';
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:tattoo/components/widget_preview_frame.dart';
+import 'package:tattoo/i18n/strings.g.dart';
 import 'package:tattoo/models/course.dart';
 import 'package:tattoo/repositories/course_repository.dart';
 import 'package:tattoo/screens/main/course_table/course_table_cell.dart';
@@ -252,7 +253,7 @@ class CourseTableGrid extends StatelessWidget {
           SizedBox(
             width: _dayColumnWidth,
             child: AutoSizeText(
-              day.label,
+              t.courseTable.dayOfWeek[day.name]!,
               textAlign: .center,
               style: const TextStyle(fontSize: 12),
               maxLines: 1,

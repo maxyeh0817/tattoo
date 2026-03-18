@@ -191,6 +191,16 @@ class TranslationsCourseTableZhTw {
 
 	/// zh-TW: '找不到課表'
 	String get notFound => '找不到課表';
+
+	Map<String, String> get dayOfWeek => {
+		'sunday': '日',
+		'monday': '一',
+		'tuesday': '二',
+		'wednesday': '三',
+		'thursday': '四',
+		'friday': '五',
+		'saturday': '六',
+	};
 }
 
 // Path: profile
@@ -554,6 +564,13 @@ extension on Translations {
 			'nav.scores' => '成績',
 			'nav.profile' => '我',
 			'courseTable.notFound' => '找不到課表',
+			'courseTable.dayOfWeek.sunday' => '日',
+			'courseTable.dayOfWeek.monday' => '一',
+			'courseTable.dayOfWeek.tuesday' => '二',
+			'courseTable.dayOfWeek.wednesday' => '三',
+			'courseTable.dayOfWeek.thursday' => '四',
+			'courseTable.dayOfWeek.friday' => '五',
+			'courseTable.dayOfWeek.saturday' => '六',
 			'profile.dataDisclaimer' => '本資料僅供參考，不做其他證明用途',
 			'profile.sections.accountSettings' => '帳號設定',
 			'profile.sections.appSettings' => '應用程式設定',

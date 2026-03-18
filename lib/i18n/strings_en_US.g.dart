@@ -138,6 +138,15 @@ class _TranslationsCourseTableEnUs extends TranslationsCourseTableZhTw {
 
 	// Translations
 	@override String get notFound => 'Course table not found';
+	@override Map<String, String> get dayOfWeek => {
+		'sunday': 'Sun',
+		'monday': 'Mon',
+		'tuesday': 'Tue',
+		'wednesday': 'Wed',
+		'thursday': 'Thu',
+		'friday': 'Fri',
+		'saturday': 'Sat',
+	};
 }
 
 // Path: profile
@@ -380,6 +389,13 @@ extension on TranslationsEnUs {
 			'nav.scores' => 'Scores',
 			'nav.profile' => 'Me',
 			'courseTable.notFound' => 'Course table not found',
+			'courseTable.dayOfWeek.sunday' => 'Sun',
+			'courseTable.dayOfWeek.monday' => 'Mon',
+			'courseTable.dayOfWeek.tuesday' => 'Tue',
+			'courseTable.dayOfWeek.wednesday' => 'Wed',
+			'courseTable.dayOfWeek.thursday' => 'Thu',
+			'courseTable.dayOfWeek.friday' => 'Fri',
+			'courseTable.dayOfWeek.saturday' => 'Sat',
 			'profile.dataDisclaimer' => 'For reference only. Not valid as official documentation.',
 			'profile.sections.accountSettings' => 'Account Settings',
 			'profile.sections.appSettings' => 'App Settings',
