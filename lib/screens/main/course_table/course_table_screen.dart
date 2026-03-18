@@ -12,6 +12,8 @@ import 'package:tattoo/screens/main/user_providers.dart';
 const _placeholderOwnerName = '載入中';
 const _placeholderAvatarInitial = '載';
 const _loadingSemesterTabLabels = ['114-2', '114-1', '113-2'];
+const _ownerAppBarHeight = 56.0;
+const _semesterTabsHeight = 48.0;
 
 class CourseTableScreen extends ConsumerWidget {
   const CourseTableScreen({super.key});
@@ -45,151 +47,142 @@ class CourseTableScreen extends ConsumerWidget {
           toolbarHeight: 0,
           backgroundColor: Theme.of(context).colorScheme.primary,
         ),
-        body: NestedScrollView(
-          headerSliverBuilder: (context, innerBoxIsScrolled) => [
-            // primary app bar with owner indicator and action buttons
-            SliverAppBar(
-              primary: false,
-              toolbarHeight: 56,
-              backgroundColor: Theme.of(context).colorScheme.primary,
-              flexibleSpace: Align(
-                alignment: Alignment.bottomCenter,
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 16,
-                    vertical: 8,
-                  ),
-                  child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.end,
-                    children: [
-                      const _TableOwnerIndicator(),
-                      const Spacer(),
-                      Row(
-                        mainAxisSize: MainAxisSize.min,
+        body: LayoutBuilder(
+          builder: (context, constraints) {
+            final gridViewportSize = Size(
+              constraints.maxWidth,
+              (constraints.maxHeight - _ownerAppBarHeight - _semesterTabsHeight)
+                  .clamp(0.0, double.infinity),
+            );
+
+            return NestedScrollView(
+              headerSliverBuilder: (context, innerBoxIsScrolled) => [
+                // primary app bar with owner indicator and action buttons
+                SliverAppBar(
+                  primary: false,
+                  toolbarHeight: _ownerAppBarHeight,
+                  backgroundColor: Theme.of(context).colorScheme.primary,
+                  flexibleSpace: Align(
+                    alignment: Alignment.bottomCenter,
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 16,
+                        vertical: 8,
+                      ),
+                      child: Row(
                         crossAxisAlignment: CrossAxisAlignment.end,
-                        spacing: 8,
                         children: [
-                          _CircularIconButton(
-                            icon: Icons.refresh_outlined,
-                            onTap: () => _showDemoTap(context),
-                          ),
-                          _CircularIconButton(
-                            icon: Icons.share_outlined,
-                            onTap: () => _showDemoTap(context),
-                          ),
-                          _CircularIconButton(
-                            icon: Icons.more_vert_outlined,
-                            onTap: () => _showDemoTap(context),
+                          const _TableOwnerIndicator(),
+                          const Spacer(),
+                          Row(
+                            mainAxisSize: MainAxisSize.min,
+                            crossAxisAlignment: CrossAxisAlignment.end,
+                            spacing: 8,
+                            children: [
+                              _CircularIconButton(
+                                icon: Icons.refresh_outlined,
+                                onTap: () => _showDemoTap(context),
+                              ),
+                              _CircularIconButton(
+                                icon: Icons.share_outlined,
+                                onTap: () => _showDemoTap(context),
+                              ),
+                              _CircularIconButton(
+                                icon: Icons.more_vert_outlined,
+                                onTap: () => _showDemoTap(context),
+                              ),
+                            ],
                           ),
                         ],
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ),
-
-            // secondary app bar with semester tabs
-            SliverAppBar(
-              primary: false,
-              floating: true,
-              snap: true,
-              pinned: false,
-              toolbarHeight: 48,
-              backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-              surfaceTintColor: Colors.transparent,
-              elevation: 0,
-              titleSpacing: 0,
-              title: displayedSemesterTabLabels.isEmpty
-                  ? const SizedBox.shrink()
-                  : IgnorePointer(
-                      ignoring: isSemesterLoading,
-                      child: AppSkeleton(
-                        enabled: isSemesterLoading,
-                        child: ChipTabSwitcher(
-                          tabs: displayedSemesterTabLabels,
-                        ),
                       ),
                     ),
-            ),
-          ],
+                  ),
+                ),
 
-          body: LayoutBuilder(
-            builder: (context, constraints) {
-              final viewportSize = Size(
-                constraints.maxWidth,
-                constraints.maxHeight,
-              );
-
-              return Column(
-                children: [
-                  // main content area with course table
-                  Expanded(
-                    child: switch (semestersAsync) {
-                      // ERROR state: show error message
-                      AsyncError(:final error) => Center(
-                        child: Center(child: Text('Error: $error')),
-                      ),
-
-                      // EMPTY state: show not found message
-                      AsyncData(
-                        value: final semesters,
-                      )
-                          when semesters.isEmpty =>
-                        Center(
-                          child: Center(
-                            child: Text(
-                              profileAsync.asData?.value == null
-                                  ? t.general.notLoggedIn
-                                  : t.courseTable.notFound,
+                // secondary app bar with semester tabs
+                SliverAppBar(
+                  primary: false,
+                  floating: true,
+                  snap: true,
+                  pinned: false,
+                  toolbarHeight: _semesterTabsHeight,
+                  backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+                  surfaceTintColor: Colors.transparent,
+                  elevation: 0,
+                  titleSpacing: 0,
+                  title: displayedSemesterTabLabels.isEmpty
+                      ? const SizedBox.shrink()
+                      : IgnorePointer(
+                          ignoring: isSemesterLoading,
+                          child: AppSkeleton(
+                            enabled: isSemesterLoading,
+                            child: ChipTabSwitcher(
+                              tabs: displayedSemesterTabLabels,
                             ),
                           ),
                         ),
+                ),
+              ],
 
-                      // LOADED state: show course table with tabs
-                      AsyncData(value: final semesters) => TabBarView(
-                        children: [
-                          for (final semester in semesters)
-                            Consumer(
-                              builder: (context, ref, child) {
-                                final courseTableAsync = ref.watch(
-                                  courseTableProvider(semester),
-                                );
+              body: switch (semestersAsync) {
+                // ERROR state: show error message
+                AsyncError(:final error) => Center(
+                  child: Center(child: Text('Error: $error')),
+                ),
 
-                                return switch (courseTableAsync) {
-                                  AsyncError(:final error) => Center(
-                                    child: Center(child: Text('Error: $error')),
-                                  ),
-                                  _ => CourseTableGrid(
-                                    key: ValueKey(_semesterLabel(semester)),
-                                    courseTableData:
-                                        courseTableAsync.asData?.value ??
-                                        CourseTableData(),
-                                    loading:
-                                        courseTableAsync.isLoading &&
-                                        !courseTableAsync.hasValue,
-                                    viewportWidth: viewportSize.width,
-                                    viewportHeight: viewportSize.height,
-                                  ),
-                                };
-                              },
-                            ),
-                        ],
+                // EMPTY state: show not found message
+                AsyncData(value: final semesters) when semesters.isEmpty =>
+                  Center(
+                    child: Center(
+                      child: Text(
+                        profileAsync.asData?.value == null
+                            ? t.general.notLoggedIn
+                            : t.courseTable.notFound,
                       ),
-
-                      // LOADING state: show loading skeleton
-                      _ => CourseTableGrid(
-                        courseTableData: CourseTableData(),
-                        loading: true,
-                        viewportWidth: viewportSize.width,
-                        viewportHeight: viewportSize.height,
-                      ),
-                    },
+                    ),
                   ),
-                ],
-              );
-            },
-          ),
+
+                // LOADED state: show course table with tabs
+                AsyncData(value: final semesters) => TabBarView(
+                  children: [
+                    for (final semester in semesters)
+                      Consumer(
+                        builder: (context, ref, child) {
+                          final courseTableAsync = ref.watch(
+                            courseTableProvider(semester),
+                          );
+
+                          return switch (courseTableAsync) {
+                            AsyncError(:final error) => Center(
+                              child: Center(child: Text('Error: $error')),
+                            ),
+                            _ => CourseTableGrid(
+                              key: ValueKey(_semesterLabel(semester)),
+                              courseTableData:
+                                  courseTableAsync.asData?.value ??
+                                  CourseTableData(),
+                              loading:
+                                  courseTableAsync.isLoading &&
+                                  !courseTableAsync.hasValue,
+                              viewportWidth: gridViewportSize.width,
+                              viewportHeight: gridViewportSize.height,
+                            ),
+                          };
+                        },
+                      ),
+                  ],
+                ),
+
+                // LOADING state: show loading skeleton
+                _ => CourseTableGrid(
+                  courseTableData: CourseTableData(),
+                  loading: true,
+                  viewportWidth: gridViewportSize.width,
+                  viewportHeight: gridViewportSize.height,
+                ),
+              },
+            );
+          },
         ),
       ),
     );

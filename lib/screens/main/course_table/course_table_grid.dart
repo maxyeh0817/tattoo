@@ -44,7 +44,7 @@ class CourseTableGrid extends StatelessWidget {
       max(((viewportHeight ?? 0) - _tableHeaderHeight) / 9, 64.0).toDouble();
   double get _periodNoonHeight => switch (courseTableData.hasNoonCourse) {
     true => _periodRowHeight,
-    false => _periodRowHeight / 4,
+    false => _periodRowHeight / 3,
   };
   double get _dayColumnWidth => min(
     (((viewportWidth ?? 0) - _stubWidth) / _visibleDaysOfWeek.length),
@@ -123,7 +123,7 @@ class CourseTableGrid extends StatelessWidget {
           child: Stack(
             children: [
               _buildPeriodRows(_visiblePeriods),
-              ..._buildHorizontalGridLines(_visiblePeriods),
+              ..._buildHorizontalGridLines(_visiblePeriods, context),
               ...(loading
                   ? _buildSkeleton(_visibleDaysOfWeek, _visiblePeriods)
                   : _buildCourseCells(
@@ -293,7 +293,10 @@ class CourseTableGrid extends StatelessWidget {
     );
   }
 
-  List<Widget> _buildHorizontalGridLines(List<Period> visiblePeriods) {
+  List<Widget> _buildHorizontalGridLines(
+    List<Period> visiblePeriods,
+    BuildContext context,
+  ) {
     final gridWidth = max(0.0, (viewportWidth ?? 0) - _stubWidth);
 
     return [
@@ -304,7 +307,9 @@ class CourseTableGrid extends StatelessWidget {
           child: Container(
             width: gridWidth,
             height: _gridLineThickness,
-            color: Colors.grey[200],
+            color: Theme.of(
+              context,
+            ).colorScheme.outlineVariant.withValues(alpha: 0.7),
           ),
         ),
     ];
