@@ -38,6 +38,7 @@ final databaseProvider = Provider<AppDatabase>((ref) {
     CourseOfferingStudents,
     Schedules,
     Materials,
+    TeacherSemesters,
     TeacherOfficeHours,
     Scores,
     UserSemesterSummaries,
