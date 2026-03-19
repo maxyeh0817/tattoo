@@ -158,6 +158,17 @@ class $UsersTable extends Users with TableInfo<$UsersTable, User> {
         type: DriftSqlType.dateTime,
         requiredDuringInsert: false,
       );
+  static const VerificationMeta _scoreDataFetchedAtMeta =
+      const VerificationMeta('scoreDataFetchedAt');
+  @override
+  late final GeneratedColumn<DateTime> scoreDataFetchedAt =
+      GeneratedColumn<DateTime>(
+        'score_data_fetched_at',
+        aliasedName,
+        true,
+        type: DriftSqlType.dateTime,
+        requiredDuringInsert: false,
+      );
   @override
   List<GeneratedColumn> get $columns => [
     id,
@@ -174,6 +185,7 @@ class $UsersTable extends Users with TableInfo<$UsersTable, User> {
     email,
     passwordExpiresInDays,
     semestersFetchedAt,
+    scoreDataFetchedAt,
   ];
   @override
   String get aliasedName => _alias ?? actualTableName;
@@ -294,6 +306,15 @@ class $UsersTable extends Users with TableInfo<$UsersTable, User> {
         ),
       );
     }
+    if (data.containsKey('score_data_fetched_at')) {
+      context.handle(
+        _scoreDataFetchedAtMeta,
+        scoreDataFetchedAt.isAcceptableOrUnknown(
+          data['score_data_fetched_at']!,
+          _scoreDataFetchedAtMeta,
+        ),
+      );
+    }
     return context;
   }
 
@@ -359,6 +380,10 @@ class $UsersTable extends Users with TableInfo<$UsersTable, User> {
         DriftSqlType.dateTime,
         data['${effectivePrefix}semesters_fetched_at'],
       ),
+      scoreDataFetchedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}score_data_fetched_at'],
+      ),
     );
   }
 
@@ -420,6 +445,9 @@ class User extends DataClass implements Insertable<User> {
 
   /// When the semester list was last fetched from the course system.
   final DateTime? semestersFetchedAt;
+
+  /// When score-related academic data was last fetched from student query.
+  final DateTime? scoreDataFetchedAt;
   const User({
     required this.id,
     this.fetchedAt,
@@ -435,6 +463,7 @@ class User extends DataClass implements Insertable<User> {
     required this.email,
     this.passwordExpiresInDays,
     this.semestersFetchedAt,
+    this.scoreDataFetchedAt,
   });
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
@@ -470,6 +499,9 @@ class User extends DataClass implements Insertable<User> {
     }
     if (!nullToAbsent || semestersFetchedAt != null) {
       map['semesters_fetched_at'] = Variable<DateTime>(semestersFetchedAt);
+    }
+    if (!nullToAbsent || scoreDataFetchedAt != null) {
+      map['score_data_fetched_at'] = Variable<DateTime>(scoreDataFetchedAt);
     }
     return map;
   }
@@ -508,6 +540,9 @@ class User extends DataClass implements Insertable<User> {
       semestersFetchedAt: semestersFetchedAt == null && nullToAbsent
           ? const Value.absent()
           : Value(semestersFetchedAt),
+      scoreDataFetchedAt: scoreDataFetchedAt == null && nullToAbsent
+          ? const Value.absent()
+          : Value(scoreDataFetchedAt),
     );
   }
 
@@ -535,6 +570,9 @@ class User extends DataClass implements Insertable<User> {
       semestersFetchedAt: serializer.fromJson<DateTime?>(
         json['semestersFetchedAt'],
       ),
+      scoreDataFetchedAt: serializer.fromJson<DateTime?>(
+        json['scoreDataFetchedAt'],
+      ),
     );
   }
   @override
@@ -555,6 +593,7 @@ class User extends DataClass implements Insertable<User> {
       'email': serializer.toJson<String>(email),
       'passwordExpiresInDays': serializer.toJson<int?>(passwordExpiresInDays),
       'semestersFetchedAt': serializer.toJson<DateTime?>(semestersFetchedAt),
+      'scoreDataFetchedAt': serializer.toJson<DateTime?>(scoreDataFetchedAt),
     };
   }
 
@@ -573,6 +612,7 @@ class User extends DataClass implements Insertable<User> {
     String? email,
     Value<int?> passwordExpiresInDays = const Value.absent(),
     Value<DateTime?> semestersFetchedAt = const Value.absent(),
+    Value<DateTime?> scoreDataFetchedAt = const Value.absent(),
   }) => User(
     id: id ?? this.id,
     fetchedAt: fetchedAt.present ? fetchedAt.value : this.fetchedAt,
@@ -592,6 +632,9 @@ class User extends DataClass implements Insertable<User> {
     semestersFetchedAt: semestersFetchedAt.present
         ? semestersFetchedAt.value
         : this.semestersFetchedAt,
+    scoreDataFetchedAt: scoreDataFetchedAt.present
+        ? scoreDataFetchedAt.value
+        : this.scoreDataFetchedAt,
   );
   User copyWithCompanion(UsersCompanion data) {
     return User(
@@ -621,6 +664,9 @@ class User extends DataClass implements Insertable<User> {
       semestersFetchedAt: data.semestersFetchedAt.present
           ? data.semestersFetchedAt.value
           : this.semestersFetchedAt,
+      scoreDataFetchedAt: data.scoreDataFetchedAt.present
+          ? data.scoreDataFetchedAt.value
+          : this.scoreDataFetchedAt,
     );
   }
 
@@ -640,7 +686,8 @@ class User extends DataClass implements Insertable<User> {
           ..write('avatarFilename: $avatarFilename, ')
           ..write('email: $email, ')
           ..write('passwordExpiresInDays: $passwordExpiresInDays, ')
-          ..write('semestersFetchedAt: $semestersFetchedAt')
+          ..write('semestersFetchedAt: $semestersFetchedAt, ')
+          ..write('scoreDataFetchedAt: $scoreDataFetchedAt')
           ..write(')'))
         .toString();
   }
@@ -661,6 +708,7 @@ class User extends DataClass implements Insertable<User> {
     email,
     passwordExpiresInDays,
     semestersFetchedAt,
+    scoreDataFetchedAt,
   );
   @override
   bool operator ==(Object other) =>
@@ -679,7 +727,8 @@ class User extends DataClass implements Insertable<User> {
           other.avatarFilename == this.avatarFilename &&
           other.email == this.email &&
           other.passwordExpiresInDays == this.passwordExpiresInDays &&
-          other.semestersFetchedAt == this.semestersFetchedAt);
+          other.semestersFetchedAt == this.semestersFetchedAt &&
+          other.scoreDataFetchedAt == this.scoreDataFetchedAt);
 }
 
 class UsersCompanion extends UpdateCompanion<User> {
@@ -697,6 +746,7 @@ class UsersCompanion extends UpdateCompanion<User> {
   final Value<String> email;
   final Value<int?> passwordExpiresInDays;
   final Value<DateTime?> semestersFetchedAt;
+  final Value<DateTime?> scoreDataFetchedAt;
   const UsersCompanion({
     this.id = const Value.absent(),
     this.fetchedAt = const Value.absent(),
@@ -712,6 +762,7 @@ class UsersCompanion extends UpdateCompanion<User> {
     this.email = const Value.absent(),
     this.passwordExpiresInDays = const Value.absent(),
     this.semestersFetchedAt = const Value.absent(),
+    this.scoreDataFetchedAt = const Value.absent(),
   });
   UsersCompanion.insert({
     this.id = const Value.absent(),
@@ -728,6 +779,7 @@ class UsersCompanion extends UpdateCompanion<User> {
     required String email,
     this.passwordExpiresInDays = const Value.absent(),
     this.semestersFetchedAt = const Value.absent(),
+    this.scoreDataFetchedAt = const Value.absent(),
   }) : studentId = Value(studentId),
        nameZh = Value(nameZh),
        avatarFilename = Value(avatarFilename),
@@ -747,6 +799,7 @@ class UsersCompanion extends UpdateCompanion<User> {
     Expression<String>? email,
     Expression<int>? passwordExpiresInDays,
     Expression<DateTime>? semestersFetchedAt,
+    Expression<DateTime>? scoreDataFetchedAt,
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
@@ -765,6 +818,8 @@ class UsersCompanion extends UpdateCompanion<User> {
         'password_expires_in_days': passwordExpiresInDays,
       if (semestersFetchedAt != null)
         'semesters_fetched_at': semestersFetchedAt,
+      if (scoreDataFetchedAt != null)
+        'score_data_fetched_at': scoreDataFetchedAt,
     });
   }
 
@@ -783,6 +838,7 @@ class UsersCompanion extends UpdateCompanion<User> {
     Value<String>? email,
     Value<int?>? passwordExpiresInDays,
     Value<DateTime?>? semestersFetchedAt,
+    Value<DateTime?>? scoreDataFetchedAt,
   }) {
     return UsersCompanion(
       id: id ?? this.id,
@@ -800,6 +856,7 @@ class UsersCompanion extends UpdateCompanion<User> {
       passwordExpiresInDays:
           passwordExpiresInDays ?? this.passwordExpiresInDays,
       semestersFetchedAt: semestersFetchedAt ?? this.semestersFetchedAt,
+      scoreDataFetchedAt: scoreDataFetchedAt ?? this.scoreDataFetchedAt,
     );
   }
 
@@ -852,6 +909,11 @@ class UsersCompanion extends UpdateCompanion<User> {
         semestersFetchedAt.value,
       );
     }
+    if (scoreDataFetchedAt.present) {
+      map['score_data_fetched_at'] = Variable<DateTime>(
+        scoreDataFetchedAt.value,
+      );
+    }
     return map;
   }
 
@@ -871,7 +933,8 @@ class UsersCompanion extends UpdateCompanion<User> {
           ..write('avatarFilename: $avatarFilename, ')
           ..write('email: $email, ')
           ..write('passwordExpiresInDays: $passwordExpiresInDays, ')
-          ..write('semestersFetchedAt: $semestersFetchedAt')
+          ..write('semestersFetchedAt: $semestersFetchedAt, ')
+          ..write('scoreDataFetchedAt: $scoreDataFetchedAt')
           ..write(')'))
         .toString();
   }
@@ -7340,10 +7403,6 @@ class $ScoresTable extends Scores with TableInfo<$ScoresTable, Score> {
   @override
   Set<GeneratedColumn> get $primaryKey => {id};
   @override
-  List<Set<GeneratedColumn>> get uniqueKeys => [
-    {user, course, semester},
-  ];
-  @override
   Score map(Map<String, dynamic> data, {String? tablePrefix}) {
     final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
     return Score(
@@ -9820,6 +9879,573 @@ class $CourseTableSlotsView
   };
 }
 
+class ScoreDetail extends DataClass {
+  final int id;
+  final int user;
+  final int semester;
+  final int? score;
+  final ScoreStatus? status;
+  final String code;
+  final String nameZh;
+  final String? number;
+  const ScoreDetail({
+    required this.id,
+    required this.user,
+    required this.semester,
+    this.score,
+    this.status,
+    required this.code,
+    required this.nameZh,
+    this.number,
+  });
+  factory ScoreDetail.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return ScoreDetail(
+      id: serializer.fromJson<int>(json['id']),
+      user: serializer.fromJson<int>(json['user']),
+      semester: serializer.fromJson<int>(json['semester']),
+      score: serializer.fromJson<int?>(json['score']),
+      status: $ScoresTable.$converterstatusn.fromJson(
+        serializer.fromJson<String?>(json['status']),
+      ),
+      code: serializer.fromJson<String>(json['code']),
+      nameZh: serializer.fromJson<String>(json['nameZh']),
+      number: serializer.fromJson<String?>(json['number']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<int>(id),
+      'user': serializer.toJson<int>(user),
+      'semester': serializer.toJson<int>(semester),
+      'score': serializer.toJson<int?>(score),
+      'status': serializer.toJson<String?>(
+        $ScoresTable.$converterstatusn.toJson(status),
+      ),
+      'code': serializer.toJson<String>(code),
+      'nameZh': serializer.toJson<String>(nameZh),
+      'number': serializer.toJson<String?>(number),
+    };
+  }
+
+  ScoreDetail copyWith({
+    int? id,
+    int? user,
+    int? semester,
+    Value<int?> score = const Value.absent(),
+    Value<ScoreStatus?> status = const Value.absent(),
+    String? code,
+    String? nameZh,
+    Value<String?> number = const Value.absent(),
+  }) => ScoreDetail(
+    id: id ?? this.id,
+    user: user ?? this.user,
+    semester: semester ?? this.semester,
+    score: score.present ? score.value : this.score,
+    status: status.present ? status.value : this.status,
+    code: code ?? this.code,
+    nameZh: nameZh ?? this.nameZh,
+    number: number.present ? number.value : this.number,
+  );
+  @override
+  String toString() {
+    return (StringBuffer('ScoreDetail(')
+          ..write('id: $id, ')
+          ..write('user: $user, ')
+          ..write('semester: $semester, ')
+          ..write('score: $score, ')
+          ..write('status: $status, ')
+          ..write('code: $code, ')
+          ..write('nameZh: $nameZh, ')
+          ..write('number: $number')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode =>
+      Object.hash(id, user, semester, score, status, code, nameZh, number);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is ScoreDetail &&
+          other.id == this.id &&
+          other.user == this.user &&
+          other.semester == this.semester &&
+          other.score == this.score &&
+          other.status == this.status &&
+          other.code == this.code &&
+          other.nameZh == this.nameZh &&
+          other.number == this.number);
+}
+
+class $ScoreDetailsView extends ViewInfo<$ScoreDetailsView, ScoreDetail>
+    implements HasResultSet {
+  final String? _alias;
+  @override
+  final _$AppDatabase attachedDatabase;
+  $ScoreDetailsView(this.attachedDatabase, [this._alias]);
+  $ScoresTable get scores => attachedDatabase.scores.createAlias('t0');
+  $CoursesTable get courses => attachedDatabase.courses.createAlias('t1');
+  $CourseOfferingsTable get courseOfferings =>
+      attachedDatabase.courseOfferings.createAlias('t2');
+  @override
+  List<GeneratedColumn> get $columns => [
+    id,
+    user,
+    semester,
+    score,
+    status,
+    code,
+    nameZh,
+    number,
+  ];
+  @override
+  String get aliasedName => _alias ?? entityName;
+  @override
+  String get entityName => 'score_details';
+  @override
+  Map<SqlDialect, String>? get createViewStatements => null;
+  @override
+  $ScoreDetailsView get asDslTable => this;
+  @override
+  ScoreDetail map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return ScoreDetail(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}id'],
+      )!,
+      user: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}user'],
+      )!,
+      semester: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}semester'],
+      )!,
+      score: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}score'],
+      ),
+      status: $ScoresTable.$converterstatusn.fromSql(
+        attachedDatabase.typeMapping.read(
+          DriftSqlType.string,
+          data['${effectivePrefix}status'],
+        ),
+      ),
+      code: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}code'],
+      )!,
+      nameZh: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}name_zh'],
+      )!,
+      number: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}number'],
+      ),
+    );
+  }
+
+  late final GeneratedColumn<int> id = GeneratedColumn<int>(
+    'id',
+    aliasedName,
+    false,
+    generatedAs: GeneratedAs(scores.id, false),
+    type: DriftSqlType.int,
+  );
+  late final GeneratedColumn<int> user = GeneratedColumn<int>(
+    'user',
+    aliasedName,
+    false,
+    generatedAs: GeneratedAs(scores.user, false),
+    type: DriftSqlType.int,
+  );
+  late final GeneratedColumn<int> semester = GeneratedColumn<int>(
+    'semester',
+    aliasedName,
+    false,
+    generatedAs: GeneratedAs(scores.semester, false),
+    type: DriftSqlType.int,
+  );
+  late final GeneratedColumn<int> score = GeneratedColumn<int>(
+    'score',
+    aliasedName,
+    true,
+    generatedAs: GeneratedAs(scores.score, false),
+    type: DriftSqlType.int,
+  );
+  late final GeneratedColumnWithTypeConverter<ScoreStatus?, String> status =
+      GeneratedColumn<String>(
+        'status',
+        aliasedName,
+        true,
+        generatedAs: GeneratedAs(scores.status, false),
+        type: DriftSqlType.string,
+      ).withConverter<ScoreStatus?>($ScoresTable.$converterstatusn);
+  late final GeneratedColumn<String> code = GeneratedColumn<String>(
+    'code',
+    aliasedName,
+    false,
+    generatedAs: GeneratedAs(courses.code, false),
+    type: DriftSqlType.string,
+  );
+  late final GeneratedColumn<String> nameZh = GeneratedColumn<String>(
+    'name_zh',
+    aliasedName,
+    false,
+    generatedAs: GeneratedAs(courses.nameZh, false),
+    type: DriftSqlType.string,
+  );
+  late final GeneratedColumn<String> number = GeneratedColumn<String>(
+    'number',
+    aliasedName,
+    true,
+    generatedAs: GeneratedAs(courseOfferings.number, false),
+    type: DriftSqlType.string,
+  );
+  @override
+  $ScoreDetailsView createAlias(String alias) {
+    return $ScoreDetailsView(attachedDatabase, alias);
+  }
+
+  @override
+  Query? get query =>
+      (attachedDatabase.selectOnly(scores)..addColumns($columns)).join([
+        innerJoin(courses, courses.id.equalsExp(scores.course)),
+        leftOuterJoin(
+          courseOfferings,
+          courseOfferings.id.equalsExp(scores.courseOffering),
+        ),
+      ]);
+  @override
+  Set<String> get readTables => const {'scores', 'courses', 'course_offerings'};
+}
+
+class UserAcademicSummary extends DataClass {
+  final int id;
+  final int user;
+  final int semester;
+  final int year;
+  final int term;
+  final double? average;
+  final double? conduct;
+  final double? totalCredits;
+  final double? creditsPassed;
+  final String? note;
+  final double? gpa;
+  const UserAcademicSummary({
+    required this.id,
+    required this.user,
+    required this.semester,
+    required this.year,
+    required this.term,
+    this.average,
+    this.conduct,
+    this.totalCredits,
+    this.creditsPassed,
+    this.note,
+    this.gpa,
+  });
+  factory UserAcademicSummary.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return UserAcademicSummary(
+      id: serializer.fromJson<int>(json['id']),
+      user: serializer.fromJson<int>(json['user']),
+      semester: serializer.fromJson<int>(json['semester']),
+      year: serializer.fromJson<int>(json['year']),
+      term: serializer.fromJson<int>(json['term']),
+      average: serializer.fromJson<double?>(json['average']),
+      conduct: serializer.fromJson<double?>(json['conduct']),
+      totalCredits: serializer.fromJson<double?>(json['totalCredits']),
+      creditsPassed: serializer.fromJson<double?>(json['creditsPassed']),
+      note: serializer.fromJson<String?>(json['note']),
+      gpa: serializer.fromJson<double?>(json['gpa']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<int>(id),
+      'user': serializer.toJson<int>(user),
+      'semester': serializer.toJson<int>(semester),
+      'year': serializer.toJson<int>(year),
+      'term': serializer.toJson<int>(term),
+      'average': serializer.toJson<double?>(average),
+      'conduct': serializer.toJson<double?>(conduct),
+      'totalCredits': serializer.toJson<double?>(totalCredits),
+      'creditsPassed': serializer.toJson<double?>(creditsPassed),
+      'note': serializer.toJson<String?>(note),
+      'gpa': serializer.toJson<double?>(gpa),
+    };
+  }
+
+  UserAcademicSummary copyWith({
+    int? id,
+    int? user,
+    int? semester,
+    int? year,
+    int? term,
+    Value<double?> average = const Value.absent(),
+    Value<double?> conduct = const Value.absent(),
+    Value<double?> totalCredits = const Value.absent(),
+    Value<double?> creditsPassed = const Value.absent(),
+    Value<String?> note = const Value.absent(),
+    Value<double?> gpa = const Value.absent(),
+  }) => UserAcademicSummary(
+    id: id ?? this.id,
+    user: user ?? this.user,
+    semester: semester ?? this.semester,
+    year: year ?? this.year,
+    term: term ?? this.term,
+    average: average.present ? average.value : this.average,
+    conduct: conduct.present ? conduct.value : this.conduct,
+    totalCredits: totalCredits.present ? totalCredits.value : this.totalCredits,
+    creditsPassed: creditsPassed.present
+        ? creditsPassed.value
+        : this.creditsPassed,
+    note: note.present ? note.value : this.note,
+    gpa: gpa.present ? gpa.value : this.gpa,
+  );
+  @override
+  String toString() {
+    return (StringBuffer('UserAcademicSummary(')
+          ..write('id: $id, ')
+          ..write('user: $user, ')
+          ..write('semester: $semester, ')
+          ..write('year: $year, ')
+          ..write('term: $term, ')
+          ..write('average: $average, ')
+          ..write('conduct: $conduct, ')
+          ..write('totalCredits: $totalCredits, ')
+          ..write('creditsPassed: $creditsPassed, ')
+          ..write('note: $note, ')
+          ..write('gpa: $gpa')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+    id,
+    user,
+    semester,
+    year,
+    term,
+    average,
+    conduct,
+    totalCredits,
+    creditsPassed,
+    note,
+    gpa,
+  );
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is UserAcademicSummary &&
+          other.id == this.id &&
+          other.user == this.user &&
+          other.semester == this.semester &&
+          other.year == this.year &&
+          other.term == this.term &&
+          other.average == this.average &&
+          other.conduct == this.conduct &&
+          other.totalCredits == this.totalCredits &&
+          other.creditsPassed == this.creditsPassed &&
+          other.note == this.note &&
+          other.gpa == this.gpa);
+}
+
+class $UserAcademicSummariesView
+    extends ViewInfo<$UserAcademicSummariesView, UserAcademicSummary>
+    implements HasResultSet {
+  final String? _alias;
+  @override
+  final _$AppDatabase attachedDatabase;
+  $UserAcademicSummariesView(this.attachedDatabase, [this._alias]);
+  $UserSemesterSummariesTable get userSemesterSummaries =>
+      attachedDatabase.userSemesterSummaries.createAlias('t0');
+  $SemestersTable get semesters => attachedDatabase.semesters.createAlias('t1');
+  @override
+  List<GeneratedColumn> get $columns => [
+    id,
+    user,
+    semester,
+    year,
+    term,
+    average,
+    conduct,
+    totalCredits,
+    creditsPassed,
+    note,
+    gpa,
+  ];
+  @override
+  String get aliasedName => _alias ?? entityName;
+  @override
+  String get entityName => 'user_academic_summaries';
+  @override
+  Map<SqlDialect, String>? get createViewStatements => null;
+  @override
+  $UserAcademicSummariesView get asDslTable => this;
+  @override
+  UserAcademicSummary map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return UserAcademicSummary(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}id'],
+      )!,
+      user: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}user'],
+      )!,
+      semester: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}semester'],
+      )!,
+      year: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}year'],
+      )!,
+      term: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}term'],
+      )!,
+      average: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}average'],
+      ),
+      conduct: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}conduct'],
+      ),
+      totalCredits: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}total_credits'],
+      ),
+      creditsPassed: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}credits_passed'],
+      ),
+      note: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}note'],
+      ),
+      gpa: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}gpa'],
+      ),
+    );
+  }
+
+  late final GeneratedColumn<int> id = GeneratedColumn<int>(
+    'id',
+    aliasedName,
+    false,
+    generatedAs: GeneratedAs(userSemesterSummaries.id, false),
+    type: DriftSqlType.int,
+  );
+  late final GeneratedColumn<int> user = GeneratedColumn<int>(
+    'user',
+    aliasedName,
+    false,
+    generatedAs: GeneratedAs(userSemesterSummaries.user, false),
+    type: DriftSqlType.int,
+  );
+  late final GeneratedColumn<int> semester = GeneratedColumn<int>(
+    'semester',
+    aliasedName,
+    false,
+    generatedAs: GeneratedAs(userSemesterSummaries.semester, false),
+    type: DriftSqlType.int,
+  );
+  late final GeneratedColumn<int> year = GeneratedColumn<int>(
+    'year',
+    aliasedName,
+    false,
+    generatedAs: GeneratedAs(semesters.year, false),
+    type: DriftSqlType.int,
+  );
+  late final GeneratedColumn<int> term = GeneratedColumn<int>(
+    'term',
+    aliasedName,
+    false,
+    generatedAs: GeneratedAs(semesters.term, false),
+    type: DriftSqlType.int,
+  );
+  late final GeneratedColumn<double> average = GeneratedColumn<double>(
+    'average',
+    aliasedName,
+    true,
+    generatedAs: GeneratedAs(userSemesterSummaries.average, false),
+    type: DriftSqlType.double,
+  );
+  late final GeneratedColumn<double> conduct = GeneratedColumn<double>(
+    'conduct',
+    aliasedName,
+    true,
+    generatedAs: GeneratedAs(userSemesterSummaries.conduct, false),
+    type: DriftSqlType.double,
+  );
+  late final GeneratedColumn<double> totalCredits = GeneratedColumn<double>(
+    'total_credits',
+    aliasedName,
+    true,
+    generatedAs: GeneratedAs(userSemesterSummaries.totalCredits, false),
+    type: DriftSqlType.double,
+  );
+  late final GeneratedColumn<double> creditsPassed = GeneratedColumn<double>(
+    'credits_passed',
+    aliasedName,
+    true,
+    generatedAs: GeneratedAs(userSemesterSummaries.creditsPassed, false),
+    type: DriftSqlType.double,
+  );
+  late final GeneratedColumn<String> note = GeneratedColumn<String>(
+    'note',
+    aliasedName,
+    true,
+    generatedAs: GeneratedAs(userSemesterSummaries.note, false),
+    type: DriftSqlType.string,
+  );
+  late final GeneratedColumn<double> gpa = GeneratedColumn<double>(
+    'gpa',
+    aliasedName,
+    true,
+    generatedAs: GeneratedAs(userSemesterSummaries.gpa, false),
+    type: DriftSqlType.double,
+  );
+  @override
+  $UserAcademicSummariesView createAlias(String alias) {
+    return $UserAcademicSummariesView(attachedDatabase, alias);
+  }
+
+  @override
+  Query? get query =>
+      (attachedDatabase.selectOnly(
+        userSemesterSummaries,
+      )..addColumns($columns)).join([
+        innerJoin(
+          semesters,
+          semesters.id.equalsExp(userSemesterSummaries.semester),
+        ),
+      ]);
+  @override
+  Set<String> get readTables => const {'user_semester_summaries', 'semesters'};
+}
+
 class UserRegistration extends DataClass {
   final int year;
   final int term;
@@ -10036,6 +10662,9 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   late final $CourseTableSlotsView courseTableSlots = $CourseTableSlotsView(
     this,
   );
+  late final $ScoreDetailsView scoreDetails = $ScoreDetailsView(this);
+  late final $UserAcademicSummariesView userAcademicSummaries =
+      $UserAcademicSummariesView(this);
   late final $UserRegistrationsView userRegistrations = $UserRegistrationsView(
     this,
   );
@@ -10102,6 +10731,8 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     userSemesterSummaryCadreRoles,
     userSemesterRankings,
     courseTableSlots,
+    scoreDetails,
+    userAcademicSummaries,
     userRegistrations,
     classSemester,
     courseOfferingCourse,
@@ -10215,6 +10846,7 @@ typedef $$UsersTableCreateCompanionBuilder =
       required String email,
       Value<int?> passwordExpiresInDays,
       Value<DateTime?> semestersFetchedAt,
+      Value<DateTime?> scoreDataFetchedAt,
     });
 typedef $$UsersTableUpdateCompanionBuilder =
     UsersCompanion Function({
@@ -10232,6 +10864,7 @@ typedef $$UsersTableUpdateCompanionBuilder =
       Value<String> email,
       Value<int?> passwordExpiresInDays,
       Value<DateTime?> semestersFetchedAt,
+      Value<DateTime?> scoreDataFetchedAt,
     });
 
 final class $$UsersTableReferences
@@ -10361,6 +10994,11 @@ class $$UsersTableFilterComposer extends Composer<_$AppDatabase, $UsersTable> {
 
   ColumnFilters<DateTime> get semestersFetchedAt => $composableBuilder(
     column: $table.semestersFetchedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get scoreDataFetchedAt => $composableBuilder(
+    column: $table.scoreDataFetchedAt,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -10494,6 +11132,11 @@ class $$UsersTableOrderingComposer
     column: $table.semestersFetchedAt,
     builder: (column) => ColumnOrderings(column),
   );
+
+  ColumnOrderings<DateTime> get scoreDataFetchedAt => $composableBuilder(
+    column: $table.scoreDataFetchedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
 }
 
 class $$UsersTableAnnotationComposer
@@ -10556,6 +11199,11 @@ class $$UsersTableAnnotationComposer
 
   GeneratedColumn<DateTime> get semestersFetchedAt => $composableBuilder(
     column: $table.semestersFetchedAt,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<DateTime> get scoreDataFetchedAt => $composableBuilder(
+    column: $table.scoreDataFetchedAt,
     builder: (column) => column,
   );
 
@@ -10656,6 +11304,7 @@ class $$UsersTableTableManager
                 Value<String> email = const Value.absent(),
                 Value<int?> passwordExpiresInDays = const Value.absent(),
                 Value<DateTime?> semestersFetchedAt = const Value.absent(),
+                Value<DateTime?> scoreDataFetchedAt = const Value.absent(),
               }) => UsersCompanion(
                 id: id,
                 fetchedAt: fetchedAt,
@@ -10671,6 +11320,7 @@ class $$UsersTableTableManager
                 email: email,
                 passwordExpiresInDays: passwordExpiresInDays,
                 semestersFetchedAt: semestersFetchedAt,
+                scoreDataFetchedAt: scoreDataFetchedAt,
               ),
           createCompanionCallback:
               ({
@@ -10688,6 +11338,7 @@ class $$UsersTableTableManager
                 required String email,
                 Value<int?> passwordExpiresInDays = const Value.absent(),
                 Value<DateTime?> semestersFetchedAt = const Value.absent(),
+                Value<DateTime?> scoreDataFetchedAt = const Value.absent(),
               }) => UsersCompanion.insert(
                 id: id,
                 fetchedAt: fetchedAt,
@@ -10703,6 +11354,7 @@ class $$UsersTableTableManager
                 email: email,
                 passwordExpiresInDays: passwordExpiresInDays,
                 semestersFetchedAt: semestersFetchedAt,
+                scoreDataFetchedAt: scoreDataFetchedAt,
               ),
           withReferenceMapper: (p0) => p0
               .map(

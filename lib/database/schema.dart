@@ -95,6 +95,9 @@ class Users extends Table with AutoIncrementId, Fetchable {
 
   /// When the semester list was last fetched from the course system.
   late final semestersFetchedAt = dateTime().nullable()();
+
+  /// When score-related academic data was last fetched from student query.
+  late final scoreDataFetchedAt = dateTime().nullable()();
 }
 
 /// Student seen in an I-School Plus course roster.
@@ -505,11 +508,6 @@ class Scores extends Table with AutoIncrementId {
 
   /// Special score status (null when [score] is numeric).
   late final status = textEnum<ScoreStatus>().nullable()();
-
-  @override
-  List<Set<Column>> get uniqueKeys => [
-    {user, course, semester},
-  ];
 }
 
 /// Per-user per-semester academic summary from the student query system.

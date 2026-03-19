@@ -48,6 +48,8 @@ final databaseProvider = Provider<AppDatabase>((ref) {
   ],
   views: [
     CourseTableSlots,
+    ScoreDetails,
+    UserAcademicSummaries,
     UserRegistrations,
   ],
 )
