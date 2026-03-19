@@ -5,11 +5,29 @@ import 'package:tattoo/components/widget_preview_frame.dart';
 import 'package:tattoo/repositories/course_repository.dart';
 import 'package:auto_size_text/auto_size_text.dart';
 
+/// A single course block shown in the course table grid.
+///
+/// The cell renders the course title and, when available, the classroom name,
+/// using a tinted background and bordered style derived from [cellColor].
+/// Tapping the cell triggers [onTap].
+///
+/// The text scale is locked to avoid unpredictable row height changes from
+/// system accessibility scaling, so the grid keeps stable visual alignment.
+///
+/// Layout constraint:
+/// This widget should be laid out with a height of at least `52` logical
+/// pixels. With smaller heights, the title/classroom text may overflow.
 class CourseTableCell extends StatelessWidget {
+  /// Course data rendered by this table cell.
   final CourseTableCellData courseTableCellData;
+
+  /// Base accent color used to derive the background and border colors.
   final Color cellColor;
+
+  /// Called when the user taps this cell.
   final VoidCallback? onTap;
 
+  /// Creates a course table cell.
   const CourseTableCell({
     required this.courseTableCellData,
     required this.cellColor,
