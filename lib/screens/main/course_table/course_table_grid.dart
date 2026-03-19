@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/widget_previews.dart';
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:tattoo/components/widget_preview_frame.dart';
+import 'package:tattoo/i18n/strings.g.dart';
 import 'package:tattoo/models/course.dart';
 import 'package:tattoo/repositories/course_repository.dart';
 import 'package:tattoo/screens/main/course_table/course_table_cell.dart';
@@ -18,19 +19,19 @@ class CourseTableGrid extends StatelessWidget {
   CourseTableGrid({
     super.key,
     required this.courseTableData,
+    required this.viewportWidth,
+    required this.viewportHeight,
     this.loading = false,
-    this.viewportWidth,
-    this.viewportHeight,
   });
 
   final CourseTableData courseTableData;
   final bool loading;
 
   /// Initial visible width of the grid viewport (before user scrolls).
-  final double? viewportWidth;
+  final double viewportWidth;
 
   /// Initial visible height of the grid viewport (before user scrolls).
-  final double? viewportHeight;
+  final double viewportHeight;
 
   static const double _tableHeaderHeight = 25;
   static const double _stubWidth = 20;
@@ -41,13 +42,13 @@ class CourseTableGrid extends StatelessWidget {
   List<Period> get _visiblePeriods => _gridRange.visiblePeriods;
 
   double get _periodRowHeight =>
-      max(((viewportHeight ?? 0) - _tableHeaderHeight) / 9, 64.0).toDouble();
+      max((viewportHeight - _tableHeaderHeight) / 9, 64.0).toDouble();
   double get _periodNoonHeight => switch (courseTableData.hasNoonCourse) {
     true => _periodRowHeight,
     false => _periodRowHeight / 3,
   };
   double get _dayColumnWidth => min(
-    (((viewportWidth ?? 0) - _stubWidth) / _visibleDaysOfWeek.length),
+    ((viewportWidth - _stubWidth) / _visibleDaysOfWeek.length),
     120,
   ).toDouble();
 
@@ -252,7 +253,7 @@ class CourseTableGrid extends StatelessWidget {
           SizedBox(
             width: _dayColumnWidth,
             child: AutoSizeText(
-              day.label,
+              t.courseTable.dayOfWeek[day.name]!,
               textAlign: .center,
               style: const TextStyle(fontSize: 12),
               maxLines: 1,
@@ -283,7 +284,7 @@ class CourseTableGrid extends StatelessWidget {
                 ),
               ),
               SizedBox(
-                width: viewportWidth! - _stubWidth,
+                width: viewportWidth - _stubWidth,
                 height: _periodHeight(period),
                 child: const SizedBox.shrink(),
               ),
@@ -297,7 +298,7 @@ class CourseTableGrid extends StatelessWidget {
     List<Period> visiblePeriods,
     BuildContext context,
   ) {
-    final gridWidth = max(0.0, (viewportWidth ?? 0) - _stubWidth);
+    final gridWidth = max(0.0, viewportWidth - _stubWidth);
 
     return [
       for (var i = 1; i < visiblePeriods.length; i++)

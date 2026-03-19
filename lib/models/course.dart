@@ -1,21 +1,19 @@
 // dart format off
 /// Day of the week for class schedules.
 enum DayOfWeek {
-  // TODO: turn weekday label to i18n string
-  sunday('日'),
-  monday('一'),
-  tuesday('二'),
-  wednesday('三'),
-  thursday('四'),
-  friday('五'),
-  saturday('六');
+  sunday,
+  monday,
+  tuesday,
+  wednesday,
+  thursday,
+  friday,
+  saturday;
 
-  final String label;
-  const DayOfWeek(this.label);
   bool get isWeekday => this != sunday && this != saturday;
 }
 // dart format on
 
+// dart format off
 /// Class period within a day, following NTUT's schedule structure.
 ///
 /// NTUT uses periods 1-4, N (noon), 5-9, and A-D:
@@ -37,8 +35,7 @@ enum Period {
   aPeriod('A'),
   bPeriod('B'),
   cPeriod('C'),
-  dPeriod('D')
-  ;
+  dPeriod('D');
 
   final String code;
   const Period(this.code);
@@ -70,8 +67,7 @@ enum CourseType {
   universityMajorRequired('▲'),
 
   /// ★ Major Elective Credits (專業選修).
-  majorElective('★')
-  ;
+  majorElective('★');
 
   /// The symbol used on the syllabus page (修 column).
   final String symbol;
