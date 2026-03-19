@@ -45,8 +45,10 @@ class CourseTableGrid extends StatelessWidget {
   List<DayOfWeek> get _visibleDaysOfWeek => _gridRange.visibleDaysOfWeek;
   List<Period> get _visiblePeriods => _gridRange.visiblePeriods;
 
+  // CourseTableCell accepts a minimum height of 52.
+  // with padding(2.0), set 56 as the minimum height.
   double get _periodRowHeight =>
-      max((viewportHeight - _tableHeaderHeight) / 9, 64.0).toDouble();
+      max((viewportHeight - _tableHeaderHeight) / 9, 56.0).toDouble();
   double get _periodNoonHeight => switch (courseTableData.hasNoonCourse) {
     true => _periodRowHeight,
     false => _periodRowHeight / 3,
