@@ -10,7 +10,11 @@ import 'package:tattoo/repositories/course_repository.dart';
 import 'package:tattoo/screens/main/course_table/course_table_cell.dart';
 import 'package:tattoo/screens/main/course_table/course_table_detail_sheet.dart';
 
-typedef GridRange = ({
+/// Internal value type that describes the currently visible grid scope.
+///
+/// It groups the weekday columns and period rows calculated from
+/// [CourseTableData], so layout and rendering can share the same range.
+typedef _GridRange = ({
   List<DayOfWeek> visibleDaysOfWeek,
   List<Period> visiblePeriods,
 });
@@ -37,7 +41,7 @@ class CourseTableGrid extends StatelessWidget {
   static const double _stubWidth = 20;
   static const double _gridLineThickness = 1;
 
-  late final GridRange _gridRange = _visibleGridRange();
+  late final _GridRange _gridRange = _visibleGridRange();
   List<DayOfWeek> get _visibleDaysOfWeek => _gridRange.visibleDaysOfWeek;
   List<Period> get _visiblePeriods => _gridRange.visiblePeriods;
 
@@ -139,7 +143,7 @@ class CourseTableGrid extends StatelessWidget {
     );
   }
 
-  GridRange _visibleGridRange() {
+  _GridRange _visibleGridRange() {
     final weekdays = DayOfWeek.values
         .where((day) => day.isWeekday)
         .toList(growable: false);
