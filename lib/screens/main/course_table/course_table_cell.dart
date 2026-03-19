@@ -121,12 +121,7 @@ class CourseTableCellSkeleton extends StatelessWidget {
         border: .all(color: borderColor, width: 1),
       ),
       clipBehavior: .antiAlias,
-      child: Skeletonizer(
-        effect: PulseEffect(
-          from: baseColor,
-          to: borderColor,
-          duration: const Duration(milliseconds: 800),
-        ),
+      child: AppSkeleton(
         child: Skeleton.leaf(
           child: Container(color: baseColor),
         ),
