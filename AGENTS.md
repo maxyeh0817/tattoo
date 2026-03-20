@@ -95,7 +95,7 @@ MVVM pattern with Riverpod for DI and reactive state (manual providers, no codeg
 
 **Services:**
 
-- **Architecture:** NTUT services (Portal, Course, ISchoolPlus, StudentQuery) use `abstract interface class` with concrete implementations (e.g., `NtutPortalService`) to enable mocking and demo modes. Files are grouped by subdirectory (e.g., `lib/services/portal/`). Interfaces, DTOs, and providers live in the interface file, while logic lives in the implementation file. Consumers only import the interface file.
+- **Architecture:** NTUT services (Portal, Course, ISchoolPlus, StudentQuery) use `abstract interface class` with concrete implementations (e.g., `NtutPortalService`) to enable mock implementations for repository unit tests and future demo/offline mode. Files are grouped by subdirectory (e.g., `lib/services/portal/`). Interfaces, DTOs, and providers live in the interface file, while logic lives in the implementation file. Consumers only import the interface file.
 - PortalService - Portal auth, SSO (auth+SSO, getSsoUrl, changePassword, getAvatar, uploadAvatar, getCalendar - academic calendar events via calModeApp.do JSON API)
 - CourseService - 課程系統 (`aa_0010-oauth`) — HTML parsing
 - ISchoolPlusService - 北科i學園PLUS (`ischool_plus_oauth`) — getStudents, getMaterials, getMaterial
@@ -135,6 +135,20 @@ MVVM pattern with Riverpod for DI and reactive state (manual providers, no codeg
 - **Naming convention:** `table_column` (following Drift examples)
 - Monitor storage/performance before adding more indexes
 - **Single-user assumption:** `UserRegistrations` view omits the `user` column — add it and update `getActiveRegistration` filter if multi-user support is introduced
+
+## Testing Strategy
+
+| Layer | Test type | Mock strategy | Runs in CI |
+|---|---|---|---|
+| NTUT services | Integration (real server) | None — tests hit real NTUT | Only with credentials |
+| Repositories | Unit | Mock NTUT service interfaces (return canned DTOs) | Always |
+| Utils | Unit | None needed (pure functions) | Always |
+| Database views | Unit (in-memory SQLite) | None needed (Drift test utilities) | Always |
+| Widgets | Widget tests | Low priority | Always |
+
+- **NTUT services** (Portal, Course, ISchoolPlus, StudentQuery) have `abstract interface class` — mock implementations return canned DTOs for repository unit tests and future demo/offline mode
+- **Non-NTUT services** (GitHubService, FirebaseService) do not need mock implementations — they have stable API contracts
+- **No fixtures:** Service-layer tests stay integration-only against real NTUT servers. Fixtures (HTML snapshots) would go stale silently; integration tests are the source of truth for parsing correctness.
 
 ## NTUT-Specific Patterns
 
