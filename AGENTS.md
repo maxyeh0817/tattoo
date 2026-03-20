@@ -4,7 +4,7 @@ Flutter app for NTUT students: course schedules, scores, enrollment, announcemen
 
 Follow @CONTRIBUTING.md for git operation guidelines.
 
-**Last updated:** 2026-03-17. If stale (>7 days), verify Status section against codebase.
+**Last updated:** 2026-03-21. If stale (>7 days), verify Status section against codebase.
 
 ## Status
 
@@ -21,6 +21,7 @@ Follow @CONTRIBUTING.md for git operation guidelines.
 - go_router navigation setup
 - UI: intro screen, login screen, home screen with bottom navigation bar and three tabs (table, score, profile), about, easter egg, ShowcaseShell. Home uses `StatefulShellRoute` with `AnimatedShellContainer` for tab state preservation and cross-fade transitions. Each tab owns its own `Scaffold`.
 - i18n (zh_TW, en_US) via slang
+- Mock NTUT service implementations (MockPortalService, MockCourseService, MockISchoolPlusService, MockStudentQueryService) for repository unit tests and future demo/offline mode
 
 **Todo - Service Layer:**
 
