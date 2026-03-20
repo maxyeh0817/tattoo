@@ -16,7 +16,7 @@ import 'package:tattoo/utils/fetch_with_ttl.dart';
 import 'package:tattoo/utils/localized.dart';
 
 /// Data for a single cell in the course table grid.
-typedef CourseTableCell = ({
+typedef CourseTableCellData = ({
   /// [CourseOfferings] primary key, for navigating to detail view.
   int id,
 
@@ -46,17 +46,17 @@ typedef CourseTableCell = ({
 /// Maps `(dayOfWeek, period)` grid positions to cell data.
 ///
 /// Only the start slot of a multi-period block has an entry; subsequent
-/// slots covered by [CourseTableCell.span] are absent from the map.
+/// slots covered by [CourseTableCellData.span] are absent from the map.
 typedef CourseTableData =
-    Map<({DayOfWeek day, Period period}), CourseTableCell>;
+    Map<({DayOfWeek day, Period period}), CourseTableCellData>;
 
 /// A single key–value pair from [CourseTableData].
 typedef CourseTableEntry =
-    MapEntry<({DayOfWeek day, Period period}), CourseTableCell>;
+    MapEntry<({DayOfWeek day, Period period}), CourseTableCellData>;
 
 extension on CourseTableEntry {
-  /// All [Period]s this entry occupies, accounting for [CourseTableCell.span]
-  /// and skipping noon when [CourseTableCell.crossesNoon] is true.
+  /// All [Period]s this entry occupies, accounting for [CourseTableCellData.span]
+  /// and skipping noon when [CourseTableCellData.crossesNoon] is true.
   Iterable<Period> get periods {
     final noonIndex = Period.nPeriod.index;
     final start = key.period.index;
@@ -109,7 +109,7 @@ extension CourseTableMeta on CourseTableData {
             .reduce((a, b) => a.index > b.index ? a : b);
 
   /// Unique courses by number, for aggregation.
-  Iterable<CourseTableCell> get _uniqueCourses {
+  Iterable<CourseTableCellData> get _uniqueCourses {
     final seen = <String>{};
     return values.where((cell) => seen.add(cell.number));
   }

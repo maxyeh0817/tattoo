@@ -4,13 +4,19 @@ import 'package:tattoo/components/app_skeleton.dart';
 import 'package:tattoo/components/chip_tab_switcher.dart';
 import 'package:tattoo/database/database.dart';
 import 'package:tattoo/i18n/strings.g.dart';
+import 'package:tattoo/repositories/course_repository.dart';
 import 'package:tattoo/screens/main/user_providers.dart';
+import 'package:tattoo/screens/main/course_table/course_table_grid.dart';
+import 'package:tattoo/screens/main/course_table/course_table_providers.dart';
 
 // TODO: Import mock data from demo mode when implemented
 const _placeholderOwnerName = '載入中';
 const _placeholderAvatarInitial = '載';
+const _loadingSemesterTabLabels = ['114-2', '114-1', '113-2'];
+const _ownerAppBarHeight = 56.0;
+const _semesterTabsHeight = 48.0;
 
-class CourseTableScreen extends StatelessWidget {
+class CourseTableScreen extends ConsumerWidget {
   const CourseTableScreen({super.key});
 
   void _showDemoTap(BuildContext context) {
@@ -20,75 +26,164 @@ class CourseTableScreen extends StatelessWidget {
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final profileAsync = ref.watch(userProfileProvider);
+    final semestersAsync = ref.watch(courseTableSemestersProvider);
+    final displayedSemesterTabLabels = switch (semestersAsync) {
+      AsyncData(value: final semesters) =>
+        semesters.map(_semesterLabel).toList(growable: false),
+      _ => _loadingSemesterTabLabels,
+    };
+    final isSemesterLoading =
+        semestersAsync is AsyncLoading<List<Semester>> &&
+        semestersAsync.asData?.value == null;
+
     return DefaultTabController(
-      length: _courseTableTabs.length,
+      length: displayedSemesterTabLabels.isEmpty
+          ? 1
+          : displayedSemesterTabLabels.length,
       child: Scaffold(
-        body: CustomScrollView(
-          slivers: [
-            SliverAppBar(
-              floating: false,
-              snap: false,
-              toolbarHeight: 56,
-              backgroundColor: Theme.of(context).colorScheme.primary,
-              flexibleSpace: SafeArea(
-                child: Align(
-                  alignment: Alignment.bottomCenter,
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 16,
-                      vertical: 8,
-                    ),
-                    child: Row(
-                      crossAxisAlignment: CrossAxisAlignment.end,
-                      children: [
-                        const _TableOwnerIndicator(),
-                        const Spacer(),
-                        Row(
-                          mainAxisSize: MainAxisSize.min,
-                          crossAxisAlignment: CrossAxisAlignment.end,
-                          spacing: 8,
-                          children: [
-                            _CircularIconButton(
-                              icon: Icons.refresh_outlined,
-                              onTap: () => _showDemoTap(context),
-                            ),
-                            _CircularIconButton(
-                              icon: Icons.share_outlined,
-                              onTap: () => _showDemoTap(context),
-                            ),
-                            _CircularIconButton(
-                              icon: Icons.more_vert_outlined,
-                              onTap: () => _showDemoTap(context),
-                            ),
-                          ],
-                        ),
-                      ],
+        // A scaffold AppBar to handle status bar height.
+        appBar: AppBar(
+          toolbarHeight: 0,
+          backgroundColor: Theme.of(context).colorScheme.primary,
+        ),
+        body: LayoutBuilder(
+          builder: (context, constraints) {
+            final gridViewportSize = Size(
+              constraints.maxWidth,
+              (constraints.maxHeight - _ownerAppBarHeight - _semesterTabsHeight)
+                  .clamp(0.0, double.infinity),
+            );
+
+            return NestedScrollView(
+              headerSliverBuilder: (context, innerBoxIsScrolled) => [
+                // primary app bar with owner indicator and action buttons
+                SliverAppBar(
+                  primary: false,
+                  toolbarHeight: _ownerAppBarHeight,
+                  backgroundColor: Theme.of(context).colorScheme.primary,
+                  flexibleSpace: Align(
+                    alignment: Alignment.bottomCenter,
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 16,
+                        vertical: 8,
+                      ),
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.end,
+                        children: [
+                          const _TableOwnerIndicator(),
+                          const Spacer(),
+                          Row(
+                            mainAxisSize: MainAxisSize.min,
+                            crossAxisAlignment: CrossAxisAlignment.end,
+                            spacing: 8,
+                            children: [
+                              _CircularIconButton(
+                                icon: Icons.refresh_outlined,
+                                onTap: () => _showDemoTap(context),
+                              ),
+                              _CircularIconButton(
+                                icon: Icons.share_outlined,
+                                onTap: () => _showDemoTap(context),
+                              ),
+                              _CircularIconButton(
+                                icon: Icons.more_vert_outlined,
+                                onTap: () => _showDemoTap(context),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
                     ),
                   ),
                 ),
-              ),
-            ),
-            SliverAppBar(
-              primary: false,
-              floating: true,
-              snap: true,
-              pinned: false,
-              toolbarHeight: 48,
-              backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-              surfaceTintColor: Colors.transparent,
-              elevation: 0,
-              titleSpacing: 0,
-              title: const ChipTabSwitcher(tabs: _courseTableTabs),
-            ),
-            SliverFillRemaining(
-              child: TabBarView(
-                children: _courseTableTabs
-                    .map((tab) => _CourseTableTabPlaceholder(semester: tab))
-                    .toList(),
-              ),
-            ),
-          ],
+
+                // secondary app bar with semester tabs
+                SliverAppBar(
+                  primary: false,
+                  floating: true,
+                  snap: true,
+                  pinned: false,
+                  toolbarHeight: _semesterTabsHeight,
+                  backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+                  surfaceTintColor: Colors.transparent,
+                  elevation: 0,
+                  titleSpacing: 0,
+                  title: displayedSemesterTabLabels.isEmpty
+                      ? const SizedBox.shrink()
+                      : IgnorePointer(
+                          ignoring: isSemesterLoading,
+                          child: AppSkeleton(
+                            enabled: isSemesterLoading,
+                            child: ChipTabSwitcher(
+                              tabs: displayedSemesterTabLabels,
+                            ),
+                          ),
+                        ),
+                ),
+              ],
+
+              body: switch (semestersAsync) {
+                // ERROR state: show error message
+                AsyncError(:final error) => Center(
+                  child: Center(child: Text('Error: $error')),
+                ),
+
+                // EMPTY state: show not found message
+                AsyncData(value: final semesters) when semesters.isEmpty =>
+                  Center(
+                    child: Center(
+                      child: Text(
+                        profileAsync.asData?.value == null
+                            ? t.general.notLoggedIn
+                            : t.courseTable.notFound,
+                      ),
+                    ),
+                  ),
+
+                // LOADED state: show course table with tabs
+                AsyncData(value: final semesters) => TabBarView(
+                  children: [
+                    for (final semester in semesters)
+                      Consumer(
+                        builder: (context, ref, child) {
+                          final courseTableAsync = ref.watch(
+                            courseTableProvider(semester),
+                          );
+
+                          return switch (courseTableAsync) {
+                            AsyncError(:final error) => Center(
+                              child: Center(child: Text('Error: $error')),
+                            ),
+                            _ => CourseTableGrid(
+                              key: ValueKey(_semesterLabel(semester)),
+                              courseTableData:
+                                  courseTableAsync.asData?.value ??
+                                  CourseTableData(),
+                              loading:
+                                  courseTableAsync.isLoading &&
+                                  !courseTableAsync.hasValue,
+                              viewportWidth: gridViewportSize.width,
+                              viewportHeight: gridViewportSize.height,
+                            ),
+                          };
+                        },
+                      ),
+                  ],
+                ),
+
+                // LOADING state: show loading skeleton
+                _ => CourseTableGrid(
+                  courseTableData: CourseTableData(),
+                  loading: true,
+                  viewportWidth: gridViewportSize.width,
+                  viewportHeight: gridViewportSize.height,
+                ),
+              },
+            );
+          },
         ),
       ),
     );
@@ -202,31 +297,7 @@ class _TableOwnerIndicator extends ConsumerWidget {
   }
 }
 
-const _courseTableTabs = <String>[
-  '114-2',
-  '114-1',
-  '113-2',
-  '113-1',
-  '112-2',
-  '112-1',
-  '111-2',
-  '111-1',
-  '110-2',
-];
-
-class _CourseTableTabPlaceholder extends StatelessWidget {
-  const _CourseTableTabPlaceholder({required this.semester});
-
-  final String semester;
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.all(16),
-      child: Text('Course table placeholder: $semester'),
-    );
-  }
-}
+String _semesterLabel(Semester semester) => '${semester.year}-${semester.term}';
 
 class _CircularIconButton extends StatelessWidget {
   const _CircularIconButton({
