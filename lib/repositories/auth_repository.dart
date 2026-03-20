@@ -73,6 +73,22 @@ final authStatusProvider = NotifierProvider<AuthStatusNotifier, AuthStatus>(
   AuthStatusNotifier.new,
 );
 
+/// Holds the [LoginException] that caused the most recent transition to
+/// [AuthStatus.unauthenticated], or `null` for voluntary logout.
+///
+/// Read once by the login screen to show a contextual message, then cleared.
+class LoginExceptionNotifier extends Notifier<LoginException?> {
+  @override
+  LoginException? build() => null;
+
+  void set(LoginException? exception) => state = exception;
+}
+
+final loginExceptionProvider =
+    NotifierProvider<LoginExceptionNotifier, LoginException?>(
+      LoginExceptionNotifier.new,
+    );
+
 /// Provides the [AuthRepository] instance.
 final authRepositoryProvider = Provider<AuthRepository>((ref) {
   return AuthRepository(
@@ -80,7 +96,10 @@ final authRepositoryProvider = Provider<AuthRepository>((ref) {
     studentQueryService: ref.watch(studentQueryServiceProvider),
     database: ref.watch(databaseProvider),
     secureStorage: _secureStorage,
-    onAuthStatusChanged: ref.read(authStatusProvider.notifier).update,
+    onAuthStatusChanged: (status, [exception]) {
+      ref.read(loginExceptionProvider.notifier).set(exception);
+      ref.read(authStatusProvider.notifier).update(status);
+    },
   );
 });
 
@@ -103,7 +122,7 @@ class AuthRepository {
   final StudentQueryService _studentQueryService;
   final AppDatabase _database;
   final FlutterSecureStorage _secureStorage;
-  final void Function(AuthStatus) _onAuthStatusChanged;
+  final void Function(AuthStatus, [LoginException?]) _onAuthStatusChanged;
 
   final _ssoCache = <PortalServiceCode>{};
   final _ssoInFlight = <PortalServiceCode, Completer<void>>{};
@@ -116,7 +135,7 @@ class AuthRepository {
     required StudentQueryService studentQueryService,
     required AppDatabase database,
     required FlutterSecureStorage secureStorage,
-    required void Function(AuthStatus) onAuthStatusChanged,
+    required void Function(AuthStatus, [LoginException?]) onAuthStatusChanged,
   }) : _portalService = portalService,
        _studentQueryService = studentQueryService,
        _database = database,
@@ -160,6 +179,7 @@ class AuthRepository {
     await _clearAvatarCache();
     _ssoCache.clear();
     _ssoInFlight.clear();
+    _onAuthStatusChanged(.unauthenticated);
   }
 
   /// Re-authenticates with stored credentials to refresh the session and
@@ -231,9 +251,9 @@ class AuthRepository {
       } on DioException {
         _onAuthStatusChanged(.offline);
         rethrow;
-      } on LoginException {
+      } on LoginException catch (e) {
         await _clearCredentials();
-        _onAuthStatusChanged(.unauthenticated);
+        _onAuthStatusChanged(.unauthenticated, e);
         rethrow;
       }
 
@@ -330,9 +350,9 @@ class AuthRepository {
     } on DioException {
       _onAuthStatusChanged(.offline);
       rethrow;
-    } on LoginException {
+    } on LoginException catch (e) {
       await _clearCredentials();
-      _onAuthStatusChanged(.unauthenticated);
+      _onAuthStatusChanged(.unauthenticated, e);
       rethrow;
     }
     _onAuthStatusChanged(.authenticated);
