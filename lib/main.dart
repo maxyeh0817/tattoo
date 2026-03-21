@@ -38,8 +38,8 @@ Future<void> main() async {
   firebase.log('App starting...');
 
   void showErrorDialog(Object error, {ErrorType type = ErrorType.unknown}) {
-    final context = rootNavigatorKey.currentContext;
-    if (context == null) return;
+    final rootContext = rootNavigatorKey.currentContext;
+    if (rootContext == null) return;
     final errorText = error.toString();
     final errorTitle = switch (type) {
       ErrorType.flutter => t.errors.flutterError,
@@ -48,8 +48,8 @@ Future<void> main() async {
     };
 
     showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
+      context: rootContext,
+      builder: (dialogContext) => AlertDialog(
         title: Text(errorTitle),
         // TODO: Remove technical details from user-facing error messages
         content: SelectableText(errorText),
@@ -57,15 +57,15 @@ Future<void> main() async {
           TextButton(
             onPressed: () async {
               await Clipboard.setData(ClipboardData(text: errorText));
-              if (!context.mounted) return;
-              ScaffoldMessenger.of(context).showSnackBar(
+              if (!rootContext.mounted) return;
+              ScaffoldMessenger.of(rootContext).showSnackBar(
                 SnackBar(content: Text(t.general.copied)),
               );
             },
             child: Text(t.general.copy),
           ),
           TextButton(
-            onPressed: () => Navigator.of(context).pop(),
+            onPressed: () => Navigator.of(dialogContext).pop(),
             child: Text(t.general.ok),
           ),
         ],
