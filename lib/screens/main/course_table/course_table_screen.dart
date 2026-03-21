@@ -19,15 +19,21 @@ const _semesterTabsHeight = 48.0;
 class CourseTableScreen extends ConsumerWidget {
   const CourseTableScreen({super.key});
 
-  Future<void> _refreshCourseTable(WidgetRef ref, Semester semester) async {
-    final user = await ref.read(userProfileProvider.future);
+  Future<void> _refreshCourseTable(
+    BuildContext context,
+    WidgetRef ref,
+    Semester semester,
+  ) async {
+    final userFuture = ref.read(userProfileProvider.future);
+    final courseRepository = ref.read(courseRepositoryProvider);
+
+    final user = await userFuture;
     if (user == null) {
+      if (!context.mounted) return;
       ref.invalidate(courseTableSemestersProvider);
       ref.invalidate(courseTableProvider(semester));
       return;
     }
-
-    final courseRepository = ref.read(courseRepositoryProvider);
 
     await Future.wait([
       courseRepository.getSemesters(refresh: true),
@@ -38,6 +44,7 @@ class CourseTableScreen extends ConsumerWidget {
       ),
     ]);
 
+    if (!context.mounted) return;
     ref.invalidate(courseTableSemestersProvider);
     ref.invalidate(courseTableProvider(semester));
   }
@@ -50,6 +57,7 @@ class CourseTableScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final screenContext = context;
     final profileAsync = ref.watch(userProfileProvider);
     final semestersAsync = ref.watch(courseTableSemestersProvider);
     final displayedSemesterTabLabels = switch (semestersAsync) {
@@ -171,8 +179,8 @@ class CourseTableScreen extends ConsumerWidget {
                   children: [
                     for (final semester in semesters)
                       Consumer(
-                        builder: (context, ref, child) {
-                          final courseTableAsync = ref.watch(
+                        builder: (context, tabRef, child) {
+                          final courseTableAsync = tabRef.watch(
                             courseTableProvider(semester),
                           );
 
@@ -188,8 +196,11 @@ class CourseTableScreen extends ConsumerWidget {
                               loading:
                                   courseTableAsync.isLoading &&
                                   !courseTableAsync.hasValue,
-                              onRefresh: () =>
-                                  _refreshCourseTable(ref, semester),
+                              onRefresh: () => _refreshCourseTable(
+                                screenContext,
+                                ref,
+                                semester,
+                              ),
                               viewportWidth: gridViewportSize.width,
                               viewportHeight: gridViewportSize.height,
                             ),
