@@ -28,7 +28,7 @@ GoRouter createAppRouter({
   navigatorKey: rootNavigatorKey,
   initialLocation: initialLocation,
   observers: [
-    if (firebase.analyticsObserver case final observer?) observer,
+    if (firebaseService.analyticsObserver case final observer?) observer,
   ],
   routes: [
     GoRoute(

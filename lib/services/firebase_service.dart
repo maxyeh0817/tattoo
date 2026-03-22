@@ -11,7 +11,7 @@ const bool useFirebase = bool.fromEnvironment(
 );
 
 /// Global [FirebaseService] instance.
-var firebase = const FirebaseService();
+var firebaseService = const FirebaseService();
 
 /// Unified service for Firebase Analytics and Crashlytics.
 ///

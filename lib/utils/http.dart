@@ -102,40 +102,6 @@ class PlainTextTransformer extends BackgroundTransformer {
 /// context in crash reports.
 class LogInterceptor extends Interceptor {
   @override
-  void onRequest(RequestOptions options, RequestInterceptorHandler handler) {
-    final method = options.method;
-    final uri = options.uri;
-    final parameters = options.queryParameters.length;
-
-    final requestLog = [
-      'REQ',
-      method,
-      "${uri.origin}${uri.path}",
-      if (parameters > 0) "$parameters param${parameters != 1 ? 's' : ''}",
-    ].join(' ');
-
-    log(requestLog, name: 'HTTP');
-    firebase.log(requestLog);
-
-    if (options.queryParameters.isNotEmpty) {
-      final redactedParams = _redact(options.queryParameters);
-      final paramsLog = "Query params: $redactedParams";
-      log(paramsLog, name: 'HTTP');
-      firebase.log(paramsLog);
-    }
-
-    final data = options.data;
-    if (data != null && data is! FormData) {
-      final redactedData = _redact(data);
-      final bodyLog = "Request body: ${_truncate(redactedData.toString())}";
-      log(bodyLog, name: 'HTTP');
-      firebase.log(bodyLog);
-    }
-
-    handler.next(options);
-  }
-
-  @override
   void onResponse(Response response, ResponseInterceptorHandler handler) {
     final compactFormat = NumberFormat.compact().format;
 
@@ -182,64 +148,11 @@ class LogInterceptor extends Interceptor {
       if (cookies case final c? when c > 0) "$c cookie${c != 1 ? 's' : ''}",
     ].join(' ');
 
-    final message = "RES $requestLog => $responseLog";
+    final message = "$requestLog => $responseLog";
     log(message, name: 'HTTP');
-    firebase.log(message);
-
-    if (response.data != null && response.data is String) {
-      final bodyLog = "Response body: ${_truncate(response.data as String)}";
-      log(bodyLog, name: 'HTTP');
-      firebase.log(bodyLog);
-    }
-
+    firebaseService.log(message);
     handler.next(response);
   }
-
-  @override
-  void onError(DioException err, ErrorInterceptorHandler handler) {
-    final method = err.requestOptions.method;
-    final uri = err.requestOptions.uri;
-    final statusCode = err.response?.statusCode;
-
-    final errorLog = [
-      'ERR',
-      method,
-      "${uri.origin}${uri.path}",
-      '=>',
-      if (statusCode != null) statusCode,
-      err.type,
-      if (err.message != null) err.message,
-    ].join(' ');
-
-    log(errorLog, name: 'HTTP', error: err.error, stackTrace: err.stackTrace);
-    firebase.log(errorLog);
-
-    if (err.response?.data != null && err.response?.data is String) {
-      final bodyLog =
-          "Response body (Error): ${_truncate(err.response!.data as String)}";
-      log(bodyLog, name: 'HTTP');
-      firebase.log(bodyLog);
-    }
-
-    handler.next(err);
-  }
-
-  dynamic _redact(dynamic data) {
-    if (data is Map) {
-      final redacted = Map<String, dynamic>.from(data);
-      const sensitiveKeys = {'mpassword', 'oldPassword', 'userPassword'};
-      for (final key in sensitiveKeys) {
-        if (redacted.containsKey(key)) {
-          redacted[key] = '***';
-        }
-      }
-      return redacted;
-    }
-    return data;
-  }
-
-  String _truncate(String s, [int max = 1000]) =>
-      s.length > max ? '${s.substring(0, max)}...' : s;
 }
 
 CookieJar? _cookieJar;
