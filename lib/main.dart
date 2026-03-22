@@ -108,7 +108,10 @@ Future<void> main() async {
   final authRepository = container.read(authRepositoryProvider);
   final user = await authRepository.getUser();
   final initialLocation = user != null ? AppRoutes.home : AppRoutes.intro;
-  final router = createAppRouter(initialLocation: initialLocation);
+  final router = createAppRouter(
+    initialLocation: initialLocation,
+    container: container,
+  );
 
   runApp(
     UncontrolledProviderScope(

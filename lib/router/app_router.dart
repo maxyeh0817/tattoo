@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:riverpod/riverpod.dart';
+import 'package:tattoo/repositories/auth_repository.dart';
 import 'package:tattoo/shells/animated_shell_container.dart';
 import 'package:tattoo/screens/main/home_screen.dart';
 import 'package:tattoo/screens/main/profile/about_screen.dart';
@@ -21,12 +23,33 @@ abstract class AppRoutes {
   static const about = '/about';
 }
 
+/// Bridges [authStatusProvider] to a [Listenable] for [GoRouter.refreshListenable].
+class _AuthRefreshListenable extends ChangeNotifier {
+  _AuthRefreshListenable(ProviderContainer container) {
+    container.listen(authStatusProvider, (_, _) => notifyListeners());
+  }
+}
+
+/// Routes that don't require authentication.
+const _publicRoutes = {AppRoutes.intro, AppRoutes.login, AppRoutes.about};
+
 /// Creates a configured [GoRouter] starting at [initialLocation].
+///
+/// Watches [authStatusProvider] via [refreshListenable] and redirects to
+/// [AppRoutes.login] when auth status becomes [AuthStatus.unauthenticated].
 GoRouter createAppRouter({
   required String initialLocation,
+  required ProviderContainer container,
 }) => GoRouter(
   navigatorKey: rootNavigatorKey,
   initialLocation: initialLocation,
+  refreshListenable: _AuthRefreshListenable(container),
+  redirect: (context, state) {
+    final authStatus = container.read(authStatusProvider);
+    if (authStatus != .unauthenticated) return null;
+    if (_publicRoutes.contains(state.matchedLocation)) return null;
+    return AppRoutes.login;
+  },
   observers: [
     if (firebaseService.analyticsObserver case final observer?) observer,
   ],
